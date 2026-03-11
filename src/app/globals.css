@@ -1,26 +1,233 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-handwriting: var(--font-handwriting);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Deep dark background for cohesive feel */
+  --background: #0a0a0a;
+  /* High-contrast soft white text */
+  --foreground: #ededed;
+  
+  --muted: #171717;
+  --muted-foreground: #a3a3a3;
+  
+  --border: #262626;
 }
+
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Lenis Scroll Overrides */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Clean text selection */
+::selection {
+  background: #ededed;
+  color: #0a0a0a;
+}
+
+
+/* Swiss Grid Base */
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+/* =========================================
+   CRT Matrix Effects 
+   ========================================= */
+
+.crt-screen {
+  background: #020204;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanlines */
+.crt-screen::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.06),
+    rgba(0, 255, 0, 0.02),
+    rgba(0, 0, 255, 0.06)
+  );
+  z-index: 50;
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Vignette / Screen curvature shadow */
+.crt-screen::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+  z-index: 51;
+  pointer-events: none;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+}
+
+/* Phosphor glow utilities */
+.phosphor-text {
+  color: #00ff41;
+  text-shadow: 0 0 2px rgba(0, 255, 65, 0.4), 0 0 8px rgba(0, 255, 65, 0.2);
+}
+
+.phosphor-dim {
+  color: #008f11;
+  text-shadow: 0 0 2px rgba(0, 143, 17, 0.3);
+}
+
+.phosphor-blue {
+  color: #00ffff;
+  text-shadow: 0 0 2px rgba(0, 255, 255, 0.4), 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.phosphor-red {
+  color: #ff003c;
+  text-shadow: 0 0 2px rgba(255, 0, 60, 0.4), 0 0 8px rgba(255, 0, 60, 0.2);
+}
+
+/* Custom CRT Scrollbar */
+.crt-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+.crt-scrollbar::-webkit-scrollbar-track {
+  background: #020204;
+  border-left: 1px solid rgba(0, 255, 65, 0.2);
+}
+.crt-scrollbar::-webkit-scrollbar-thumb {
+  background: #008f11;
+  border: 1px solid #020204;
+}
+.crt-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #00ff41;
+}
+
+/* Retro Image Filter */
+.retro-image {
+  filter: grayscale(100%) sepia(100%) hue-rotate(80deg) brightness(1.1) contrast(1.8);
+  mix-blend-mode: screen;
+}
+
+/* Flicker Animation */
+@keyframes flicker {
+  0%, 95% { opacity: 1; }
+  96% { opacity: 0.95; }
+  97% { opacity: 0.90; }
+  98% { opacity: 0.95; }
+  99%, 100% { opacity: 1; }
+}
+
+.flicker-effect {
+  animation: flicker 12s infinite;
+}
+
+/* =========================================
+   Interactive Details
+   ========================================= */
+
+/* Glitch on Enter */
+@keyframes crt-glitch {
+  0% { transform: translate(0); filter: contrast(1); }
+  20% { transform: translate(-3px, 1px); filter: contrast(1.2) hue-rotate(-10deg) drop-shadow(2px 0 0 red) drop-shadow(-2px 0 0 blue); }
+  40% { transform: translate(3px, -1px); filter: contrast(1.5) hue-rotate(10deg); }
+  60% { transform: translate(-1px, 3px); filter: contrast(0.8) hue-rotate(-5deg) drop-shadow(-2px 0 0 red) drop-shadow(2px 0 0 blue); }
+  80% { transform: translate(1px, -3px); filter: contrast(1.2) hue-rotate(5deg); }
+  100% { transform: translate(0); filter: contrast(1); }
+}
+
+.trigger-glitch {
+  animation: crt-glitch 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes scanline-jitter {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 8px; }
+}
+
+.trigger-glitch::before {
+  animation: scanline-jitter 0.05s infinite;
+}
+
+/* Power surge on keypress */
+.power-surge .phosphor-text {
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.8), 0 0 15px rgba(0, 255, 65, 0.6) !important;
+  color: #55ff77 !important;
+  transition: all 0.05s ease-out;
+}
+
+.power-surge .phosphor-dim {
+  text-shadow: 0 0 3px rgba(0, 143, 17, 0.5) !important;
+  color: #00cc18 !important;
+  transition: all 0.05s ease-out;
+}
+
+
+/* Blinking Block Caret */
+@keyframes blink-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.caret-block {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  background-color: #00ff41;
+  animation: blink-cursor 1s step-end infinite;
+  vertical-align: text-bottom;
+  box-shadow: 0 0 4px #00ff41;
 }

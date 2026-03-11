@@ -1,0 +1,50 @@
+---
+id: "project-6"
+title: "Stellar AI Copilot"
+category: "AI & Tools"
+year: "2024"
+client: "Stellar Labs"
+role: "Product Designer"
+coverImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop"
+description: "An AI-powered contextual assistant that seamlessly integrates into developers' workflow to boost productivity."
+---
+
+## The Design Challenge
+
+The challenge with AI tools is not just the model, but how gracefully they sit in the user's peripheral vision until needed. An AI copilot that disrupts flow is worse than no copilot at all.
+
+<ImageBlock
+  src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop"
+  caption="Inline command palette with contextual suggestions"
+/>
+
+## Interaction Modes
+
+We designed three distinct interaction modes, each with increasing levels of AI involvement:
+
+1. **Passive** — Subtle inline hints that appear only when the model has high-confidence suggestions
+2. **Active** — User invokes the copilot via command palette for specific tasks
+3. **Collaborative** — Extended multi-turn sessions for complex refactoring or architecture discussions
+
+## Context Engine
+
+```python
+class ContextEngine:
+    def gather(self, cursor_position: Position) -> Context:
+        return Context(
+            current_file=self.get_file_content(),
+            imports=self.resolve_imports(),
+            recent_edits=self.get_edit_history(limit=10),
+            project_structure=self.get_tree(depth=3),
+        )
+```
+
+<Callout type="tip">
+  We found that providing the AI with the last 10 edits (not just the current file) improved suggestion relevance by 34%.
+</Callout>
+
+## Key Metrics
+
+- **80%** suggestion acceptance rate (vs. 45% industry average)
+- **2.3x** developer productivity gain in code review tasks
+- **< 200ms** average suggestion latency

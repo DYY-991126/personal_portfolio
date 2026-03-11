@@ -1,0 +1,66 @@
+---
+id: "project-5"
+title: "Nexus Design System"
+category: "Design System"
+year: "2024"
+client: "Global Finance"
+role: "Design Lead"
+coverImage: "https://images.unsplash.com/photo-1507238692062-810feeea2f1e?q=80&w=2000&auto=format&fit=crop"
+description: "A comprehensive and scalable design system to unify dozens of internal tools and client-facing platforms."
+---
+
+## The Scale of the Problem
+
+Building a design system is like building a product for other designers and engineers. Token architecture and component API design were critical.
+
+Global Finance had 47 internal tools and 12 client-facing platforms, each with their own UI patterns. This fragmentation led to inconsistent user experiences and duplicated engineering effort.
+
+<ImageBlock
+  src="https://images.unsplash.com/photo-1507238692062-810feeea2f1e?q=80&w=2000&auto=format&fit=crop"
+  caption="Component library overview"
+/>
+
+## Token Architecture
+
+We built a three-tier token system that scales from brand-level decisions down to component-specific values:
+
+```typescript
+const tokens = {
+  global: {
+    "color-green-500": "#10b981",
+    "space-4": "16px",
+    "radius-md": "8px",
+  },
+  semantic: {
+    "color-success": "{global.color-green-500}",
+    "space-component-gap": "{global.space-4}",
+  },
+  component: {
+    "button-radius": "{semantic.radius-md}",
+    "button-padding": "{semantic.space-component-gap}",
+  },
+};
+```
+
+## Component API Principles
+
+<Columns cols={2}>
+  <div>
+    ### Composable
+    Components expose slots and render props for maximum flexibility without sacrificing consistency.
+  </div>
+  <div>
+    ### Accessible
+    Every component meets WCAG 2.1 AA standards out of the box, with AA+ patterns documented.
+  </div>
+</Columns>
+
+<Callout type="insight">
+  We measured adoption by tracking import counts across all codebases. Within 6 months, 89% of new UI code used Nexus components.
+</Callout>
+
+## Results
+
+- **89%** component adoption rate within 6 months
+- **60%** reduction in design-to-dev handoff time
+- **47 → 1** unified component library replacing fragmented implementations

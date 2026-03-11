@@ -1,0 +1,57 @@
+---
+id: "project-3"
+title: "Lumina Data Vis"
+category: "Web Application"
+year: "2023"
+client: "Lumina Analytics"
+role: "Frontend & UI"
+coverImage: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=2000&auto=format&fit=crop"
+description: "Interactive data visualization dashboard translating complex datasets into intuitive and actionable insights."
+---
+
+## The Data Problem
+
+We needed a way to display millions of data points without overwhelming the user. The existing solution used static charts that couldn't convey temporal patterns or correlations.
+
+<ImageBlock
+  src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=2000&auto=format&fit=crop"
+  caption="Dashboard overview with real-time data streams"
+/>
+
+## Architecture
+
+The visualization engine was built with a layered rendering approach:
+
+```typescript
+interface RenderPipeline {
+  dataLayer: WebGLRenderer;
+  annotationLayer: SVGRenderer;
+  interactionLayer: DOMOverlay;
+}
+
+const pipeline: RenderPipeline = {
+  dataLayer: new WebGLRenderer({ antialias: true }),
+  annotationLayer: new SVGRenderer(),
+  interactionLayer: new DOMOverlay({ captureEvents: true }),
+};
+```
+
+<Callout type="note">
+  By separating rendering into three layers, we achieved 60fps with datasets exceeding 2 million data points.
+</Callout>
+
+## Key Features
+
+- **Semantic zoom** — Different visualization types appear at different zoom levels
+- **Linked brushing** — Selections in one chart propagate across all views
+- **Real-time streaming** — WebSocket-based data ingestion with sub-100ms latency
+- **Adaptive density** — Automatic aggregation based on viewport and zoom level
+
+## Performance Results
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Max data points | 50K | 2M+ |
+| Frame rate | 15fps | 60fps |
+| Initial load | 8.2s | 1.4s |
+| Memory usage | 1.2GB | 340MB |
