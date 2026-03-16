@@ -102,11 +102,6 @@ export default function ImageBlock({
         {caption && (
           <figcaption className="text-sm text-muted-foreground text-center mt-6 font-medium">
             {caption}
-            {hasGallery && (
-              <span className="inline-block ml-2 text-[#A0522D]">
-                ← 点击放大，左右切换查看详情
-              </span>
-            )}
           </figcaption>
         )}
       </motion.figure>

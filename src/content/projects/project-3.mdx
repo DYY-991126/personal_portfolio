@@ -1,57 +1,282 @@
 ---
 id: "project-3"
-title: "Lumina Data Vis"
-category: "Web Application"
-year: "2023"
-client: "Lumina Analytics"
-role: "Frontend & UI"
-coverImage: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=2000&auto=format&fit=crop"
-description: "Interactive data visualization dashboard translating complex datasets into intuitive and actionable insights."
+title: "Agent 架构下的 0 到 1 产品设计"
+subtitle: "技术架构升级后的产品框架与对话流设计"
+year: "2025.10 – 2025.12"
+role: "产品设计师 & 架构参与"
+coverImage: "/projects/project-3/cover.jpg"
 ---
 
-## The Data Problem
+## Overview
 
-We needed a way to display millions of data points without overwhelming the user. The existing solution used static charts that couldn't convey temporal patterns or correlations.
+本项目记录 Wegic 2.0 技术架构从「双 AI 串联」升级为「单 AI Agent 模式切换」后，围绕 Agent 架构进行的 **0 到 1 产品设计**——包括产品框架定义、对话流设计、Tool Call 与 AI to UI 的引入，以及由此衍生的交互与体验设计。
 
-<ImageBlock
-  src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=2000&auto=format&fit=crop"
-  caption="Dashboard overview with real-time data streams"
-/>
+本项目与 Project 2（首次生成符合用户预期）在时间线上有交叉：Project 2 偏重「生成前沟通」业务侧的设计与落地，本项目偏重 **架构升级驱动的产品形态重构**，以及在此基础上的系统性产品设计。
 
-## Architecture
+---
 
-The visualization engine was built with a layered rendering approach:
+## 项目大背景：Wegic 1.0 → 2.0 重做
 
-```typescript
-interface RenderPipeline {
-  dataLayer: WebGLRenderer;
-  annotationLayer: SVGRenderer;
-  interactionLayer: DOMOverlay;
-}
+2025 年 9 月，Wegic 进行了组织结构调整，团队决定重做产品。原有版本为 1.0，我们将推出 2.0。
 
-const pipeline: RenderPipeline = {
-  dataLayer: new WebGLRenderer({ antialias: true }),
-  annotationLayer: new SVGRenderer(),
-  interactionLayer: new DOMOverlay({ captureEvents: true }),
-};
-```
+### 项目背景
 
-<Callout type="note">
-  By separating rendering into three layers, we achieved 60fps with datasets exceeding 2 million data points.
-</Callout>
+这次项目的根本动因是**产品底层架构的更新**。
 
-## Key Features
+此前产品采用 **Workflow 架构**，现已转变为 **Agent 架构**。底层技术架构的升级，带来了对 UI/UX 的必然调整——本项目即是因这一架构转变而进行的产品设计。
 
-- **Semantic zoom** — Different visualization types appear at different zoom levels
-- **Linked brushing** — Selections in one chart propagate across all views
-- **Real-time streaming** — WebSocket-based data ingestion with sub-100ms latency
-- **Adaptive density** — Automatic aggregation based on viewport and zoom level
+### 项目目标与设计策略
 
-## Performance Results
+本项目发生在产品 2.0 上线前，**时间紧、任务重、人员配置有限**。项目由**设计侧担任 Owner**，团队由设计、前端、后端组成，无产品经理参与，设计承担部分产品职责；能力侧作为相关人提供技术支持与咨询。
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Max data points | 50K | 2M+ |
-| Frame rate | 15fps | 60fps |
-| Initial load | 8.2s | 1.4s |
-| Memory usage | 1.2GB | 340MB |
+**核心目标分为两层：**
+
+1. **第一层**：让设计适配新的 Agent 技术架构——解决 Workflow → Agent 架构变迁带来的 UI/UX 不适配。
+2. **第二层**：利用 2.0 重做契机，对 1.0 因历史原因造成的**界面复杂、交互体验不佳**进行整体简化。
+
+**设计资源投入策略**：视觉层面**完全复用 1.0**，不做任何修改。设计重点集中在两处：(a) **AI 对话流**——适配 Agent 架构的对话流与信息呈现；(b) **界面框架简化**——降低复杂度，提升基础交互体验。目标是以低成本资源投入，完成 Wegic 2.0 的产品设计并上线。
+
+### 项目难点
+
+**1. 时间紧**
+
+项目从 2025 年 10 月中旬启动，要求在 **1 到 2 周内**交付完整的产品设计方案。
+
+**2. 团队缺乏 Agent 架构的产品设计经验，且人员紧张**
+
+### 项目结果
+
+虽然中途有所舍弃，部分非关键局部未开发完成，但**最终仍在规定时间内顺利上线**。
+
+---
+
+## 理解 Agent 架构：设计思维的转变
+
+Agent 架构和传统软件的设计思路不同。在进行模块重设计之前，我需要先理解这种差异。
+
+### 核心差异：确定性 vs 不确定性
+
+| 传统产品 | AI Agent 架构产品 |
+| --- | --- |
+| 流程和输出是相对确定性的 | 所有 output 都是不确定的 |
+| 设计时可以预知用户将看到什么、经历什么 | 无法预知 AI 会怎么做、会输出什么 |
+
+这种从「确定性」到「不确定性」的转变，对我来说是一次非常大的设计方式转变。因为没有这方面的经验，学习是不可避免的。
+
+### 学习路径
+
+1. **对话流调研**：快速看了 Lovable、HeyBoss、Kimi、Manus、Base44 等产品，做了一轮对话流设计调研。
+2. **与能力侧沟通**：跟能力侧技术负责人进行沟通学习，了解具体架构在产品内是如何运行的。
+3. **自学**：查询 AI 相关的资料，与 AI 进行问答，补齐理解。
+
+### Agent 架构的运作方式
+
+基于与能力侧的沟通和自学，我梳理出 AI Agent 架构的运作方式如下。
+
+**1. 主 Agent + Tools**
+
+用户消息进入**主 Agent（Kimmy）**。主脑在其下挂载 **Tools**——包括 Function Calling（如 readFile、searchReplace、genImage、managePlan 等）和 MCP 扩展（如 browser、firecrawl 等）。AI 基于任务和目标，自主决定调用哪些工具、何时调用、以及何时终止。
+
+**2. 任务委托（assign-task）与子角色**
+
+主 Agent 可将任务**委托**给专门的子角色：**researcher**（调研、文件操作、深度研究）和 **finder**（找文件、读文件、执行命令）。这与产品设计中的 IP 人格化相对应——用户看到的「Kimmy 在调研」「Timmy 在找文件」等，即对应这些子角色或工具组合的执行。
+
+**3. Skills 层**
+
+除 Tools 外，还有 **Skills**——更高层的领域能力封装，如 design（website、effect）、visual（hero_video、launch_video、gen_logo）等。Skills 通过 skill-enhance 与主流程打通，对应产品中用户可理解的「做设计」「生成视频」等任务概念。
+
+**4. 沙盒环境**
+
+用户及生成的代码都在沙盒内运行，不会影响外部前端代码，保证隔离与安全。
+
+**5. 典型 ReAct Agent 架构**
+
+ReAct（Reasoning + Acting）的核心是 **Thought → Action → Observation** 的循环：AI 先推理（Thought），决定调用哪个工具并执行（Action），观察执行结果（Observation），再基于结果决定下一步。每次观察都可能改变后续的推理与动作。
+
+以写代码为例：AI 先生成代码，调用 Search and Replace 工具，将需要替换的部分标注出来并替换。这就完成了一次工具调用。在一个任务中，AI 会**多次循环**（推理 → 调用 → 观察 → 再推理），直到自主判断任务完成。
+
+**6. 关键特性：并行并发，而非线性**
+
+**AI 调用工具是并行且并发的，而不是线性的。** 主 Agent 可同时调度多个 Tools、或 assign-task 给 researcher 与 finder 并行执行。多个工具可能同时被调度，执行顺序与前端展示顺序不一定一致。这一点给产品设计带来了预期之外的认知挑战。
+
+**7. 自主性与非确定性**
+
+Agent 何时停止、会调用多少次工具、是否委托子角色、中间是否调整计划——这些都由 AI 根据实时观察自主决定，而非预先定义的流程。**流程和步数都是不确定的**，这也是 Agent 架构与传统 Workflow 在设计思维上的根本差异。
+
+---
+
+## 界面框架简化与核心交互改变
+
+### 界面简化
+
+<div className="my-12 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 max-w-6xl">
+  <ImageBlock
+    src="/projects/project-3/UISturcture_O.png"
+    caption="Before：1.0 界面框架"
+    layout="full"
+    gallerySrcs="/projects/project-3/UISturcture_N.png"
+    galleryCaptions="After：2.0 界面框架"
+  />
+  <ImageBlock
+    src="/projects/project-3/UISturcture_N.png"
+    caption="After：2.0 界面框架"
+    layout="full"
+    gallerySrcs="/projects/project-3/UISturcture_O.png"
+    galleryCaptions="Before：1.0 界面框架"
+  />
+</div>
+
+因为 2.0 重做，我们撇去了 1.0 沉重的包袱，于是我们可以大刀阔斧地对产品进行界面简化。
+
+<FrameworkSimplificationTable />
+
+### 核心交互改变
+
+之前点击网页即可选中元素，并弹出该元素相关的一堆功能项；现在点击网页则是普通的点击效果（如点击链接、滚动等）。用户可以聚焦在更高层次上向 AI 发送指令，并轻易地预览 AI 修改后的效果——这里的「预览」既指「看」，也指「使用」。
+
+<div className="my-12 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 max-w-6xl">
+  <ImageBlock
+    src="/projects/project-3/UISturcture_V0_default.png"
+    caption="之前"
+    layout="full"
+    gallerySrcs="/projects/project-3/UISturcture_V0_model.png"
+    galleryCaptions="之后"
+  />
+  <ImageBlock
+    src="/projects/project-3/UISturcture_V0_model.png"
+    caption="之后"
+    layout="full"
+    gallerySrcs="/projects/project-3/UISturcture_V0_default.png"
+    galleryCaptions="之前"
+  />
+</div>
+
+---
+
+## AI 对话流设计
+
+面对 Agent 架构，核心设计命题是：**AI 的运行过程不确定、并行、多工具调用——如何在前端让用户感知 AI 正在干活，又不被复杂的系统信息淹没？**
+
+### 调研：信息暴露程度的光谱
+
+我快速调研了 Cursor、Lovable、HeyBoss、Manus 等产品，按「系统运行信息暴露给用户的程度」来排列，可以画出一条从低封装到高封装的轴：
+
+<GranularityAxis />
+
+- **封装程度低**（如 Cursor）：把运行过程全量暴露给用户，每一步工具调用、推理过程都可见
+- **封装程度高**（如 Lovable、HeyBoss、Manus）：对过程进行包装，只暴露局部、用户可理解的信息
+
+### 从目标用户出发：我们该落在哪里
+
+暴露运行过程固然能增加系统可见性，对建立用户信任有一定作用。但我的判断是：**我们的目标用户是小白用户，这个信任不需要在我们的产品内被构建。**
+
+小白用户不需要看到、理解 AI 的内部运行。他们关心的是 AI 输出的结果，而非过程信息。我们与小白用户之间的信任，应该来自一次又一次输出的好结果，以及专业的服务体验——而不是把 AI 的内部运行细节摊开来给他们看。
+
+因此，**我们的设计落在封装程度高的一端。**
+
+### 设计原则
+
+1. **不主动展示全量过程**：不主动向用户展示 AI 处理任务的全量过程信息。
+2. **只展示当前调用过程，并做概念包装**：只展示当前任务正在调用工具时的过程信息，并把这类信息用用户能理解的概念进行包装。让用户知道 AI 现在正在干活，而不是卡住了。
+3. **提供可探索的入口**：当用户希望了解 AI 实际在干什么时，提供一个自然、明显的入口，让他们可以查看到 AI 正在做什么。
+
+---
+
+### 方案推导
+
+#### 第一步：理解 AI 行为分类
+
+明确原则后，第一件事是想清楚 AI 到底会产生哪几类行为。AI 的本质只有两类动作：
+
+1. **普通文本回复**——无论是否在思考，输出都是纯文本，无需特殊设计。
+2. **调用 Skill 或 Tool 做事**——这是设计重点。
+
+<ChatPanelTwoTypesDemo />
+
+对于第二类行为，需要解决「如何封装并呈现给用户」的问题。
+
+#### 第二步：识别系统能力
+
+先梳理清楚系统里有哪些 Tools 和 Skills：
+
+| 类型 | 名称 |
+| --- | --- |
+| Tool | assignTaskTool、listDirectoryTool、readFileTool、writeFileTool、searchReplaceTool、genImageTool、editImageTool、genVideoTool、webSearchTool、deepResearchTool、managePlanTool、readLogTool、globTool、grepTool、execCommandTool、skill-enhance、firecrawl |
+| Skill | design（website、effect）、visual（hero_video、launch_video、gen_logo） |
+
+#### 第三步：封装——任务概念归类
+
+按照设计原则，用户不需要知道 AI 调用了什么工具，只需要知道 AI 正在做什么**任务**。
+
+我们将上述 Tools 和 Skills 按任务概念归类，当 AI 调用某个工具时，对外输出一个用户能理解的 description：
+
+| 任务概念 | 对应工具 | 负责 IP |
+| --- | --- | --- |
+| 找文件 | readFileTool、grepTool、listDirectoryTool、globTool | Timmy、Turi |
+| 做计划 / 更新计划 | managePlanTool | Kimmy |
+| 生成图片 | genImageTool | Kimmy |
+| 修改图片 | editImageTool | Kimmy |
+| 生成视频 | genVideoTool | Kimmy |
+| 做设计 | searchReplaceTool、execCommandTool、writeFileTool | Kimmy |
+| 调研 | firecrawl、deepResearchTool | Kimmy、Turi |
+| 测试 | readLogTool | Timmy |
+
+#### 第四步：IP 与任务动画
+
+每个任务概念对应一个专属 IP 形象，由它来负责这个任务的视觉呈现。IP 并非装饰性的，而是对底层 Agent 角色结构的映射——Kimmy 对应主 Agent（设计 / 产品方向），Timmy 对应工程类子角色，Turi 对应运营 / 研究类子角色。
+
+每个 IP 在执行对应任务时，会播放与任务语义匹配的动画，让用户在不理解技术细节的情况下，也能直观感知到「正在有人在帮我做事」。
+
+<TaskVideoGallery />
+
+#### 第五步：外层卡片设计
+
+至此，概念包装的底层逻辑已经完整。接下来要解决的是：**这些信息在卡片层面如何组织和呈现。**
+
+用户发送一条指令后，AI 开始执行。从接到指令到任务结束，中途所有的工具调用都**封装在一个卡片内**。这个卡片的设计原则是：**让用户感知到 AI 正在运行，而不是卡住了；同时不用关心运行细节。**
+
+卡片的具体呈现：
+
+- **进度条 + 百分比**：表达整体任务进度
+- **IP 头像 + 任务 description**：展示当前 AI 正在做什么，description 由 AI 调用工具时自动生成，用用户能理解的自然语言表述
+- **结果物（Work Product）**：description 下方展示该任务的产出——做计划时展示待办面板，写代码时展示代码流，生成图片时直接展示图片
+- **展开入口**：右侧提供展开按钮，进入 Wegic Studio 查看 AI 的全量运行记录
+
+<ProgressBarDemo />
+
+以上是进度卡片的完整形态。下方是嵌入对话流后的实际效果：
+
+<ChatPanelDemo />
+
+---
+
+### Wegic Studio：AI 全量工作记录
+
+虽然主要目标用户是小白用户，但数据观测中发现仍有一定比例的专业型用户。因此核心策略是：**默认直观，可选深入。**
+
+点击卡片右侧的展开按钮，进入 Wegic Studio 面板。这里呈现的是 AI 从接到用户指令开始、到任务结束为止的**完整工具调用记录**——所有并发运行的任务、各自的执行状态，以及具体的结果产出。
+
+<ToolCallCardPanelDemo />
+
+Studio 内部的每一条记录，对应一次工具调用的完整上下文：负责的 IP、任务类型、执行状态，以及对应的结果物。以下是全部卡片类型的示例：
+
+<ToolCallCardDemo1 />
+
+---
+
+## 整体界面框架展示
+
+2.0 的布局核心是**对话面板在左、网站预览在右**——用户进入页面时即可形成「以对话为驱动的建站软件」的直观认知；左侧对话、右侧预览的路径也让用户能即时看到 AI 的产出效果。
+
+以下为优化后的整体框架预览，左侧为已设计的对话流 UI，右侧为网站预览区（含 Preview / Publish 等操作入口）：
+
+<InterfaceFrameworkDemo />
+
+---
+
+## 项目结果
+
+项目最终**在规定时间内顺利上线**。尽管中途进行了优先级取舍，部分非核心模块在 2.0 首发时未能完整开发，但核心目标均已达成：界面框架完成简化，AI 对话流完整适配 Agent 架构，产品如期上线。
+
+上线后，Wegic 2.0 的核心业务转化表现显著优于 1.0——**核心转化指标较 1.0 版本提升超过一倍**。在资源有限、时间紧迫的条件下，聚焦核心体验、做出有效取舍，同样可以带来实质性的业务成果。
+

@@ -6,6 +6,26 @@ import InteractiveBlock from "./InteractiveBlock";
 import Gallery from "./Gallery";
 import Callout from "./Callout";
 import Columns from "./Columns";
+import ProcessFlow from "./ProcessFlow";
+import AssetFormMockup from "./AssetFormMockup";
+import ProgressBarDemo from "./ProgressBarDemo";
+import ChatPanelDemo from "./ChatPanelDemo";
+import ChatPanelTwoTypesDemo from "./ChatPanelTwoTypesDemo";
+import AgentTaskExpandPanel from "./AgentTaskExpandPanel";
+import ToolCallCardBase from "./ToolCallCardBase";
+import WorkProductDiagnosticsFiles from "./WorkProductDiagnosticsFiles";
+import ToolCallCardDemo1 from "./ToolCallCardDemo1";
+import ToolCallCardPanel from "./ToolCallCardPanel";
+import ToolCallCardPanelDemo from "./ToolCallCardPanelDemo";
+import WorkProductTodoCard from "./WorkProductTodoCard";
+import WorkProductImageGrid from "./WorkProductImageGrid";
+import WorkProductVideoGrid from "./WorkProductVideoGrid";
+import WorkProductResearchChips from "./WorkProductResearchChips";
+import WorkProductCodeStream from "./WorkProductCodeStream";
+import TaskVideoGallery from "./TaskVideoGallery";
+import FrameworkSimplificationTable from "./FrameworkSimplificationTable";
+import GranularityAxis from "./GranularityAxis";
+import InterfaceFrameworkDemo from "./InterfaceFrameworkDemo";
 
 export function getMDXComponents(): MDXComponents {
   return {
@@ -16,6 +36,26 @@ export function getMDXComponents(): MDXComponents {
     Gallery,
     Callout,
     Columns,
+    ProcessFlow,
+    AssetFormMockup,
+    ProgressBarDemo,
+    ChatPanelDemo,
+    ChatPanelTwoTypesDemo,
+    AgentTaskExpandPanel,
+    ToolCallCardBase,
+    WorkProductDiagnosticsFiles,
+    ToolCallCardDemo1,
+    ToolCallCardPanel,
+    ToolCallCardPanelDemo,
+    WorkProductTodoCard,
+    WorkProductImageGrid,
+    WorkProductVideoGrid,
+    WorkProductResearchChips,
+    WorkProductCodeStream,
+    TaskVideoGallery,
+    FrameworkSimplificationTable,
+    GranularityAxis,
+    InterfaceFrameworkDemo,
 
     // Override default HTML elements for consistent styling
     h2: (props) => {
@@ -119,7 +159,7 @@ export function getMDXComponents(): MDXComponents {
     ),
     th: (props) => (
       <th
-        className="text-left px-4 py-3 bg-muted/50 text-foreground font-semibold border-b border-border/30"
+        className="text-left px-4 py-3 bg-muted/50 text-foreground font-semibold border-b border-border/30 whitespace-nowrap"
         {...props}
       />
     ),

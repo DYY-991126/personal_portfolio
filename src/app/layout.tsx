@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Montserrat } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import SmoothScroll from "@/components/ui/SmoothScroll";
@@ -21,6 +21,12 @@ const caveat = Caveat({
   weight: ["400", "500", "600", "700"],
 });
 
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
 export const metadata: Metadata = {
   title: "Portfolio",
   description: "Minimalist professional portfolio with Swiss style",
@@ -34,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased selection:bg-foreground selection:text-background`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${montserrat.variable} antialiased selection:bg-foreground selection:text-background`}
       >
         <NoiseOverlay />
         <SmoothScroll>
