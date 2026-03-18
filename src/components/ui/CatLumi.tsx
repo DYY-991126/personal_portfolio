@@ -296,8 +296,6 @@ export function CatLumi({ containerWidth }: CatLumiProps) {
       className="absolute bottom-full left-0 mb-1 z-30 select-none pt-12 px-12 -mt-12 -mx-12"
       style={{ 
         transform: `translate(${positionX}px, 16px)`,
-        // 当鼠标悬停在猫咪（包括透明热区）身上时，也会变成逗猫棒
-        cursor: "url('/lumi/catWand_64.png') 8 8, auto"
       }}
       onMouseEnter={handleInteract}
       onClick={handleInteract}

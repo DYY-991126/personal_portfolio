@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat, Montserrat } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import NoiseOverlay from "@/components/ui/NoiseOverlay";
+import PixelCursor from "@/components/ui/PixelCursor";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -43,6 +43,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${montserrat.variable} antialiased selection:bg-foreground selection:text-background`}
       >
         <NoiseOverlay />
+        <PixelCursor />
         <SmoothScroll>
           <div className="min-h-screen flex flex-col relative z-10">
             {/* Main Content */}

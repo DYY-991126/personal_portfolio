@@ -382,12 +382,12 @@ export default function TerminalHero() {
 
   // ── Render ──
 
-  if (!mounted) return <div className="fixed inset-0 bg-[#020204]" />;
+  if (!mounted) return <div className="absolute inset-0 bg-[#020204]" />;
 
   return (
     <div
       onMouseLeave={() => setFocusedIdx(-1)}
-      className={`fixed inset-0 w-screen h-screen flex crt-screen overflow-hidden bg-[#020204] ${glitch ? "trigger-glitch" : "flicker-effect"} ${typing ? "power-surge" : ""}`}
+      className={`absolute inset-0 h-full w-full flex crt-screen overflow-hidden !bg-transparent ${glitch ? "trigger-glitch" : "flicker-effect"} ${typing ? "power-surge" : ""}`}
     >
       {/* CLI Panel */}
       <div className={`flex-1 flex flex-col font-mono text-sm sm:text-base h-full relative z-20 transition-all duration-700 ease-[0.16,1,0.3,1] ${hoveredProject ? "md:max-w-[50vw]" : "w-full"}`}>
