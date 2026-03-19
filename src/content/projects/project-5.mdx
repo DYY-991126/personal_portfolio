@@ -1,66 +1,25 @@
 ---
 id: "project-5"
-title: "Nexus Design System"
-category: "Design System"
+title: "围绕对象继续创作"
+subtitle: "白板编辑器中的快速创建与连接系统"
+category: "编辑器交互系统"
 year: "2024"
-client: "Global Finance"
-role: "Design Lead"
-coverImage: "https://images.unsplash.com/photo-1507238692062-810feeea2f1e?q=80&w=2000&auto=format&fit=crop"
-description: "A comprehensive and scalable design system to unify dozens of internal tools and client-facing platforms."
+client: "即时设计"
+role: "产品设计师（交互专项）"
+coverImage: "/project_cover/图像.jpg"
+description: "我在即时设计的白板 / 编辑器场景中，设计了一套围绕创建点展开的快速创建与连接系统，让用户在高频操作里更快地产生内容、建立关系，并在复杂画布中始终保持空间感与可控感。"
 ---
 
-## The Scale of the Problem
+<Project5QuickCreateCanvas />
 
-Building a design system is like building a product for other designers and engineers. Token architecture and component API design were critical.
+## 热区设计
 
-Global Finance had 47 internal tools and 12 client-facing platforms, each with their own UI patterns. This fragmentation led to inconsistent user experiences and duplicated engineering effort.
+控制点并不是常驻元素，而是由对象四周的热区激活。在这个原型阶段，我先把热区收束成最基础的结构：框体的上、右、下、左各有一条热区，并且当指针进入便签内部时，同样会触发四个控制点。
 
-<ImageBlock
-  src="https://images.unsplash.com/photo-1507238692062-810feeea2f1e?q=80&w=2000&auto=format&fit=crop"
-  caption="Component library overview"
-/>
+这样做的目的，是先把“围绕对象继续操作”的基本交互语义建立清楚。用户不需要非常精准地贴在某一条边上，只要进入对象四周或对象内部，系统都可以稳定触发控制点，减少“明明已经在附近，但系统却没有反应”的断裂感。
 
-## Token Architecture
+热区尺寸也不是固定值，而是由对象的宽高动态计算。当便签被放大、缩小或处于不同尺寸状态时，热区会同步跟随，保证触发范围始终与对象保持一致。
 
-We built a three-tier token system that scales from brand-level decisions down to component-specific values:
+**设计思考**
 
-```typescript
-const tokens = {
-  global: {
-    "color-green-500": "#10b981",
-    "space-4": "16px",
-    "radius-md": "8px",
-  },
-  semantic: {
-    "color-success": "{global.color-green-500}",
-    "space-component-gap": "{global.space-4}",
-  },
-  component: {
-    "button-radius": "{semantic.radius-md}",
-    "button-padding": "{semantic.space-component-gap}",
-  },
-};
-```
-
-## Component API Principles
-
-<Columns cols={2}>
-  <div>
-    ### Composable
-    Components expose slots and render props for maximum flexibility without sacrificing consistency.
-  </div>
-  <div>
-    ### Accessible
-    Every component meets WCAG 2.1 AA standards out of the box, with AA+ patterns documented.
-  </div>
-</Columns>
-
-<Callout type="insight">
-  We measured adoption by tracking import counts across all codebases. Within 6 months, 89% of new UI code used Nexus components.
-</Callout>
-
-## Results
-
-- **89%** component adoption rate within 6 months
-- **60%** reduction in design-to-dev handoff time
-- **47 → 1** unified component library replacing fragmented implementations
+这里真正要解决的不是“热区有没有”，而是“触发是否足够宽容，同时仍然可控”。如果热区过于机械，用户需要非常精准地贴着边缘移动，体验会显得紧张；如果完全依赖对象外侧的一层触发区，又容易在对象内部产生割裂感。通过让热区覆盖对象四周，并补充对象内部同样可触发的规则，可以先保证触发成功率和操作连续性，再逐步细化热区结构。

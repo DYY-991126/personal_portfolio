@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { isValidElement, type ReactNode } from "react";
 import ImageBlock from "./ImageBlock";
 import VideoBlock from "./VideoBlock";
 import { Pre } from "./CodeBlock";
@@ -26,6 +27,28 @@ import TaskVideoGallery from "./TaskVideoGallery";
 import FrameworkSimplificationTable from "./FrameworkSimplificationTable";
 import GranularityAxis from "./GranularityAxis";
 import InterfaceFrameworkDemo from "./InterfaceFrameworkDemo";
+import Project5SystemMap from "./Project5SystemMap";
+import Project5QuickCreateCanvas from "./Project5QuickCreateCanvas";
+import Project5CreationPointLab from "./Project5CreationPointLab";
+import Project5CreationModesDemo from "./Project5CreationModesDemo";
+import Project5ConnectionPriorityDemo from "./Project5ConnectionPriorityDemo";
+import Project5BoundaryStabilityDemo from "./Project5BoundaryStabilityDemo";
+
+function extractTextContent(children: ReactNode): string {
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+
+  if (Array.isArray(children)) {
+    return children.map(extractTextContent).join("");
+  }
+
+  if (isValidElement(children)) {
+    return extractTextContent(children.props.children as ReactNode);
+  }
+
+  return "";
+}
 
 export function getMDXComponents(): MDXComponents {
   return {
@@ -56,16 +79,16 @@ export function getMDXComponents(): MDXComponents {
     FrameworkSimplificationTable,
     GranularityAxis,
     InterfaceFrameworkDemo,
+    Project5SystemMap,
+    Project5QuickCreateCanvas,
+    Project5CreationPointLab,
+    Project5CreationModesDemo,
+    Project5ConnectionPriorityDemo,
+    Project5BoundaryStabilityDemo,
 
     // Override default HTML elements for consistent styling
     h2: (props) => {
-      const extractText = (children: any): string => {
-        if (typeof children === 'string') return children;
-        if (Array.isArray(children)) return children.map(extractText).join('');
-        if (children?.props?.children) return extractText(children.props.children);
-        return '';
-      };
-      const text = extractText(props.children);
+      const text = extractTextContent(props.children);
       const id = text ? text.toLowerCase().replace(/\s+/g, '-') : undefined;
       return (
         <h2
@@ -76,13 +99,7 @@ export function getMDXComponents(): MDXComponents {
       );
     },
     h3: (props) => {
-      const extractText = (children: any): string => {
-        if (typeof children === 'string') return children;
-        if (Array.isArray(children)) return children.map(extractText).join('');
-        if (children?.props?.children) return extractText(children.props.children);
-        return '';
-      };
-      const text = extractText(props.children);
+      const text = extractTextContent(props.children);
       const id = text ? text.toLowerCase().replace(/\s+/g, '-') : undefined;
       return (
         <h3

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type CursorMode = "default" | "interactive" | "text" | "drag";
 
@@ -28,6 +29,7 @@ const TEXT_SELECTOR = [
 ].join(", ");
 
 export default function PixelCursor() {
+  const pathname = usePathname();
   const cursorRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const targetRef = useRef({ x: -200, y: -200 });
@@ -36,8 +38,14 @@ export default function PixelCursor() {
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [mode, setMode] = useState<CursorMode>("default");
+  const shouldDisablePixelCursor = pathname.startsWith("/projects/");
 
   useEffect(() => {
+    if (shouldDisablePixelCursor) {
+      document.documentElement.classList.remove("has-pixel-cursor");
+      return;
+    }
+
     const media = window.matchMedia("(pointer: fine)");
     if (!media.matches) return;
 
@@ -111,7 +119,11 @@ export default function PixelCursor() {
       document.removeEventListener("mouseleave", handleLeave);
       document.removeEventListener("mouseenter", handleEnter);
     };
-  }, []);
+  }, [shouldDisablePixelCursor]);
+
+  if (shouldDisablePixelCursor) {
+    return null;
+  }
 
   return (
     <div
@@ -120,7 +132,13 @@ export default function PixelCursor() {
       aria-hidden="true"
     >
       <div className="pixel-cursor__shape">
-        <div className="pixel-cursor__glyph" />
+        <div className="pixel-cursor__glyph">
+          <span className="pixel-cursor__core" />
+          <span className="pixel-cursor__arm pixel-cursor__arm--up" />
+          <span className="pixel-cursor__arm pixel-cursor__arm--right" />
+          <span className="pixel-cursor__arm pixel-cursor__arm--down" />
+          <span className="pixel-cursor__arm pixel-cursor__arm--left" />
+        </div>
       </div>
       <div className="pixel-cursor__halo" />
     </div>
