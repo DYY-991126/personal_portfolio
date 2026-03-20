@@ -43,8 +43,8 @@ function extractTextContent(children: ReactNode): string {
     return children.map(extractTextContent).join("");
   }
 
-  if (isValidElement(children)) {
-    return extractTextContent(children.props.children as ReactNode);
+  if (isValidElement<{ children?: ReactNode }>(children)) {
+    return extractTextContent(children.props.children);
   }
 
   return "";

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Project5CanvasBoard from "./Project5CanvasBoard";
 import Project5CanvasNodeView from "./Project5CanvasNodeView";
 import Project5ConnectionLayer from "./Project5ConnectionLayer";
+import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
 import Project5ControlPoint from "./Project5ControlPoint";
 import Project5HeatZone from "./Project5HeatZone";
 import Project5MarqueeSelection from "./Project5MarqueeSelection";
@@ -686,6 +687,12 @@ export default function Project5QuickCreateCanvas() {
     }
 
     function handleViewportWheel(event: WheelEvent) {
+      const currentViewport = viewportRef.current;
+
+      if (!currentViewport) {
+        return;
+      }
+
       event.stopPropagation();
 
       if (event.ctrlKey) {
@@ -696,8 +703,8 @@ export default function Project5QuickCreateCanvas() {
       }
 
       event.preventDefault();
-      viewport.scrollLeft += event.deltaX;
-      viewport.scrollTop += event.deltaY;
+      currentViewport.scrollLeft += event.deltaX;
+      currentViewport.scrollTop += event.deltaY;
     }
 
     viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
@@ -834,6 +841,8 @@ export default function Project5QuickCreateCanvas() {
       return;
     }
 
+    const activeInteraction: InteractionState = interaction;
+
     function handlePointerMove(event: PointerEvent) {
       const worldPoint = getWorldPoint(event.clientX, event.clientY);
 
@@ -841,16 +850,18 @@ export default function Project5QuickCreateCanvas() {
         return;
       }
 
-      if (interaction.mode === "move") {
+      if (activeInteraction.mode === "move") {
+        const moveInteraction = activeInteraction;
+
         setNodes((currentNodes) =>
           currentNodes.map((currentNode) => {
-            if (!interaction.nodeIds.includes(currentNode.id)) {
+            if (!moveInteraction.nodeIds.includes(currentNode.id)) {
               return currentNode;
             }
 
-            const initialPosition = interaction.initialPositions.find((position) => position.id === currentNode.id);
-            const nextX = (initialPosition?.x ?? currentNode.x) + (worldPoint.x - interaction.pointerStartX);
-            const nextY = (initialPosition?.y ?? currentNode.y) + (worldPoint.y - interaction.pointerStartY);
+            const initialPosition = moveInteraction.initialPositions.find((position) => position.id === currentNode.id);
+            const nextX = (initialPosition?.x ?? currentNode.x) + (worldPoint.x - moveInteraction.pointerStartX);
+            const nextY = (initialPosition?.y ?? currentNode.y) + (worldPoint.y - moveInteraction.pointerStartY);
             const clampedPoint = clampNodeCenter(nextX, nextY, currentNode.width, currentNode.height);
 
             return {
@@ -863,11 +874,12 @@ export default function Project5QuickCreateCanvas() {
         return;
       }
 
-      if (interaction.mode === "marquee") {
-        const left = Math.min(interaction.startX, worldPoint.x);
-        const right = Math.max(interaction.startX, worldPoint.x);
-        const top = Math.min(interaction.startY, worldPoint.y);
-        const bottom = Math.max(interaction.startY, worldPoint.y);
+      if (activeInteraction.mode === "marquee") {
+        const marqueeInteraction = activeInteraction;
+        const left = Math.min(marqueeInteraction.startX, worldPoint.x);
+        const right = Math.max(marqueeInteraction.startX, worldPoint.x);
+        const top = Math.min(marqueeInteraction.startY, worldPoint.y);
+        const bottom = Math.max(marqueeInteraction.startY, worldPoint.y);
         const nextSelectedIds = getIntersectingNodeIds(nodes, left, top, right, bottom);
 
         setSelectedIds(nextSelectedIds);
@@ -877,48 +889,50 @@ export default function Project5QuickCreateCanvas() {
         setEditingNodeId(null);
         setShapePicker(null);
         setInteraction({
-          ...interaction,
+          ...marqueeInteraction,
           currentX: worldPoint.x,
           currentY: worldPoint.y,
         });
         return;
       }
 
-      if (interaction.mode === "connection") {
+      if (activeInteraction.mode === "connection") {
+        const connectionInteraction = activeInteraction;
         const hasMoved =
-          interaction.hasMoved ||
-          Math.hypot(worldPoint.x - interaction.startX, worldPoint.y - interaction.startY) * canvasZoom >=
+          connectionInteraction.hasMoved ||
+          Math.hypot(worldPoint.x - connectionInteraction.startX, worldPoint.y - connectionInteraction.startY) * canvasZoom >=
             CONNECTION_DRAG_THRESHOLD;
 
         setInteraction({
-          ...interaction,
+          ...connectionInteraction,
           currentX: worldPoint.x,
           currentY: worldPoint.y,
           hasMoved,
-          snappedTarget: findSnapTarget(nodes, interaction.sourceId, worldPoint, canvasZoom),
+          snappedTarget: findSnapTarget(nodes, connectionInteraction.sourceId, worldPoint, canvasZoom),
         });
         return;
       }
 
+      const resizeInteraction = activeInteraction;
       setNodes((currentNodes) =>
         currentNodes.map((currentNode) => {
-          if (currentNode.id !== interaction.id) {
+          if (currentNode.id !== resizeInteraction.id) {
             return currentNode;
           }
 
-          const width = Math.max(MIN_NODE_WIDTH, Math.abs(worldPoint.x - interaction.anchorX));
-          const targetHeight = width / interaction.aspectRatio;
+          const width = Math.max(MIN_NODE_WIDTH, Math.abs(worldPoint.x - resizeInteraction.anchorX));
+          const targetHeight = width / resizeInteraction.aspectRatio;
           const height = Math.max(MIN_NODE_HEIGHT, targetHeight);
-          const adjustedWidth = Math.max(MIN_NODE_WIDTH, height * interaction.aspectRatio);
+          const adjustedWidth = Math.max(MIN_NODE_WIDTH, height * resizeInteraction.aspectRatio);
 
           const centerX =
-            interaction.handle === "top-left" || interaction.handle === "bottom-left"
-              ? interaction.anchorX - adjustedWidth / 2
-              : interaction.anchorX + adjustedWidth / 2;
+            resizeInteraction.handle === "top-left" || resizeInteraction.handle === "bottom-left"
+              ? resizeInteraction.anchorX - adjustedWidth / 2
+              : resizeInteraction.anchorX + adjustedWidth / 2;
           const centerY =
-            interaction.handle === "top-left" || interaction.handle === "top-right"
-              ? interaction.anchorY - height / 2
-              : interaction.anchorY + height / 2;
+            resizeInteraction.handle === "top-left" || resizeInteraction.handle === "top-right"
+              ? resizeInteraction.anchorY - height / 2
+              : resizeInteraction.anchorY + height / 2;
           const clampedPoint = clampNodeCenter(centerX, centerY, adjustedWidth, height);
 
           return {
@@ -933,33 +947,34 @@ export default function Project5QuickCreateCanvas() {
     }
 
     function handlePointerUp(event: PointerEvent) {
-      if (interaction.mode === "marquee") {
+      if (activeInteraction.mode === "marquee") {
         ignoreNextCanvasClickRef.current = true;
         setInteraction(null);
         return;
       }
 
-      if (interaction.mode === "connection") {
+      if (activeInteraction.mode === "connection") {
+        const connectionInteraction = activeInteraction;
         ignoreNextCanvasClickRef.current = true;
 
-        const sourceNode = nodes.find((node) => node.id === interaction.sourceId);
+        const sourceNode = nodes.find((node) => node.id === connectionInteraction.sourceId);
 
         if (sourceNode) {
-          if (!interaction.hasMoved) {
+          if (!connectionInteraction.hasMoved) {
             createConnectedNode(
               sourceNode,
-              interaction.sourceDirection,
+              connectionInteraction.sourceDirection,
               sourceNode.type === "sticky-note" ? { type: "sticky-note" } : getDefaultShapeOption(sourceNode),
               undefined,
               sourceNode.type === "shape-text",
               false,
             );
-          } else if (interaction.snappedTarget) {
+          } else if (connectionInteraction.snappedTarget) {
             addConnection(
               sourceNode.id,
-              interaction.sourceDirection,
-              interaction.snappedTarget.nodeId,
-              interaction.snappedTarget.direction,
+              connectionInteraction.sourceDirection,
+              connectionInteraction.snappedTarget.nodeId,
+              connectionInteraction.snappedTarget.direction,
             );
             setControlsVisible(true);
             setHoveredControlDirection(null);
@@ -967,10 +982,10 @@ export default function Project5QuickCreateCanvas() {
           } else {
             openShapePicker(
               sourceNode,
-              interaction.sourceDirection,
+              connectionInteraction.sourceDirection,
               {
-                x: interaction.currentX,
-                y: interaction.currentY,
+                x: connectionInteraction.currentX,
+                y: connectionInteraction.currentY,
               },
               event.clientX,
               event.clientY,
@@ -1028,19 +1043,18 @@ export default function Project5QuickCreateCanvas() {
   }, [nodes, shapePicker]);
 
   const connectionLines = useMemo(() => {
-    const persistedLines = connections
-      .map((connection) => {
+    const persistedLines = connections.reduce<Project5ConnectionLine[]>((lines, connection) => {
         const sourceNode = nodes.find((node) => node.id === connection.sourceId);
         const targetNode = nodes.find((node) => node.id === connection.targetId);
 
         if (!sourceNode || !targetNode) {
-          return null;
+          return lines;
         }
 
         const sourceAnchor = getNodeConnectionPoint(sourceNode, connection.sourceDirection);
         const targetAnchor = getNodeConnectionPoint(targetNode, connection.targetDirection);
 
-        return {
+        lines.push({
           id: connection.id,
           sourceId: connection.sourceId,
           targetId: connection.targetId,
@@ -1050,9 +1064,10 @@ export default function Project5QuickCreateCanvas() {
           targetX: targetAnchor.x,
           targetY: targetAnchor.y,
           targetDirection: connection.targetDirection,
-        };
-      })
-      .filter(Boolean);
+        });
+
+        return lines;
+      }, []);
 
     if (interaction?.mode === "connection") {
       const sourceNode = nodes.find((node) => node.id === interaction.sourceId);

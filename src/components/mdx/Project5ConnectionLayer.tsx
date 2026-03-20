@@ -18,6 +18,8 @@ interface Project5ConnectionLine {
   dashed?: boolean;
 }
 
+export type { Project5ConnectionLine };
+
 interface Project5ConnectionLayerProps {
   width: number;
   height: number;

@@ -112,6 +112,10 @@ function ShapePickerIcon({ option }: { option: Project5CreateOption }) {
     );
   }
 
+  if (option.type !== "shape-text") {
+    return null;
+  }
+
   if (option.shapeKind === "start") {
     return (
       <div className="h-5.5 w-8 rounded-[10px] border-2 border-black" />
@@ -170,7 +174,7 @@ function isSameOption(option: Project5CreateOption, candidate: Project5CreateOpt
     return false;
   }
 
-  if (option.type === "sticky-note") {
+  if (option.type === "sticky-note" || candidate.type === "sticky-note") {
     return true;
   }
 
