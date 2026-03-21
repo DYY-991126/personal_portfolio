@@ -17,7 +17,7 @@ const ARROW_POINTER_HOTSPOT_X = 7;
 const ARROW_POINTER_HOTSPOT_Y = 5;
 const HAND_POINTER_HOTSPOT_X = 16;
 const HAND_POINTER_HOTSPOT_Y = 8;
-const CYCLE_DURATION = 5600;
+const CYCLE_DURATION = 3600;
 
 const SOURCE_NODE: Project5CanvasNode = {
   id: 1,
@@ -30,26 +30,26 @@ const SOURCE_NODE: Project5CanvasNode = {
   text: "当前对象",
 };
 
-const FIRST_CHILD: Project5CanvasNode = {
+const FIRST_DEFAULT_CHILD: Project5CanvasNode = {
   id: 2,
   type: "shape-text",
   shapeKind: "process",
-  x: 668,
+  x: 468,
   y: 108,
   width: 196,
   height: 82,
-  text: "第一次拖拽",
+  text: "默认创建",
 };
 
-const SECOND_CHILD: Project5CanvasNode = {
+const SECOND_DEFAULT_CHILD: Project5CanvasNode = {
   id: 3,
   type: "shape-text",
   shapeKind: "process",
-  x: 668,
+  x: 468,
   y: 242,
   width: 196,
   height: 82,
-  text: "后续创建",
+  text: "再次默认创建",
 };
 
 type Point = {
@@ -57,7 +57,7 @@ type Point = {
   y: number;
 };
 
-export default function Project5DistanceMemoryPanel() {
+export default function Project5DefaultDistancePanel() {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -75,83 +75,76 @@ export default function Project5DistanceMemoryPanel() {
   }, []);
 
   const sourceRight = SOURCE_NODE.x + SOURCE_NODE.width / 2;
-  const firstTargetLeft = FIRST_CHILD.x - FIRST_CHILD.width / 2;
-  const secondTargetLeft = SECOND_CHILD.x - SECOND_CHILD.width / 2;
-  const idlePointer = { x: 360, y: 238 };
+  const firstTargetLeft = FIRST_DEFAULT_CHILD.x - FIRST_DEFAULT_CHILD.width / 2;
+  const secondTargetLeft = SECOND_DEFAULT_CHILD.x - SECOND_DEFAULT_CHILD.width / 2;
+  const idlePointer = { x: 352, y: 234 };
   const controlPoint = { x: sourceRight + 18, y: SOURCE_NODE.y };
-  const firstDragPath = [
-    controlPoint,
-    { x: 342, y: 160 },
-    { x: 482, y: 132 },
-    { x: 602, y: 116 },
-    { x: firstTargetLeft + 10, y: FIRST_CHILD.y },
-  ];
-  const pointer = getPointerTarget(elapsed, idlePointer, controlPoint, firstDragPath);
-  const usesHandPointer = elapsed >= 760 && elapsed < 2480;
-  const showControlPoint = elapsed >= 3320;
-  const controlPointHovered = elapsed >= 3440 && elapsed < 3880;
-  const controlPointPressed = elapsed >= 3880 && elapsed < 4000;
-  const firstPreviewTarget =
-    elapsed < 2480
-      ? samplePath(firstDragPath, getSegmentProgress(elapsed, 760, 2480))
-      : firstDragPath[firstDragPath.length - 1];
-
-  const showFirstPreview = elapsed >= 760 && elapsed < 2480;
-  const showFirstCommitted = elapsed >= 2480;
-  const showSecondPreview = elapsed >= 3600 && elapsed < 3920;
-  const showSecondCommitted = elapsed >= 3920;
+  const usesHandPointer = (elapsed >= 760 && elapsed < 1840) || (elapsed >= 2480 && elapsed < 3560);
+  const showControlPoint = elapsed >= 520;
+  const controlPointHovered =
+    (elapsed >= 760 && elapsed < 1600) || (elapsed >= 2480 && elapsed < 3320);
+  const controlPointPressed =
+    (elapsed >= 1600 && elapsed < 1720) || (elapsed >= 3320 && elapsed < 3440);
+  const showFirstPreview = elapsed >= 1320 && elapsed < 1720;
+  const showFirstCreated = elapsed >= 1720;
+  const showSecondPreview = elapsed >= 3040 && elapsed < 3440;
+  const showSecondCreated = elapsed >= 3440;
+  const firstCreatedOpacity = showFirstCreated ? getSegmentProgress(elapsed, 1720, 2140) : 0;
+  const secondCreatedOpacity = showSecondCreated ? getSegmentProgress(elapsed, 3440, 3860) : 0;
 
   const lines: Project5ConnectionLine[] = [];
 
   if (showFirstPreview) {
     lines.push({
-      id: "distance-preview-first",
+      id: "default-distance-preview-first",
       sourceX: sourceRight,
       sourceY: SOURCE_NODE.y,
       sourceDirection: "right",
-      targetX: firstPreviewTarget.x,
-      targetY: firstPreviewTarget.y,
+      targetX: firstTargetLeft,
+      targetY: FIRST_DEFAULT_CHILD.y,
       targetDirection: "left",
       dashed: true,
     });
   }
 
-  if (showFirstCommitted) {
+  if (showFirstCreated) {
     lines.push({
-      id: "distance-first",
+      id: "default-distance-created-first",
       sourceX: sourceRight,
       sourceY: SOURCE_NODE.y,
       sourceDirection: "right",
       targetX: firstTargetLeft,
-      targetY: FIRST_CHILD.y,
+      targetY: FIRST_DEFAULT_CHILD.y,
       targetDirection: "left",
     });
   }
 
   if (showSecondPreview) {
     lines.push({
-      id: "distance-preview-second",
+      id: "default-distance-preview-second",
       sourceX: sourceRight,
       sourceY: SOURCE_NODE.y,
       sourceDirection: "right",
       targetX: secondTargetLeft,
-      targetY: SECOND_CHILD.y,
+      targetY: SECOND_DEFAULT_CHILD.y,
       targetDirection: "left",
       dashed: true,
     });
   }
 
-  if (showSecondCommitted) {
+  if (showSecondCreated) {
     lines.push({
-      id: "distance-second",
+      id: "default-distance-created-second",
       sourceX: sourceRight,
       sourceY: SOURCE_NODE.y,
       sourceDirection: "right",
       targetX: secondTargetLeft,
-      targetY: SECOND_CHILD.y,
+      targetY: SECOND_DEFAULT_CHILD.y,
       targetDirection: "left",
     });
   }
+
+  const pointer = getPointerTarget(elapsed, idlePointer, controlPoint);
 
   return (
     <div
@@ -184,9 +177,65 @@ export default function Project5DistanceMemoryPanel() {
         ) : null}
       </div>
 
-      {showFirstCommitted ? <Node node={FIRST_CHILD} /> : null}
-      {showSecondPreview ? <Node node={SECOND_CHILD} preview /> : null}
-      {showSecondCommitted ? <Node node={SECOND_CHILD} /> : null}
+      {showFirstPreview ? (
+        <div
+          className="absolute"
+          style={{
+            left: FIRST_DEFAULT_CHILD.x - FIRST_DEFAULT_CHILD.width / 2,
+            top: FIRST_DEFAULT_CHILD.y - FIRST_DEFAULT_CHILD.height / 2,
+            width: FIRST_DEFAULT_CHILD.width,
+            height: FIRST_DEFAULT_CHILD.height,
+            opacity: 0.72,
+          }}
+        >
+          <Project5ShapeTextNode node={FIRST_DEFAULT_CHILD} preview />
+        </div>
+      ) : null}
+
+      {showFirstCreated ? (
+        <div
+          className="absolute"
+          style={{
+            left: FIRST_DEFAULT_CHILD.x - FIRST_DEFAULT_CHILD.width / 2,
+            top: FIRST_DEFAULT_CHILD.y - FIRST_DEFAULT_CHILD.height / 2,
+            width: FIRST_DEFAULT_CHILD.width,
+            height: FIRST_DEFAULT_CHILD.height,
+            opacity: firstCreatedOpacity,
+          }}
+        >
+          <Project5ShapeTextNode node={FIRST_DEFAULT_CHILD} />
+        </div>
+      ) : null}
+
+      {showSecondPreview ? (
+        <div
+          className="absolute"
+          style={{
+            left: SECOND_DEFAULT_CHILD.x - SECOND_DEFAULT_CHILD.width / 2,
+            top: SECOND_DEFAULT_CHILD.y - SECOND_DEFAULT_CHILD.height / 2,
+            width: SECOND_DEFAULT_CHILD.width,
+            height: SECOND_DEFAULT_CHILD.height,
+            opacity: 0.72,
+          }}
+        >
+          <Project5ShapeTextNode node={SECOND_DEFAULT_CHILD} preview />
+        </div>
+      ) : null}
+
+      {showSecondCreated ? (
+        <div
+          className="absolute"
+          style={{
+            left: SECOND_DEFAULT_CHILD.x - SECOND_DEFAULT_CHILD.width / 2,
+            top: SECOND_DEFAULT_CHILD.y - SECOND_DEFAULT_CHILD.height / 2,
+            width: SECOND_DEFAULT_CHILD.width,
+            height: SECOND_DEFAULT_CHILD.height,
+            opacity: secondCreatedOpacity,
+          }}
+        >
+          <Project5ShapeTextNode node={SECOND_DEFAULT_CHILD} />
+        </div>
+      ) : null}
 
       <div
         className="pointer-events-none absolute z-20"
@@ -210,58 +259,28 @@ export default function Project5DistanceMemoryPanel() {
   );
 }
 
-function Node({ node, preview = false }: { node: Project5CanvasNode; preview?: boolean }) {
-  return (
-    <div
-      className="absolute"
-      style={{
-        left: node.x - node.width / 2,
-        top: node.y - node.height / 2,
-        width: node.width,
-        height: node.height,
-        opacity: preview ? 0.72 : 1,
-      }}
-    >
-      <Project5ShapeTextNode node={node} preview={preview} />
-    </div>
-  );
-}
-
-function getPointerTarget(
-  elapsed: number,
-  idlePointer: Point,
-  controlPoint: Point,
-  firstDragPath: Point[],
-) {
-  if (elapsed < 420) {
-    return idlePointer;
-  }
-
+function getPointerTarget(elapsed: number, idlePointer: Point, controlPoint: Point) {
+  if (elapsed < 420) return idlePointer;
   if (elapsed < 760) {
     return interpolatePoint(idlePointer, controlPoint, getSegmentProgress(elapsed, 420, 760));
   }
-
+  if (elapsed < 2160) {
+    return controlPoint;
+  }
   if (elapsed < 2480) {
-    return samplePath(firstDragPath, getSegmentProgress(elapsed, 760, 2480));
+    return interpolatePoint(controlPoint, idlePointer, getSegmentProgress(elapsed, 2160, 2480));
   }
-
-  if (elapsed < 2960) {
-    return firstDragPath[firstDragPath.length - 1];
+  if (elapsed < 2800) {
+    return interpolatePoint(idlePointer, controlPoint, getSegmentProgress(elapsed, 2480, 2800));
   }
-
-  if (elapsed < 3440) {
-    return interpolatePoint(firstDragPath[firstDragPath.length - 1], controlPoint, getSegmentProgress(elapsed, 2960, 3440));
-  }
-
-  if (elapsed < 3880) {
+  if (elapsed < 3560) {
     return controlPoint;
   }
-
-  if (elapsed < 4000) {
-    return controlPoint;
-  }
-
-  return controlPoint;
+  return interpolatePoint(
+    controlPoint,
+    { x: 580, y: 232 },
+    getSegmentProgress(elapsed, 3560, CYCLE_DURATION),
+  );
 }
 
 function getSegmentProgress(elapsed: number, start: number, end: number) {
@@ -274,33 +293,4 @@ function interpolatePoint(from: Point, to: Point, progress: number) {
     x: from.x + (to.x - from.x) * progress,
     y: from.y + (to.y - from.y) * progress,
   };
-}
-
-function samplePath(points: Point[], progress: number) {
-  if (points.length === 0) return { x: 0, y: 0 };
-  if (points.length === 1) return points[0];
-
-  const distances = points.slice(1).map((point, index) => {
-    const previous = points[index];
-    return Math.hypot(point.x - previous.x, point.y - previous.y);
-  });
-  const total = distances.reduce((sum, distance) => sum + distance, 0);
-
-  if (total === 0) return points[points.length - 1];
-
-  const targetDistance = total * Math.max(0, Math.min(1, progress));
-  let accumulated = 0;
-
-  for (let index = 0; index < distances.length; index += 1) {
-    const segmentLength = distances[index];
-
-    if (accumulated + segmentLength >= targetDistance) {
-      const localProgress = (targetDistance - accumulated) / segmentLength;
-      return interpolatePoint(points[index], points[index + 1], localProgress);
-    }
-
-    accumulated += segmentLength;
-  }
-
-  return points[points.length - 1];
 }

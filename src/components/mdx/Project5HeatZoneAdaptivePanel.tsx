@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Project5ControlPoint from "./Project5ControlPoint";
 import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
@@ -8,19 +8,69 @@ import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode, Project5Direction } from "./Project5CanvasNodeTypes";
 
 const BOARD_WIDTH = 760;
-const BOARD_HEIGHT = 360;
+const BOARD_HEIGHT = 340;
+const CYCLE_DURATION = 4200;
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(value, max));
 }
 
 export default function Project5HeatZoneAdaptivePanel() {
-  const [canvasZoom, setCanvasZoom] = useState(100);
-  const [nodeScale, setNodeScale] = useState(100);
-  const [active, setActive] = useState(true);
+  const [elapsed, setElapsed] = useState(0);
 
-  const zoom = canvasZoom / 100;
-  const scale = nodeScale / 100;
+  useEffect(() => {
+    let frameId = 0;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      setElapsed((now - start) % CYCLE_DURATION);
+      frameId = window.requestAnimationFrame(tick);
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
+
+  const progress = ((Math.sin((elapsed / CYCLE_DURATION) * Math.PI * 2 - Math.PI / 2) + 1) / 2);
+  const canvasZoom = Math.round(lerp(72, 136, progress));
+  const nodeScale = Math.round(lerp(76, 146, progress));
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <AdaptiveColumn
+        label="OBJECT SIZE"
+        value={nodeScale}
+        min={70}
+        max={150}
+        mode="object"
+      />
+      <AdaptiveColumn
+        label="CANVAS ZOOM"
+        value={canvasZoom}
+        min={70}
+        max={140}
+        mode="canvas"
+      />
+    </div>
+  );
+}
+
+function AdaptiveColumn({
+  label,
+  value,
+  min,
+  max,
+  mode,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  mode: "object" | "canvas";
+}) {
+  const zoom = mode === "canvas" ? value / 100 : 1;
+  const scale = mode === "object" ? value / 100 : 1;
   const width = 196 * scale;
   const height = 82 * scale;
   const topBottomThickness = clamp(height * 0.28, 28 / zoom, 52 / zoom);
@@ -32,10 +82,10 @@ export default function Project5HeatZoneAdaptivePanel() {
       type: "shape-text",
       shapeKind: "process",
       x: BOARD_WIDTH / 2,
-      y: BOARD_HEIGHT / 2 - 12,
+      y: BOARD_HEIGHT / 2,
       width,
       height,
-      text: "输入文本",
+      text: "当前对象",
     }),
     [height, width],
   );
@@ -44,12 +94,10 @@ export default function Project5HeatZoneAdaptivePanel() {
   const top = node.y - node.height / 2;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div
         className="relative overflow-hidden rounded-[24px] border border-border/20"
         style={{ ...PROJECT5_CANVAS_STYLE, width: "100%", minHeight: BOARD_HEIGHT }}
-        onMouseEnter={() => setActive(true)}
-        onMouseLeave={() => setActive(false)}
       >
         <div
           className="absolute left-1/2 top-1/2 origin-center"
@@ -59,21 +107,29 @@ export default function Project5HeatZoneAdaptivePanel() {
             transform: `translate(-50%, -50%) scale(${zoom})`,
           }}
         >
-          <div
-            className="absolute border border-[#ef4444]/35 bg-[#ef4444]/12"
-            style={{ left, top: top - topBottomThickness, width: node.width, height: topBottomThickness }}
+          <HeatZoneRect
+            left={left}
+            top={top - topBottomThickness}
+            width={node.width}
+            height={topBottomThickness}
           />
-          <div
-            className="absolute border border-[#ef4444]/35 bg-[#ef4444]/12"
-            style={{ left: left + node.width, top, width: leftRightThickness, height: node.height }}
+          <HeatZoneRect
+            left={left + node.width}
+            top={top}
+            width={leftRightThickness}
+            height={node.height}
           />
-          <div
-            className="absolute border border-[#ef4444]/35 bg-[#ef4444]/12"
-            style={{ left, top: top + node.height, width: node.width, height: topBottomThickness }}
+          <HeatZoneRect
+            left={left}
+            top={top + node.height}
+            width={node.width}
+            height={topBottomThickness}
           />
-          <div
-            className="absolute border border-[#ef4444]/35 bg-[#ef4444]/12"
-            style={{ left: left - leftRightThickness, top, width: leftRightThickness, height: node.height }}
+          <HeatZoneRect
+            left={left - leftRightThickness}
+            top={top}
+            width={leftRightThickness}
+            height={node.height}
           />
           <div
             className="absolute border border-[#f97316]/28 bg-[#f97316]/08"
@@ -86,66 +142,70 @@ export default function Project5HeatZoneAdaptivePanel() {
           >
             <Project5ShapeTextNode node={node} />
 
-            {active
-              ? (["top", "right", "bottom", "left"] as Project5Direction[]).map((direction) => (
-                  <Project5ControlPoint
-                    key={direction}
-                    direction={direction}
-                    iconVariant="arrow"
-                    top={
-                      direction === "top"
-                        ? -(16 / zoom + 28)
-                        : direction === "bottom"
-                          ? node.height + 16 / zoom
-                          : node.height / 2 - 14
-                    }
-                    left={
-                      direction === "left"
-                        ? -(16 / zoom + 28)
-                        : direction === "right"
-                          ? node.width + 16 / zoom
-                          : node.width / 2 - 14
-                    }
-                    onHoverStart={() => {}}
-                    onHoverEnd={() => {}}
-                  />
-                ))
-              : null}
+            {(["top", "right", "bottom", "left"] as Project5Direction[]).map((direction) => (
+              <Project5ControlPoint
+                key={direction}
+                direction={direction}
+                iconVariant="arrow"
+                top={
+                  direction === "top"
+                    ? -(16 / zoom + 28)
+                    : direction === "bottom"
+                      ? node.height + 16 / zoom
+                      : node.height / 2 - 14
+                }
+                left={
+                  direction === "left"
+                    ? -(16 / zoom + 28)
+                    : direction === "right"
+                      ? node.width + 16 / zoom
+                      : node.width / 2 - 14
+                }
+                onHoverStart={() => {}}
+                onHoverEnd={() => {}}
+              />
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <label className="rounded-[18px] border border-black/12 bg-white px-4 py-3">
-          <div className="mb-2 flex items-center justify-between text-xs tracking-[0.18em] text-black/55">
-            <span>CANVAS ZOOM</span>
-            <span>{canvasZoom}%</span>
-          </div>
-          <input
-            type="range"
-            min="70"
-            max="140"
-            value={canvasZoom}
-            onChange={(event) => setCanvasZoom(Number(event.target.value))}
-            className="w-full accent-black"
-          />
-        </label>
-
-        <label className="rounded-[18px] border border-black/12 bg-white px-4 py-3">
-          <div className="mb-2 flex items-center justify-between text-xs tracking-[0.18em] text-black/55">
-            <span>OBJECT SIZE</span>
-            <span>{nodeScale}%</span>
-          </div>
-          <input
-            type="range"
-            min="70"
-            max="150"
-            value={nodeScale}
-            onChange={(event) => setNodeScale(Number(event.target.value))}
-            className="w-full accent-black"
-          />
-        </label>
-      </div>
+      <label className="block rounded-[18px] border border-black/12 bg-white px-4 py-3">
+        <div className="mb-2 flex items-center justify-between text-xs tracking-[0.18em] text-black/55">
+          <span>{label}</span>
+          <span>{value}%</span>
+        </div>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={() => {}}
+          className="w-full accent-black"
+        />
+      </label>
     </div>
   );
+}
+
+function HeatZoneRect({
+  left,
+  top,
+  width,
+  height,
+}: {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}) {
+  return (
+    <div
+      className="absolute border border-[#ef4444]/35 bg-[#ef4444]/12"
+      style={{ left, top, width, height }}
+    />
+  );
+}
+
+function lerp(from: number, to: number, progress: number) {
+  return from + (to - from) * progress;
 }

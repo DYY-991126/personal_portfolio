@@ -583,7 +583,29 @@ export default function Project5QuickCreateCanvas() {
         } satisfies AutoConnectTarget;
       })
       .filter((candidate): candidate is AutoConnectTarget => candidate !== null)
-      .sort((candidateA, candidateB) => candidateA.score - candidateB.score);
+      .sort((candidateA, candidateB) => {
+        const scoreDifference = candidateA.score - candidateB.score;
+
+        if (scoreDifference !== 0) {
+          return scoreDifference;
+        }
+
+        if (sourceDirection === "right" || sourceDirection === "left") {
+          const verticalDifference = candidateA.anchorY - candidateB.anchorY;
+
+          if (verticalDifference !== 0) {
+            return verticalDifference;
+          }
+        } else {
+          const horizontalDifference = candidateA.anchorX - candidateB.anchorX;
+
+          if (horizontalDifference !== 0) {
+            return horizontalDifference;
+          }
+        }
+
+        return candidateA.node.id - candidateB.node.id;
+      });
 
     return candidates[0] ?? null;
   }, [connections, nodes]);

@@ -8,7 +8,27 @@ import {
   Project5ToggleButton,
 } from "./Project5DemoFrame";
 
-type Scenario = "pan" | "zoom" | "collision" | "snap";
+type Scenario = "pan" | "zoom" | "collision" | "snap" | "offscreen";
+
+export function Project5BoundaryPanPanel() {
+  return <BoundaryScenarioPanel scenario="pan" />;
+}
+
+export function Project5BoundaryZoomPanel() {
+  return <BoundaryScenarioPanel scenario="zoom" />;
+}
+
+export function Project5BoundaryCollisionPanel() {
+  return <BoundaryScenarioPanel scenario="collision" />;
+}
+
+export function Project5BoundarySnapPanel() {
+  return <BoundaryScenarioPanel scenario="snap" />;
+}
+
+export function Project5BoundaryOffscreenPanel() {
+  return <BoundaryScenarioPanel scenario="offscreen" />;
+}
 
 export default function Project5BoundaryStabilityDemo() {
   const [scenario, setScenario] = useState<Scenario>("pan");
@@ -53,105 +73,7 @@ export default function Project5BoundaryStabilityDemo() {
       }
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="overflow-x-auto">
-          <div
-            className="relative min-h-[380px] min-w-[560px] overflow-hidden rounded-[24px] border border-border/20"
-            style={PROJECT5_CANVAS_STYLE}
-          >
-          {scenario === "pan" && (
-            <>
-              <div className="absolute left-[72px] top-[54px] h-[260px] w-[430px] rounded-[28px] border border-[#ef4444]/18 bg-[#ef4444]/6" />
-              <div className="absolute left-[40px] top-[54px] h-[260px] w-[430px] rounded-[28px] border-2 border-[#1f8ef1]/35 bg-transparent" />
-              <div className="absolute left-[300px] top-[144px] h-[116px] w-[116px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
-                <div className="flex h-full flex-col justify-between p-4">
-                  <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
-                  <p className="text-xs text-white/70">原本靠近右边界</p>
-                </div>
-              </div>
-              <div className="absolute left-[446px] top-[152px] h-[116px] w-[116px] rounded-[24px] bg-[#f3c6ff] text-[#6e2478] shadow-sm">
-                <div className="flex h-full flex-col justify-between p-4">
-                  <p className="text-sm font-semibold tracking-[0.12em]">新节点</p>
-                  <p className="text-xs text-[#6e2478]/70">通过平移视角纳入可见区</p>
-                </div>
-              </div>
-              <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
-                <path d="M 410 205 L 446 205" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
-                <path d="M 148 40 L 104 40" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
-                <path d="M 104 40 L 120 28" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
-                <path d="M 104 40 L 120 52" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-            </>
-          )}
-
-          {scenario === "zoom" && (
-            <>
-              <div className="absolute left-[72px] top-[46px] h-[280px] w-[432px] rounded-[28px] border border-[#ef4444]/18 bg-[#ef4444]/6" />
-              <div className="absolute left-[132px] top-[74px] h-[212px] w-[308px] rounded-[28px] border-2 border-[#1f8ef1]/35 bg-transparent" />
-              {[0, 1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className="absolute left-[88px] h-[82px] w-[108px] rounded-[20px] bg-[#f3c6ff] text-[#6e2478] shadow-sm"
-                  style={{ top: 76 + index * 68 }}
-                />
-              ))}
-              <div className="absolute left-[284px] top-[76px] h-[108px] w-[108px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
-                <div className="flex h-full flex-col justify-between p-4">
-                  <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
-                  <p className="text-xs text-white/70">缩小视角以保留边距</p>
-                </div>
-              </div>
-              <div className="absolute left-[286px] top-[210px] h-[108px] w-[108px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
-            </>
-          )}
-
-          {scenario === "collision" && (
-            <>
-              <div className="absolute left-[232px] top-[42px] h-[108px] w-[108px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
-                <div className="flex h-full flex-col justify-between p-4">
-                  <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
-                  <p className="text-xs text-white/70">默认向下创建</p>
-                </div>
-              </div>
-              <div className="absolute left-[94px] top-[214px] h-[112px] w-[112px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
-              <div className="absolute left-[354px] top-[214px] h-[112px] w-[112px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
-              <div className="absolute left-[232px] top-[216px] h-[112px] w-[112px] rounded-[24px] border-2 border-dashed border-[#1f8ef1]/35 bg-[#1f8ef1]/12" />
-              <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
-                <path
-                  d="M 286 150 C 286 180, 286 196, 286 216"
-                  fill="none"
-                  stroke="#111827"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute left-[228px] top-[334px] rounded-full bg-white/92 px-4 py-2 text-xs text-muted-foreground shadow-sm">
-                间距足够时落在中间；不足时继续避让
-              </div>
-            </>
-          )}
-
-            {scenario === "snap" && (
-              <>
-                <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(to right, rgba(31,142,241,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(31,142,241,0.14) 1px, transparent 1px)", backgroundSize: "48px 48px" }} />
-                <div className="absolute left-[170px] top-[100px] h-[116px] w-[116px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
-                  <div className="flex h-full flex-col justify-between p-4">
-                    <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
-                    <p className="text-xs text-white/70">已对齐网格</p>
-                  </div>
-                </div>
-                <div className="absolute left-[334px] top-[100px] h-[116px] w-[116px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm">
-                  <div className="flex h-full flex-col justify-between p-4">
-                    <p className="text-sm font-semibold tracking-[0.12em]">新节点</p>
-                    <p className="text-xs text-[#5e4a08]/80">继承同一网格节奏</p>
-                  </div>
-                </div>
-                <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
-                  <path d="M 286 158 L 334 158" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-              </>
-            )}
-          </div>
-        </div>
+        <BoundaryScenarioPanel scenario={scenario} />
 
         <div className="space-y-4">
           <div className="rounded-[24px] border border-border/30 bg-muted/20 p-5">
@@ -181,5 +103,140 @@ export default function Project5BoundaryStabilityDemo() {
         </div>
       </div>
     </Project5DemoFrame>
+  );
+}
+
+function BoundaryScenarioPanel({ scenario }: { scenario: Scenario }) {
+  return (
+    <div className="overflow-x-auto">
+      <div
+        className="relative min-h-[380px] min-w-[560px] overflow-hidden rounded-[24px] border border-border/20"
+        style={PROJECT5_CANVAS_STYLE}
+      >
+        {scenario === "pan" && (
+          <>
+            <div className="absolute left-[72px] top-[54px] h-[260px] w-[430px] rounded-[28px] border border-[#ef4444]/18 bg-[#ef4444]/6" />
+            <div className="absolute left-[40px] top-[54px] h-[260px] w-[430px] rounded-[28px] border-2 border-[#1f8ef1]/35 bg-transparent" />
+            <div className="absolute left-[300px] top-[144px] h-[116px] w-[116px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
+                <p className="text-xs text-white/70">原本靠近右边界</p>
+              </div>
+            </div>
+            <div className="absolute left-[446px] top-[152px] h-[116px] w-[116px] rounded-[24px] bg-[#f3c6ff] text-[#6e2478] shadow-sm">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.12em]">新节点</p>
+                <p className="text-xs text-[#6e2478]/70">通过平移视角纳入可见区</p>
+              </div>
+            </div>
+            <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <path d="M 410 205 L 446 205" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
+              <path d="M 148 40 L 104 40" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M 104 40 L 120 28" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M 104 40 L 120 52" stroke="#1f8ef1" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+          </>
+        )}
+
+        {scenario === "zoom" && (
+          <>
+            <div className="absolute left-[72px] top-[46px] h-[280px] w-[432px] rounded-[28px] border border-[#ef4444]/18 bg-[#ef4444]/6" />
+            <div className="absolute left-[132px] top-[74px] h-[212px] w-[308px] rounded-[28px] border-2 border-[#1f8ef1]/35 bg-transparent" />
+            {[0, 1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="absolute left-[88px] h-[82px] w-[108px] rounded-[20px] bg-[#f3c6ff] text-[#6e2478] shadow-sm"
+                style={{ top: 76 + index * 68 }}
+              />
+            ))}
+            <div className="absolute left-[284px] top-[76px] h-[108px] w-[108px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
+                <p className="text-xs text-white/70">缩小视角以保留边距</p>
+              </div>
+            </div>
+            <div className="absolute left-[286px] top-[210px] h-[108px] w-[108px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
+          </>
+        )}
+
+        {scenario === "collision" && (
+          <>
+            <div className="absolute left-[232px] top-[42px] h-[108px] w-[108px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
+                <p className="text-xs text-white/70">默认向下创建</p>
+              </div>
+            </div>
+            <div className="absolute left-[94px] top-[214px] h-[112px] w-[112px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
+            <div className="absolute left-[354px] top-[214px] h-[112px] w-[112px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm" />
+            <div className="absolute left-[232px] top-[216px] h-[112px] w-[112px] rounded-[24px] border-2 border-dashed border-[#1f8ef1]/35 bg-[#1f8ef1]/12" />
+            <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <path
+                d="M 286 150 C 286 180, 286 196, 286 216"
+                fill="none"
+                stroke="#111827"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute left-[228px] top-[334px] rounded-full bg-white/92 px-4 py-2 text-xs text-muted-foreground shadow-sm">
+              间距足够时落在中间；不足时继续避让
+            </div>
+          </>
+        )}
+
+        {scenario === "snap" && (
+          <>
+            <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(to right, rgba(31,142,241,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(31,142,241,0.14) 1px, transparent 1px)", backgroundSize: "48px 48px" }} />
+            <div className="absolute left-[170px] top-[100px] h-[116px] w-[116px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
+                <p className="text-xs text-white/70">已对齐网格</p>
+              </div>
+            </div>
+            <div className="absolute left-[334px] top-[100px] h-[116px] w-[116px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.12em]">新节点</p>
+                <p className="text-xs text-[#5e4a08]/80">继承同一网格节奏</p>
+              </div>
+            </div>
+            <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <path d="M 286 158 L 334 158" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </>
+        )}
+
+        {scenario === "offscreen" && (
+          <>
+            <div className="absolute left-[72px] top-[58px] h-[260px] w-[416px] rounded-[28px] border-2 border-[#1f8ef1]/32 bg-transparent" />
+            <div className="absolute left-[208px] top-[144px] h-[108px] w-[108px] rounded-[24px] bg-[#1f8ef1] text-white shadow-[0_20px_50px_rgba(31,142,241,0.25)]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.18em]">源节点</p>
+                <p className="text-xs text-white/70">当前可视区内</p>
+              </div>
+            </div>
+            <div className="absolute left-[462px] top-[146px] h-[108px] w-[108px] rounded-[24px] border border-dashed border-[#ef4444]/45 bg-[#ef4444]/8 text-[#7f1d1d]">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.12em]">已有对象</p>
+                <p className="text-xs text-[#7f1d1d]/72">完全在可视区外</p>
+              </div>
+            </div>
+            <div className="absolute left-[360px] top-[144px] h-[108px] w-[108px] rounded-[24px] bg-[#ffd95f] text-[#5e4a08] shadow-sm">
+              <div className="flex h-full flex-col justify-between p-4">
+                <p className="text-sm font-semibold tracking-[0.12em]">新节点</p>
+                <p className="text-xs text-[#5e4a08]/80">回退为新建</p>
+              </div>
+            </div>
+            <svg viewBox="0 0 560 380" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <path d="M 316 198 L 360 198" stroke="#111827" strokeWidth="3" strokeLinecap="round" />
+              <path d="M 488 54 L 488 322" stroke="#ef4444" strokeWidth="2" strokeDasharray="8 8" opacity="0.45" />
+            </svg>
+            <div className="absolute left-[86px] top-[30px] rounded-full bg-white/92 px-4 py-2 text-xs text-muted-foreground shadow-sm">
+              完全出视区的对象，不参与连接判断
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
