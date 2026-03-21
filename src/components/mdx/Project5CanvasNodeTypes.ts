@@ -1,6 +1,8 @@
 export type Project5Direction = "top" | "right" | "bottom" | "left";
 
-export type Project5NodeType = "sticky-note" | "shape-text";
+export type Project5ToolType = "pencil" | "highlighter";
+
+export type Project5NodeType = "sticky-note" | "shape-text" | Project5ToolType;
 
 export type Project5ShapeKind = "start" | "process" | "decision" | "database";
 
@@ -36,6 +38,11 @@ export const PROJECT5_SHAPE_DEFAULT_SIZE: Record<Project5ShapeKind, { width: num
   database: { width: 184, height: 94 },
 };
 
+export const PROJECT5_TOOL_SIZE: Record<Project5ToolType, { width: number; height: number }> = {
+  pencil: { width: 196, height: 36 },
+  highlighter: { width: 176, height: 44 },
+};
+
 export function createStickyNoteNode(id: number, x: number, y: number, text = "输入文本"): Project5CanvasNode {
   return {
     id,
@@ -66,5 +73,24 @@ export function createShapeTextNode(
     width: size.width,
     height: size.height,
     text: text ?? "输入文本",
+  };
+}
+
+export function createToolNode(
+  id: number,
+  x: number,
+  y: number,
+  toolType: Project5ToolType,
+): Project5CanvasNode {
+  const size = PROJECT5_TOOL_SIZE[toolType];
+
+  return {
+    id,
+    type: toolType,
+    x,
+    y,
+    width: size.width,
+    height: size.height,
+    text: "",
   };
 }

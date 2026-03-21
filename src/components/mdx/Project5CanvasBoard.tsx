@@ -7,8 +7,11 @@ import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
 interface Project5CanvasBoardProps {
   children: ReactNode;
   overlay?: ReactNode;
+  floatingToolbar?: ReactNode;
   onClick: () => void;
   onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerLeave?: () => void;
   zoom: number;
   baseWidth: number;
   baseHeight: number;
@@ -22,8 +25,11 @@ interface Project5CanvasBoardProps {
 export default function Project5CanvasBoard({
   children,
   overlay,
+  floatingToolbar,
   onClick,
   onPointerDown,
+  onPointerMove,
+  onPointerLeave,
   zoom,
   baseWidth,
   baseHeight,
@@ -44,6 +50,8 @@ export default function Project5CanvasBoard({
         style={PROJECT5_CANVAS_STYLE as CSSProperties}
         onClick={onClick}
         onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.78),transparent_42%)]" />
         <div
@@ -100,6 +108,8 @@ export default function Project5CanvasBoard({
           <Plus className="h-4 w-4" />
         </button>
       </div>
+
+      {floatingToolbar}
 
       {overlay ? (
         <div className="pointer-events-none absolute inset-0 z-40">

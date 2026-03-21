@@ -14,18 +14,20 @@ interface Project5ControlPointProps {
   left: number;
   top: number;
   iconVariant?: "plus" | "arrow";
+  forcedHovered?: boolean;
   onClick?: () => void;
   onPointerDown?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   onHoverStart: () => void;
   onHoverEnd: () => void;
 }
 
-const CONTROL_POINT_HOVER_SIZE = 28;
+const CONTROL_POINT_VISUAL_SIZE = 28;
 export default function Project5ControlPoint({
   direction,
   left,
   top,
   iconVariant = "plus",
+  forcedHovered = false,
   onClick,
   onPointerDown,
   onHoverStart,
@@ -46,15 +48,15 @@ export default function Project5ControlPoint({
       style={{
         left,
         top,
-        width: CONTROL_POINT_HOVER_SIZE,
-        height: CONTROL_POINT_HOVER_SIZE,
+        width: CONTROL_POINT_VISUAL_SIZE,
+        height: CONTROL_POINT_VISUAL_SIZE,
       }}
     >
       <button
         type="button"
         data-create-handle="true"
         aria-label={`${direction} control point`}
-        className="group pointer-events-auto absolute left-1/2 top-1/2 flex h-[28px] w-[28px] -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-transparent"
+        className="group pointer-events-auto absolute left-1/2 top-1/2 flex h-[40px] w-[40px] -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-transparent"
         onClick={(event) => {
           if (!onClick) {
             return;
@@ -75,15 +77,24 @@ export default function Project5ControlPoint({
         onMouseEnter={onHoverStart}
         onMouseLeave={onHoverEnd}
       >
+        <span className="absolute h-[40px] w-[40px] rounded-full bg-transparent" />
         <span
-          className="absolute h-[14px] w-[14px] rounded-full border-[2px] border-white bg-[#2563eb] transition-[width,height,background-color,border-color] duration-150 ease-out group-hover:h-[28px] group-hover:w-[28px] group-hover:border-[#2563eb] group-hover:bg-white"
+          className={`absolute rounded-full border-[2px] transition-[width,height,background-color,border-color] duration-150 ease-out ${
+            forcedHovered
+              ? "h-[28px] w-[28px] border-[#2563eb] bg-white"
+              : "h-[14px] w-[14px] border-white bg-[#2563eb] group-hover:h-[28px] group-hover:w-[28px] group-hover:border-[#2563eb] group-hover:bg-white"
+          }`}
         />
         {iconVariant === "plus" ? (
-          <span className="absolute text-[15px] font-medium leading-none text-[#2563eb] opacity-0 transition-opacity duration-100 group-hover:opacity-100">
+          <span className={`absolute text-[15px] font-medium leading-none text-[#2563eb] transition-opacity duration-100 ${
+            forcedHovered ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          }`}>
             +
           </span>
         ) : (
-          <ArrowIcon className="absolute h-4 w-4 text-[#2563eb] opacity-0 transition-opacity duration-100 group-hover:opacity-100" />
+          <ArrowIcon className={`absolute h-4 w-4 text-[#2563eb] transition-opacity duration-100 ${
+            forcedHovered ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          }`} />
         )}
       </button>
     </div>

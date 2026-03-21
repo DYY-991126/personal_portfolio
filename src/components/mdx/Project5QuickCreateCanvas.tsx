@@ -6,12 +6,14 @@ import Project5CanvasNodeView from "./Project5CanvasNodeView";
 import Project5ConnectionLayer from "./Project5ConnectionLayer";
 import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
 import Project5ControlPoint from "./Project5ControlPoint";
+import Project5FloatingToolbar from "./Project5FloatingToolbar";
 import Project5HeatZone from "./Project5HeatZone";
 import Project5MarqueeSelection from "./Project5MarqueeSelection";
 import Project5SelectionFrame, {
   type Project5ResizeHandle,
 } from "./Project5SelectionFrame";
 import Project5ShapeCreatePanel from "./Project5ShapeCreatePanel";
+import Project5StrokeLayer, { type Project5Stroke } from "./Project5StrokeLayer";
 import {
   PROJECT5_SHAPE_DEFAULT_SIZE,
   PROJECT5_STICKY_NOTE_SIZE,
@@ -70,6 +72,12 @@ interface ConnectionInteraction {
   snappedTarget: ConnectionTarget | null;
 }
 
+interface DrawInteraction {
+  mode: "draw";
+  strokeId: number;
+  tool: "pencil" | "highlighter";
+}
+
 interface Project5Connection {
   id: number;
   sourceId: number;
@@ -88,11 +96,20 @@ interface ShapePickerState {
   hoveredOption: Project5CreateOption;
 }
 
+interface AutoConnectTarget {
+  node: Project5CanvasNode;
+  targetDirection: Project5Direction;
+  anchorX: number;
+  anchorY: number;
+  score: number;
+}
+
 type InteractionState =
   | MoveInteraction
   | ResizeInteraction
   | MarqueeInteraction
-  | ConnectionInteraction;
+  | ConnectionInteraction
+  | DrawInteraction;
 
 const CANVAS_HEIGHT = 3200;
 const CANVAS_WIDTH = 4800;
@@ -108,6 +125,9 @@ const CONNECTION_SNAP_DISTANCE = 26;
 const CONNECTION_DRAG_THRESHOLD = 8;
 const PANEL_WIDTH = 272;
 const PANEL_HEIGHT = 152;
+const GROUP_VISIBILITY_MIN_ZOOM = 0.84;
+const PAIR_VISIBILITY_MIN_ZOOM = 0.74;
+const AUTO_CONNECT_MAX_DISTANCE = 360;
 
 const SHAPE_PICKER_OPTIONS: Project5CreateOption[] = [
   { type: "shape-text", shapeKind: "process" },
@@ -123,6 +143,13 @@ type PendingEditSeed = {
 };
 
 type InheritedCreateTargets = Record<string, number>;
+type CanvasToolbarTool = "sticky-note" | "shape-text" | "pencil" | "highlighter";
+type Project5StrokeBounds = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(value, max));
@@ -151,6 +178,30 @@ function isNodeOverlapping(
   return horizontalDistance < minimumHorizontal && verticalDistance < minimumVertical;
 }
 
+function isTextEditableNode(node: Project5CanvasNode) {
+  return node.type === "sticky-note" || node.type === "shape-text";
+}
+
+function supportsCollisionAvoidance(node: Project5CanvasNode) {
+  return node.type === "sticky-note" || node.type === "shape-text";
+}
+
+function supportsQuickCreateControls(node: Project5CanvasNode) {
+  return node.type === "sticky-note" || node.type === "shape-text";
+}
+
+function getToolbarCreateOption(tool: CanvasToolbarTool): Project5CreateOption | null {
+  if (tool === "sticky-note") {
+    return { type: "sticky-note" };
+  }
+
+  if (tool === "shape-text") {
+    return { type: "shape-text", shapeKind: "process" };
+  }
+
+  return null;
+}
+
 function getIntersectingNodeIds(
   nodes: Project5CanvasNode[],
   left: number,
@@ -173,6 +224,92 @@ function getIntersectingNodeIds(
       );
     })
     .map((node) => node.id);
+}
+
+function getStrokeScreenWidth(stroke: Project5Stroke) {
+  return stroke.tool === "highlighter" ? 22 : 3.2;
+}
+
+function getStrokeBounds(stroke: Project5Stroke): Project5StrokeBounds {
+  const strokeWidth = getStrokeScreenWidth(stroke);
+  const padding = strokeWidth / 2 + 8;
+  const xs = stroke.points.map((point) => point.x);
+  const ys = stroke.points.map((point) => point.y);
+  const fallbackPoint = stroke.points[0] ?? { x: 0, y: 0 };
+  const minX = xs.length > 0 ? Math.min(...xs) : fallbackPoint.x;
+  const maxX = xs.length > 0 ? Math.max(...xs) : fallbackPoint.x;
+  const minY = ys.length > 0 ? Math.min(...ys) : fallbackPoint.y;
+  const maxY = ys.length > 0 ? Math.max(...ys) : fallbackPoint.y;
+
+  return {
+    left: minX - padding,
+    top: minY - padding,
+    right: maxX + padding,
+    bottom: maxY + padding,
+  };
+}
+
+function isStrokeIntersectingRect(
+  stroke: Project5Stroke,
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+) {
+  const bounds = getStrokeBounds(stroke);
+
+  return !(
+    bounds.right < left ||
+    bounds.left > right ||
+    bounds.bottom < top ||
+    bounds.top > bottom
+  );
+}
+
+function isPointInStrokeBounds(stroke: Project5Stroke, point: { x: number; y: number }) {
+  const bounds = getStrokeBounds(stroke);
+
+  return (
+    point.x >= bounds.left &&
+    point.x <= bounds.right &&
+    point.y >= bounds.top &&
+    point.y <= bounds.bottom
+  );
+}
+
+function getBranchVisibilityNodes(
+  sourceNode: Project5CanvasNode,
+  newNode: Project5CanvasNode,
+  nodes: Project5CanvasNode[],
+  connections: Project5Connection[],
+) {
+  const visibleNodes = new Map<number, Project5CanvasNode>();
+
+  visibleNodes.set(sourceNode.id, sourceNode);
+  visibleNodes.set(newNode.id, newNode);
+
+  connections.forEach((connection) => {
+    if (connection.sourceId !== sourceNode.id) {
+      return;
+    }
+
+    const targetNode = nodes.find((node) => node.id === connection.targetId);
+
+    if (targetNode) {
+      visibleNodes.set(targetNode.id, targetNode);
+    }
+  });
+
+  return Array.from(visibleNodes.values());
+}
+
+function getNodesBounds(visibleNodes: Project5CanvasNode[]) {
+  return {
+    left: Math.min(...visibleNodes.map((node) => node.x - node.width / 2)),
+    top: Math.min(...visibleNodes.map((node) => node.y - node.height / 2)),
+    right: Math.max(...visibleNodes.map((node) => node.x + node.width / 2)),
+    bottom: Math.max(...visibleNodes.map((node) => node.y + node.height / 2)),
+  };
 }
 
 function getNodeConnectionPoint(node: Project5CanvasNode, direction: Project5Direction) {
@@ -309,6 +446,18 @@ function isTypingShortcutCandidate(event: KeyboardEvent) {
   return event.key.length === 1;
 }
 
+function isPairAlreadyConnected(
+  connections: Project5Connection[],
+  sourceId: number,
+  targetId: number,
+) {
+  return connections.some(
+    (connection) =>
+      (connection.sourceId === sourceId && connection.targetId === targetId) ||
+      (connection.sourceId === targetId && connection.targetId === sourceId),
+  );
+}
+
 function findSnapTarget(
   nodes: Project5CanvasNode[],
   sourceId: number,
@@ -361,6 +510,7 @@ export default function Project5QuickCreateCanvas() {
   ]);
   const [connections, setConnections] = useState<Project5Connection[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([1]);
+  const [selectedStrokeIds, setSelectedStrokeIds] = useState<number[]>([]);
   const [primarySelectedId, setPrimarySelectedId] = useState<number | null>(1);
   const [interaction, setInteraction] = useState<InteractionState | null>(null);
   const [controlsVisible, setControlsVisible] = useState(false);
@@ -371,9 +521,72 @@ export default function Project5QuickCreateCanvas() {
   const [inheritedCreateTargets, setInheritedCreateTargets] = useState<InheritedCreateTargets>({});
   const [nextId, setNextId] = useState(6);
   const [nextConnectionId, setNextConnectionId] = useState(1);
+  const [nextStrokeId, setNextStrokeId] = useState(1);
   const [canvasZoom, setCanvasZoom] = useState(1);
+  const [activeToolbarTool, setActiveToolbarTool] = useState<CanvasToolbarTool | null>(null);
+  const [toolbarPointerWorldPoint, setToolbarPointerWorldPoint] = useState<{ x: number; y: number } | null>(null);
+  const [strokes, setStrokes] = useState<Project5Stroke[]>([]);
 
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const selectedStrokeIdSet = useMemo(() => new Set(selectedStrokeIds), [selectedStrokeIds]);
+  const primarySelectedNode = useMemo(
+    () => nodes.find((node) => node.id === primarySelectedId) ?? null,
+    [nodes, primarySelectedId],
+  );
+
+  const findAutoConnectTarget = useCallback((
+    sourceNode: Project5CanvasNode,
+    sourceDirection: Project5Direction,
+  ) => {
+    if (sourceNode.type !== "shape-text") {
+      return null;
+    }
+
+    const sourceAnchor = getNodeConnectionPoint(sourceNode, sourceDirection);
+    const targetDirection = getOppositeDirection(sourceDirection);
+    const candidates = nodes
+      .filter((node) => node.id !== sourceNode.id && node.type === "shape-text")
+      .filter((node) => !isPairAlreadyConnected(connections, sourceNode.id, node.id))
+      .map((node) => {
+        const targetAnchor = getNodeConnectionPoint(node, targetDirection);
+        const forwardDistance =
+          sourceDirection === "right"
+            ? targetAnchor.x - sourceAnchor.x
+            : sourceDirection === "left"
+              ? sourceAnchor.x - targetAnchor.x
+              : sourceDirection === "bottom"
+                ? targetAnchor.y - sourceAnchor.y
+                : sourceAnchor.y - targetAnchor.y;
+        const alignmentOffset =
+          sourceDirection === "right" || sourceDirection === "left"
+            ? Math.abs(targetAnchor.y - sourceAnchor.y)
+            : Math.abs(targetAnchor.x - sourceAnchor.x);
+        const alignmentLimit =
+          sourceDirection === "right" || sourceDirection === "left"
+            ? Math.max(sourceNode.height, node.height) / 2 + 48
+            : Math.max(sourceNode.width, node.width) / 2 + 48;
+
+        if (
+          forwardDistance < 0 ||
+          forwardDistance > AUTO_CONNECT_MAX_DISTANCE ||
+          alignmentOffset > alignmentLimit
+        ) {
+          return null;
+        }
+
+        return {
+          node,
+          targetDirection,
+          anchorX: targetAnchor.x,
+          anchorY: targetAnchor.y,
+          score: alignmentOffset * 2 + forwardDistance,
+        } satisfies AutoConnectTarget;
+      })
+      .filter((candidate): candidate is AutoConnectTarget => candidate !== null)
+      .sort((candidateA, candidateB) => candidateA.score - candidateB.score);
+
+    return candidates[0] ?? null;
+  }, [connections, nodes]);
 
   const getCreateCenterForDirection = useCallback((
     sourceNode: Project5CanvasNode,
@@ -393,7 +606,7 @@ export default function Project5QuickCreateCanvas() {
         width,
         height,
       );
-      const collidingNodes = nodes.filter((node) => node.id !== sourceNode.id);
+      const collidingNodes = nodes.filter((node) => node.id !== sourceNode.id && supportsCollisionAvoidance(node));
 
       if (!collidingNodes.some((node) => isNodeOverlapping(baseCenter.x, baseCenter.y, width, height, node))) {
         return baseCenter;
@@ -428,6 +641,30 @@ export default function Project5QuickCreateCanvas() {
 
     return getQuickCreateCenter(sourceNode, direction, width, height);
   }, [inheritedCreateTargets, nodes]);
+
+  const getPreviewNodeForDirection = useCallback((
+    sourceNode: Project5CanvasNode,
+    direction: Project5Direction,
+  ) => {
+    const option = sourceNode.type === "sticky-note"
+      ? { type: "sticky-note" as const }
+      : getDefaultShapeOption(sourceNode);
+    const size = getNodeSizeForOption(option, sourceNode);
+    const previewCenter = getCreateCenterForDirection(
+      sourceNode,
+      direction,
+      size.width,
+      size.height,
+    );
+
+    return createNodeFromOption(
+      -1000,
+      previewCenter.x,
+      previewCenter.y,
+      option,
+      sourceNode,
+    );
+  }, [getCreateCenterForDirection]);
 
   const getWorldPoint = useCallback((clientX: number, clientY: number) => {
     const canvas = contentRef.current;
@@ -494,46 +731,90 @@ export default function Project5QuickCreateCanvas() {
     zoomAnimationRef.current = window.requestAnimationFrame(animate);
   }, [canvasZoom]);
 
-  const ensureNodesVisible = useCallback((visibleNodes: Project5CanvasNode[]) => {
+  const focusNodesWithAdaptiveVisibility = useCallback((
+    branchNodes: Project5CanvasNode[],
+    pairNodes: Project5CanvasNode[],
+    primaryNode: Project5CanvasNode,
+  ) => {
     const viewport = viewportRef.current;
 
-    if (!viewport || visibleNodes.length === 0) {
+    if (!viewport) {
       return;
     }
 
-    const left = Math.min(...visibleNodes.map((node) => node.x - node.width / 2));
-    const top = Math.min(...visibleNodes.map((node) => node.y - node.height / 2));
-    const right = Math.max(...visibleNodes.map((node) => node.x + node.width / 2));
-    const bottom = Math.max(...visibleNodes.map((node) => node.y + node.height / 2));
+    const getBoundsSize = (nodesToFit: Project5CanvasNode[]) => {
+      const { left, top, right, bottom } = getNodesBounds(nodesToFit);
 
-    const scaledLeft = left * canvasZoom;
-    const scaledTop = top * canvasZoom;
-    const scaledRight = right * canvasZoom;
-    const scaledBottom = bottom * canvasZoom;
+      return {
+        width: Math.max(1, right - left),
+        height: Math.max(1, bottom - top),
+      };
+    };
 
-    const visibleLeft = viewport.scrollLeft + VIEWPORT_PADDING;
-    const visibleTop = viewport.scrollTop + VIEWPORT_PADDING;
-    const visibleRight = viewport.scrollLeft + viewport.clientWidth - VIEWPORT_PADDING;
-    const visibleBottom = viewport.scrollTop + viewport.clientHeight - VIEWPORT_PADDING;
+    const getFitZoom = (nodesToFit: Project5CanvasNode[]) => {
+      const { width, height } = getBoundsSize(nodesToFit);
+      const availableWidth = Math.max(1, viewport.clientWidth - VIEWPORT_PADDING * 2);
+      const availableHeight = Math.max(1, viewport.clientHeight - VIEWPORT_PADDING * 2);
 
-    let nextScrollLeft = viewport.scrollLeft;
-    let nextScrollTop = viewport.scrollTop;
+      return clamp(
+        Math.min(availableWidth / width, availableHeight / height),
+        MIN_ZOOM,
+        MAX_ZOOM,
+      );
+    };
 
-    if (scaledLeft < visibleLeft) {
-      nextScrollLeft = Math.max(0, scaledLeft - VIEWPORT_PADDING);
-    } else if (scaledRight > visibleRight) {
-      nextScrollLeft = scaledRight - viewport.clientWidth + VIEWPORT_PADDING;
+    const canFitAtZoom = (nodesToFit: Project5CanvasNode[], zoom: number) => {
+      const { width, height } = getBoundsSize(nodesToFit);
+      const availableWidth = Math.max(1, viewport.clientWidth - VIEWPORT_PADDING * 2);
+      const availableHeight = Math.max(1, viewport.clientHeight - VIEWPORT_PADDING * 2);
+
+      return width * zoom <= availableWidth && height * zoom <= availableHeight;
+    };
+
+    let nodesToFocus = branchNodes;
+    let nextZoom = canvasZoom;
+
+    if (!canFitAtZoom(branchNodes, canvasZoom)) {
+      const branchFitZoom = Math.min(canvasZoom, getFitZoom(branchNodes));
+
+      if (branchFitZoom >= GROUP_VISIBILITY_MIN_ZOOM) {
+        nextZoom = branchFitZoom;
+      } else {
+        nodesToFocus = pairNodes;
+
+        if (!canFitAtZoom(pairNodes, canvasZoom)) {
+          const pairFitZoom = Math.min(canvasZoom, getFitZoom(pairNodes));
+
+          if (pairFitZoom >= PAIR_VISIBILITY_MIN_ZOOM) {
+            nextZoom = pairFitZoom;
+          } else {
+            nodesToFocus = [primaryNode];
+            nextZoom = canvasZoom;
+
+            if (!canFitAtZoom([primaryNode], canvasZoom)) {
+              nextZoom = Math.min(canvasZoom, getFitZoom([primaryNode]));
+            }
+          }
+        }
+      }
     }
 
-    if (scaledTop < visibleTop) {
-      nextScrollTop = Math.max(0, scaledTop - VIEWPORT_PADDING);
-    } else if (scaledBottom > visibleBottom) {
-      nextScrollTop = scaledBottom - viewport.clientHeight + VIEWPORT_PADDING;
+    const { left, top, right, bottom } = getNodesBounds(nodesToFocus);
+    const nextScrollLeft = Math.max(0, ((left + right) / 2) * nextZoom - viewport.clientWidth / 2);
+    const nextScrollTop = Math.max(0, ((top + bottom) / 2) * nextZoom - viewport.clientHeight / 2);
+
+    if (zoomAnimationRef.current !== null) {
+      window.cancelAnimationFrame(zoomAnimationRef.current);
+      zoomAnimationRef.current = null;
     }
 
-    if (nextScrollLeft !== viewport.scrollLeft || nextScrollTop !== viewport.scrollTop) {
-      viewport.scrollTo({ left: nextScrollLeft, top: nextScrollTop, behavior: "smooth" });
-    }
+    zoomTargetRef.current = nextZoom;
+    setCanvasZoom(nextZoom);
+    viewport.scrollTo({
+      left: nextScrollLeft,
+      top: nextScrollTop,
+      behavior: "smooth",
+    });
   }, [canvasZoom]);
 
   const addConnection = useCallback((
@@ -600,6 +881,7 @@ export default function Project5QuickCreateCanvas() {
       addConnection(sourceNode.id, sourceDirection, newNode.id, targetDirection);
     }
     setSelectedIds([newNode.id]);
+    setSelectedStrokeIds([]);
     setPrimarySelectedId(newNode.id);
     setControlsVisible(false);
     setHoveredControlDirection(null);
@@ -607,8 +889,114 @@ export default function Project5QuickCreateCanvas() {
     setPendingEditSeed(null);
     setShapePicker(null);
     setNextId((currentId) => currentId + 1);
-    window.requestAnimationFrame(() => ensureNodesVisible([sourceNode, newNode]));
-  }, [addConnection, ensureNodesVisible, getCreateCenterForDirection, nextId]);
+    window.requestAnimationFrame(() => {
+      focusNodesWithAdaptiveVisibility(
+        getBranchVisibilityNodes(sourceNode, newNode, nodes, connections),
+        [sourceNode, newNode],
+        newNode,
+      );
+    });
+  }, [addConnection, connections, focusNodesWithAdaptiveVisibility, getCreateCenterForDirection, nextId, nodes]);
+
+  const findCanvasToolPlacement = useCallback((
+    option: Project5CreateOption,
+    worldPoint: { x: number; y: number },
+  ) => {
+    const size = getNodeSizeForOption(option);
+    const baseCenter = clampNodeCenter(worldPoint.x, worldPoint.y, size.width, size.height);
+    const collidingNodes = nodes.filter((node) => supportsCollisionAvoidance(node));
+
+    if (!collidingNodes.some((node) => isNodeOverlapping(baseCenter.x, baseCenter.y, size.width, size.height, node, 20))) {
+      return baseCenter;
+    }
+
+    const radialStep = Math.max(size.width, size.height) + 28;
+
+    for (let slotIndex = 1; slotIndex <= 24; slotIndex += 1) {
+      const angle = (slotIndex * Math.PI) / 4;
+      const distance = radialStep * Math.ceil(slotIndex / 4);
+      const candidateCenter = clampNodeCenter(
+        baseCenter.x + Math.cos(angle) * distance,
+        baseCenter.y + Math.sin(angle) * distance,
+        size.width,
+        size.height,
+      );
+
+      if (!collidingNodes.some((node) => isNodeOverlapping(candidateCenter.x, candidateCenter.y, size.width, size.height, node, 20))) {
+        return candidateCenter;
+      }
+    }
+
+    return baseCenter;
+  }, [nodes]);
+
+  const createCanvasToolNodeAt = useCallback((
+    option: Project5CreateOption,
+    worldPoint: { x: number; y: number },
+  ) => {
+    const centeredPoint = findCanvasToolPlacement(option, worldPoint);
+    const newNode = createNodeFromOption(nextId, centeredPoint.x, centeredPoint.y, option);
+
+    setNodes((currentNodes) => [...currentNodes, newNode]);
+    setSelectedIds([newNode.id]);
+    setSelectedStrokeIds([]);
+    setPrimarySelectedId(newNode.id);
+    setControlsVisible(false);
+    setHoveredControlDirection(null);
+    setEditingNodeId(null);
+    setPendingEditSeed(null);
+    setShapePicker(null);
+    setInteraction(null);
+    setNextId((currentId) => currentId + 1);
+
+    window.requestAnimationFrame(() => {
+      focusNodesWithAdaptiveVisibility([newNode], [newNode], newNode);
+    });
+  }, [findCanvasToolPlacement, focusNodesWithAdaptiveVisibility, nextId]);
+
+  const startStroke = useCallback((
+    tool: "pencil" | "highlighter",
+    worldPoint: { x: number; y: number },
+  ) => {
+    const strokeId = nextStrokeId;
+
+    setStrokes((currentStrokes) => [
+      ...currentStrokes,
+      {
+        id: strokeId,
+        tool,
+        points: [worldPoint],
+      },
+    ]);
+    setSelectedStrokeIds([strokeId]);
+    setInteraction({
+      mode: "draw",
+      strokeId,
+      tool,
+    });
+    setNextStrokeId((currentId) => currentId + 1);
+  }, [nextStrokeId]);
+
+  const appendStrokePoint = useCallback((strokeId: number, worldPoint: { x: number; y: number }) => {
+    setStrokes((currentStrokes) =>
+      currentStrokes.map((stroke) => {
+        if (stroke.id !== strokeId) {
+          return stroke;
+        }
+
+        const lastPoint = stroke.points[stroke.points.length - 1];
+
+        if (lastPoint && Math.hypot(lastPoint.x - worldPoint.x, lastPoint.y - worldPoint.y) < 1.5) {
+          return stroke;
+        }
+
+        return {
+          ...stroke,
+          points: [...stroke.points, worldPoint],
+        };
+      }),
+    );
+  }, []);
 
   const openShapePicker = useCallback((
     sourceNode: Project5CanvasNode,
@@ -730,6 +1118,8 @@ export default function Project5QuickCreateCanvas() {
       if (
         editingNodeId === null &&
         primarySelectedId !== null &&
+        primarySelectedNode !== null &&
+        isTextEditableNode(primarySelectedNode) &&
         selectedIds.length === 1 &&
         interaction === null &&
         shapePicker === null &&
@@ -747,7 +1137,10 @@ export default function Project5QuickCreateCanvas() {
         return;
       }
 
-      if ((event.key !== "Delete" && event.key !== "Backspace") || selectedIds.length === 0) {
+      if (
+        (event.key !== "Delete" && event.key !== "Backspace") ||
+        (selectedIds.length === 0 && selectedStrokeIds.length === 0)
+      ) {
         return;
       }
 
@@ -757,6 +1150,9 @@ export default function Project5QuickCreateCanvas() {
         const remainingNodes = currentNodes.filter((node) => !selectedIdSet.has(node.id));
         const nextSelectedNode = remainingNodes[remainingNodes.length - 1] ?? null;
 
+        setStrokes((currentStrokes) =>
+          currentStrokes.filter((stroke) => !selectedStrokeIdSet.has(stroke.id)),
+        );
         setConnections((currentConnections) =>
           currentConnections.filter(
             (connection) =>
@@ -770,6 +1166,7 @@ export default function Project5QuickCreateCanvas() {
           ),
         );
         setSelectedIds(nextSelectedNode ? [nextSelectedNode.id] : []);
+        setSelectedStrokeIds([]);
         setPrimarySelectedId(nextSelectedNode?.id ?? null);
         setControlsVisible(false);
         setHoveredControlDirection(null);
@@ -792,8 +1189,11 @@ export default function Project5QuickCreateCanvas() {
     handleNodeTextChange,
     interaction,
     primarySelectedId,
+    primarySelectedNode,
     selectedIds,
     selectedIdSet,
+    selectedStrokeIdSet,
+    selectedStrokeIds.length,
     shapePicker,
   ]);
 
@@ -813,6 +1213,8 @@ export default function Project5QuickCreateCanvas() {
       if (
         editingNodeId !== null ||
         primarySelectedId === null ||
+        primarySelectedNode === null ||
+        !isTextEditableNode(primarySelectedNode) ||
         selectedIds.length !== 1 ||
         interaction !== null ||
         shapePicker !== null
@@ -834,7 +1236,7 @@ export default function Project5QuickCreateCanvas() {
     return () => {
       window.removeEventListener("compositionstart", handleCompositionStart);
     };
-  }, [editingNodeId, interaction, primarySelectedId, selectedIds.length, shapePicker]);
+  }, [editingNodeId, interaction, primarySelectedId, primarySelectedNode, selectedIds.length, shapePicker]);
 
   useEffect(() => {
     if (!interaction) {
@@ -881,8 +1283,12 @@ export default function Project5QuickCreateCanvas() {
         const top = Math.min(marqueeInteraction.startY, worldPoint.y);
         const bottom = Math.max(marqueeInteraction.startY, worldPoint.y);
         const nextSelectedIds = getIntersectingNodeIds(nodes, left, top, right, bottom);
+        const nextSelectedStrokeIds = strokes
+          .filter((stroke) => isStrokeIntersectingRect(stroke, left, top, right, bottom))
+          .map((stroke) => stroke.id);
 
         setSelectedIds(nextSelectedIds);
+        setSelectedStrokeIds(nextSelectedStrokeIds);
         setPrimarySelectedId(nextSelectedIds[0] ?? null);
         setControlsVisible(false);
         setHoveredControlDirection(null);
@@ -910,6 +1316,11 @@ export default function Project5QuickCreateCanvas() {
           hasMoved,
           snappedTarget: findSnapTarget(nodes, connectionInteraction.sourceId, worldPoint, canvasZoom),
         });
+        return;
+      }
+
+      if (activeInteraction.mode === "draw") {
+        appendStrokePoint(activeInteraction.strokeId, worldPoint);
         return;
       }
 
@@ -961,14 +1372,34 @@ export default function Project5QuickCreateCanvas() {
 
         if (sourceNode) {
           if (!connectionInteraction.hasMoved) {
-            createConnectedNode(
+            const autoConnectTarget = findAutoConnectTarget(
               sourceNode,
               connectionInteraction.sourceDirection,
-              sourceNode.type === "sticky-note" ? { type: "sticky-note" } : getDefaultShapeOption(sourceNode),
-              undefined,
-              sourceNode.type === "shape-text",
-              false,
             );
+
+            if (autoConnectTarget) {
+              addConnection(
+                sourceNode.id,
+                connectionInteraction.sourceDirection,
+                autoConnectTarget.node.id,
+                autoConnectTarget.targetDirection,
+              );
+              setSelectedIds([sourceNode.id]);
+              setSelectedStrokeIds([]);
+              setPrimarySelectedId(sourceNode.id);
+              setControlsVisible(true);
+              setHoveredControlDirection(null);
+              setShapePicker(null);
+            } else {
+              createConnectedNode(
+                sourceNode,
+                connectionInteraction.sourceDirection,
+                sourceNode.type === "sticky-note" ? { type: "sticky-note" } : getDefaultShapeOption(sourceNode),
+                undefined,
+                sourceNode.type === "shape-text",
+                false,
+              );
+            }
           } else if (connectionInteraction.snappedTarget) {
             addConnection(
               sourceNode.id,
@@ -997,6 +1428,16 @@ export default function Project5QuickCreateCanvas() {
         return;
       }
 
+      if (activeInteraction.mode === "draw") {
+        setSelectedIds([]);
+        setSelectedStrokeIds([activeInteraction.strokeId]);
+        setPrimarySelectedId(null);
+        setControlsVisible(false);
+        setHoveredControlDirection(null);
+        setInteraction(null);
+        return;
+      }
+
       setInteraction(null);
     }
 
@@ -1011,12 +1452,15 @@ export default function Project5QuickCreateCanvas() {
     };
   }, [
     addConnection,
+    appendStrokePoint,
     canvasZoom,
     createConnectedNode,
+    findAutoConnectTarget,
     getWorldPoint,
     interaction,
     nodes,
     openShapePicker,
+    strokes,
   ]);
 
   const pickerPreviewNode = useMemo(() => {
@@ -1041,6 +1485,22 @@ export default function Project5QuickCreateCanvas() {
       sourceNode,
     );
   }, [nodes, shapePicker]);
+
+  const toolbarPreviewNode = useMemo(() => {
+    if (!activeToolbarTool || !toolbarPointerWorldPoint) {
+      return null;
+    }
+
+    const option = getToolbarCreateOption(activeToolbarTool);
+
+    if (!option) {
+      return null;
+    }
+
+    const placement = findCanvasToolPlacement(option, toolbarPointerWorldPoint);
+
+    return createNodeFromOption(-2000, placement.x, placement.y, option);
+  }, [activeToolbarTool, findCanvasToolPlacement, toolbarPointerWorldPoint]);
 
   const connectionLines = useMemo(() => {
     const persistedLines = connections.reduce<Project5ConnectionLine[]>((lines, connection) => {
@@ -1082,6 +1542,7 @@ export default function Project5QuickCreateCanvas() {
 
         persistedLines.push({
           id: "draft-connection",
+          sourceId: sourceNode.id,
           sourceX: sourceAnchor.x,
           sourceY: sourceAnchor.y,
           sourceDirection: interaction.sourceDirection,
@@ -1105,6 +1566,7 @@ export default function Project5QuickCreateCanvas() {
 
         persistedLines.push({
           id: "picker-preview",
+          sourceId: sourceNode.id,
           sourceX: sourceAnchor.x,
           sourceY: sourceAnchor.y,
           sourceDirection: shapePicker.sourceDirection,
@@ -1120,23 +1582,19 @@ export default function Project5QuickCreateCanvas() {
       const sourceNode = nodes.find((node) => node.id === primarySelectedId);
 
       if (sourceNode?.type === "shape-text") {
-        const previewCenter = getCreateCenterForDirection(
-          sourceNode,
-          hoveredControlDirection,
-          sourceNode.width,
-          sourceNode.height,
-        );
-        const previewNode = {
-          ...sourceNode,
-          x: previewCenter.x,
-          y: previewCenter.y,
-        };
+        const autoConnectTarget = findAutoConnectTarget(sourceNode, hoveredControlDirection);
         const sourceAnchor = getNodeConnectionPoint(sourceNode, hoveredControlDirection);
-        const targetDirection = getOppositeDirection(hoveredControlDirection);
-        const targetAnchor = getNodeConnectionPoint(previewNode, targetDirection);
+        const targetDirection = autoConnectTarget?.targetDirection ?? getOppositeDirection(hoveredControlDirection);
+        const targetAnchor = autoConnectTarget
+          ? { x: autoConnectTarget.anchorX, y: autoConnectTarget.anchorY }
+          : getNodeConnectionPoint(
+              getPreviewNodeForDirection(sourceNode, hoveredControlDirection),
+              targetDirection,
+            );
 
         persistedLines.push({
           id: "hover-preview",
+          sourceId: sourceNode.id,
           sourceX: sourceAnchor.x,
           sourceY: sourceAnchor.y,
           sourceDirection: hoveredControlDirection,
@@ -1149,7 +1607,7 @@ export default function Project5QuickCreateCanvas() {
     }
 
     return persistedLines;
-  }, [connections, getCreateCenterForDirection, hoveredControlDirection, interaction, nodes, pickerPreviewNode, primarySelectedId, shapePicker]);
+  }, [connections, findAutoConnectTarget, getPreviewNodeForDirection, hoveredControlDirection, interaction, nodes, pickerPreviewNode, primarySelectedId, shapePicker]);
 
   function handleResizeStart(
     node: Project5CanvasNode,
@@ -1159,6 +1617,7 @@ export default function Project5QuickCreateCanvas() {
     event.stopPropagation();
     event.preventDefault();
     setSelectedIds([node.id]);
+    setSelectedStrokeIds([]);
     setPrimarySelectedId(node.id);
     setControlsVisible(true);
     setHoveredControlDirection(null);
@@ -1194,6 +1653,7 @@ export default function Project5QuickCreateCanvas() {
     const anchor = getNodeConnectionPoint(node, direction);
 
     setSelectedIds([node.id]);
+    setSelectedStrokeIds([]);
     setPrimarySelectedId(node.id);
     setControlsVisible(true);
     setHoveredControlDirection(direction);
@@ -1223,6 +1683,7 @@ export default function Project5QuickCreateCanvas() {
     const anchor = getNodeConnectionPoint(node, direction);
 
     setSelectedIds([node.id]);
+    setSelectedStrokeIds([]);
     setPrimarySelectedId(node.id);
     setControlsVisible(true);
     setHoveredControlDirection(direction);
@@ -1246,11 +1707,12 @@ export default function Project5QuickCreateCanvas() {
   function handleCanvasPointerDown(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
 
-    if (
-      target.closest(
-        "[data-note-body='true'], [data-create-handle], [data-heat-zone], [data-resize-handle], [data-canvas-zoom-ui='true'], [contenteditable='true']",
-      )
-    ) {
+    const isCanvasUiTarget = target.closest(
+      "[data-create-handle], [data-heat-zone], [data-resize-handle], [data-canvas-zoom-ui='true'], [data-canvas-toolbar='true'], [contenteditable='true'], [data-shape-picker='true']",
+    );
+    const isNodeBodyTarget = target.closest("[data-note-body='true']");
+
+    if (isCanvasUiTarget || (!activeToolbarTool && isNodeBodyTarget)) {
       return;
     }
 
@@ -1260,7 +1722,51 @@ export default function Project5QuickCreateCanvas() {
       return;
     }
 
+    const clickedStroke = [...strokes].reverse().find((stroke) =>
+      isPointInStrokeBounds(stroke, worldPoint),
+    );
+
+    if (!activeToolbarTool && clickedStroke) {
+      event.preventDefault();
+      event.stopPropagation();
+      ignoreNextCanvasClickRef.current = true;
+      setSelectedIds([]);
+      setSelectedStrokeIds([clickedStroke.id]);
+      setPrimarySelectedId(null);
+      setControlsVisible(false);
+      setHoveredControlDirection(null);
+      setEditingNodeId(null);
+      setPendingEditSeed(null);
+      setShapePicker(null);
+      return;
+    }
+
+    if (activeToolbarTool === "sticky-note" || activeToolbarTool === "shape-text") {
+      const option = getToolbarCreateOption(activeToolbarTool);
+
+      if (option) {
+        event.preventDefault();
+        createCanvasToolNodeAt(option, worldPoint);
+      }
+      return;
+    }
+
+    if (activeToolbarTool === "pencil" || activeToolbarTool === "highlighter") {
+      event.preventDefault();
+      setSelectedIds([]);
+      setSelectedStrokeIds([]);
+      setPrimarySelectedId(null);
+      setControlsVisible(false);
+      setHoveredControlDirection(null);
+      setEditingNodeId(null);
+      setPendingEditSeed(null);
+      setShapePicker(null);
+      startStroke(activeToolbarTool, worldPoint);
+      return;
+    }
+
     setSelectedIds([]);
+    setSelectedStrokeIds([]);
     setPrimarySelectedId(null);
     setControlsVisible(false);
     setHoveredControlDirection(null);
@@ -1276,9 +1782,41 @@ export default function Project5QuickCreateCanvas() {
     });
   }
 
+  function handleCanvasPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (!activeToolbarTool) {
+      return;
+    }
+
+    const worldPoint = getWorldPoint(event.clientX, event.clientY);
+
+    if (!worldPoint) {
+      return;
+    }
+
+    setToolbarPointerWorldPoint(worldPoint);
+  }
+
+  function handleCanvasPointerLeave() {
+    setToolbarPointerWorldPoint(null);
+  }
+
   return (
     <Project5CanvasBoard
       rootRef={rootRef}
+      floatingToolbar={
+        <Project5FloatingToolbar
+          activeTool={activeToolbarTool}
+          onSelect={(itemId) => {
+            setActiveToolbarTool((currentTool) => currentTool === itemId ? null : itemId);
+            setSelectedStrokeIds([]);
+            setControlsVisible(false);
+            setHoveredControlDirection(null);
+            setShapePicker(null);
+            setEditingNodeId(null);
+            setPendingEditSeed(null);
+          }}
+        />
+      }
       overlay={
         shapePicker ? (
           <Project5ShapeCreatePanel
@@ -1321,6 +1859,8 @@ export default function Project5QuickCreateCanvas() {
         ) : null
       }
       onPointerDown={handleCanvasPointerDown}
+      onPointerMove={handleCanvasPointerMove}
+      onPointerLeave={handleCanvasPointerLeave}
       zoom={canvasZoom}
       baseWidth={CANVAS_WIDTH}
       baseHeight={CANVAS_HEIGHT}
@@ -1334,7 +1874,12 @@ export default function Project5QuickCreateCanvas() {
           return;
         }
 
+        if (activeToolbarTool) {
+          return;
+        }
+
         setSelectedIds([]);
+        setSelectedStrokeIds([]);
         setPrimarySelectedId(null);
         setControlsVisible(false);
         setHoveredControlDirection(null);
@@ -1343,6 +1888,13 @@ export default function Project5QuickCreateCanvas() {
         setShapePicker(null);
       }}
     >
+      <Project5StrokeLayer
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        strokes={strokes}
+        selectedStrokeIds={selectedStrokeIds}
+      />
+
       <Project5ConnectionLayer
         width={CANVAS_WIDTH}
         height={CANVAS_HEIGHT}
@@ -1372,32 +1924,49 @@ export default function Project5QuickCreateCanvas() {
         </div>
       ) : null}
 
+      {toolbarPreviewNode ? (
+        <div
+          className="pointer-events-none absolute z-[3]"
+          style={{
+            left: toolbarPreviewNode.x - toolbarPreviewNode.width / 2,
+            top: toolbarPreviewNode.y - toolbarPreviewNode.height / 2,
+            width: toolbarPreviewNode.width,
+            height: toolbarPreviewNode.height,
+          }}
+        >
+          <Project5CanvasNodeView node={toolbarPreviewNode} preview />
+        </div>
+      ) : null}
+
       {nodes.map((node, index) => {
         const isSelected = selectedIdSet.has(node.id);
         const isPrimarySelected = node.id === primarySelectedId;
+        const isTextNode = isTextEditableNode(node);
         const isShapeNode = node.type === "shape-text";
+        const canShowQuickCreateControls = supportsQuickCreateControls(node);
         const isConnectionSource =
           interaction?.mode === "connection" && interaction.sourceId === node.id;
         const isPickerSource = shapePicker?.sourceId === node.id;
         const showPrimaryControls =
-          isPrimarySelected && (controlsVisible || isConnectionSource || isPickerSource);
+          isPrimarySelected &&
+          canShowQuickCreateControls &&
+          (controlsVisible || isConnectionSource || isPickerSource);
         const previewDirection =
           hoveredControlDirection &&
           isPrimarySelected &&
+          canShowQuickCreateControls &&
           !isConnectionSource &&
           !shapePicker
             ? hoveredControlDirection
             : null;
-        const previewNode =
+        const autoConnectPreviewTarget =
           previewDirection && isShapeNode
-            ? {
-                ...node,
-                ...getCreateCenterForDirection(node, previewDirection, node.width, node.height),
-                text: "输入文本",
-              }
-            : previewDirection
-              ? node
-              : null;
+            ? findAutoConnectTarget(node, previewDirection)
+            : null;
+        const previewNode =
+          previewDirection && !autoConnectPreviewTarget
+            ? getPreviewNodeForDirection(node, previewDirection)
+            : null;
         const previewLeft =
           previewDirection === "left"
             ? previewNode
@@ -1431,8 +2000,13 @@ export default function Project5QuickCreateCanvas() {
               zIndex: isSelected ? nodes.length + 20 : index + 1,
             }}
             onClick={(event) => {
+              if (activeToolbarTool) {
+                return;
+              }
+
               event.stopPropagation();
               setSelectedIds([node.id]);
+              setSelectedStrokeIds([]);
               setPrimarySelectedId(node.id);
               setControlsVisible(true);
               setHoveredControlDirection(null);
@@ -1441,8 +2015,13 @@ export default function Project5QuickCreateCanvas() {
               setShapePicker(null);
             }}
             onDoubleClick={(event) => {
+              if (!isTextNode || activeToolbarTool) {
+                return;
+              }
+
               event.stopPropagation();
               setSelectedIds([node.id]);
+              setSelectedStrokeIds([]);
               setPrimarySelectedId(node.id);
               setControlsVisible(false);
               setHoveredControlDirection(null);
@@ -1473,6 +2052,10 @@ export default function Project5QuickCreateCanvas() {
               setHoveredControlDirection(null);
             }}
             onPointerDown={(event) => {
+              if (activeToolbarTool) {
+                return;
+              }
+
               const target = event.target as HTMLElement;
               const isHandle = target.closest("[data-create-handle]");
               const isHeatZone = target.closest("[data-heat-zone]");
@@ -1491,6 +2074,7 @@ export default function Project5QuickCreateCanvas() {
               event.stopPropagation();
               const moveSelection = isSelected ? selectedIds : [node.id];
               setSelectedIds(moveSelection);
+              setSelectedStrokeIds([]);
               setPrimarySelectedId(node.id);
               setControlsVisible(moveSelection.length === 1);
               setHoveredControlDirection(null);
@@ -1515,14 +2099,14 @@ export default function Project5QuickCreateCanvas() {
             <div data-note-body="true" className="absolute inset-0">
               <Project5CanvasNodeView
                 node={node}
-                editing={editingNodeId === node.id}
+                editing={isTextNode && editingNodeId === node.id}
                 editingSeed={pendingEditSeed?.nodeId === node.id ? pendingEditSeed.value : null}
                 onTextChange={(value) => {
                   handleNodeTextChange(node.id, value);
                   setEditingNodeId(null);
                   setPendingEditSeed(null);
                 }}
-                onCommandEnter={(value) => handleCommandEnterCreate(node, value)}
+                onCommandEnter={isTextNode ? (value) => handleCommandEnterCreate(node, value) : undefined}
               />
             </div>
 
@@ -1544,10 +2128,10 @@ export default function Project5QuickCreateCanvas() {
 
                 <Project5SelectionFrame
                   onResizeStart={(handle, event) => handleResizeStart(node, handle, event)}
-                  showResizeHandles={isPrimarySelected}
+                  showResizeHandles={isPrimarySelected && canShowQuickCreateControls}
                 />
 
-                {isPrimarySelected
+                {isPrimarySelected && canShowQuickCreateControls
                   ? (["top", "right", "bottom", "left"] as Project5Direction[]).map((direction) => (
                       <div key={direction} data-heat-zone="true">
                         <Project5HeatZone

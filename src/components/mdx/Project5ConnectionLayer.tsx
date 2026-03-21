@@ -255,7 +255,7 @@ function moveToward(from: { x: number; y: number }, to: { x: number; y: number }
 }
 
 function getBundledGroupKey(line: Project5ConnectionLine) {
-  if (line.dashed || line.sourceId === undefined) {
+  if (line.sourceId === undefined) {
     return null;
   }
 

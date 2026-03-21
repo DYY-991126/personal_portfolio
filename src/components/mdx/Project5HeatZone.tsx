@@ -7,6 +7,7 @@ interface Project5HeatZoneProps {
   noteWidth: number;
   noteHeight: number;
   canvasZoom: number;
+  showOverlay?: boolean;
   onActivate: () => void;
   onDeactivate: () => void;
 }
@@ -16,6 +17,7 @@ export default function Project5HeatZone({
   noteWidth,
   noteHeight,
   canvasZoom,
+  showOverlay = true,
   onActivate,
   onDeactivate,
 }: Project5HeatZoneProps) {
@@ -70,7 +72,9 @@ export default function Project5HeatZone({
         onDeactivate();
       }}
     >
-      <div className="pointer-events-none absolute inset-0 border border-[#ef4444]/45 bg-[#ef4444]/14" />
+      {showOverlay ? (
+        <div className="pointer-events-none absolute inset-0 border border-[#ef4444]/45 bg-[#ef4444]/14" />
+      ) : null}
     </div>
   );
 }

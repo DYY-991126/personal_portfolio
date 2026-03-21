@@ -9,6 +9,7 @@ interface Project5StickyNoteCardProps {
   preview?: boolean;
   editing?: boolean;
   editingSeed?: string | null;
+  autoFocus?: boolean;
   text?: string;
   onTextChange?: (value: string) => void;
   onCommandEnter?: (value: string) => void;
@@ -18,6 +19,7 @@ export default function Project5StickyNoteCard({
   preview = false,
   editing = false,
   editingSeed = null,
+  autoFocus = true,
   text = "输入文本",
   onTextChange,
   onCommandEnter,
@@ -31,13 +33,18 @@ export default function Project5StickyNoteCard({
     }
 
     const editableElement = editableRef.current;
-    const selection = window.getSelection();
-
-    editableElement.focus();
 
     if (editingSeed !== null) {
       editableElement.textContent = editingSeed;
     }
+
+    if (!autoFocus) {
+      return;
+    }
+
+    const selection = window.getSelection();
+
+    editableElement.focus();
 
     if (!selection) {
       return;
@@ -55,7 +62,7 @@ export default function Project5StickyNoteCard({
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
-  }, [editing, editingSeed]);
+  }, [autoFocus, editing, editingSeed]);
 
   return (
     <div

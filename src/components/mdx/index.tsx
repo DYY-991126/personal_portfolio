@@ -33,6 +33,20 @@ import Project5CreationPointLab from "./Project5CreationPointLab";
 import Project5CreationModesDemo from "./Project5CreationModesDemo";
 import Project5ConnectionPriorityDemo from "./Project5ConnectionPriorityDemo";
 import Project5BoundaryStabilityDemo from "./Project5BoundaryStabilityDemo";
+import Project5HeatZoneActivationDemo from "./Project5HeatZoneActivationDemo";
+import Project5HeatZoneCoverageDemo from "./Project5HeatZoneCoverageDemo";
+import Project5HeatZoneAdaptiveDemo from "./Project5HeatZoneAdaptiveDemo";
+import Project5ControlPointHitAreaDemo from "./Project5ControlPointHitAreaDemo";
+import Project5HeatZoneCoveragePanel from "./Project5HeatZoneCoveragePanel";
+import Project5HeatZoneAdaptivePanel from "./Project5HeatZoneAdaptivePanel";
+import Project5ClickCreatePanel from "./Project5ClickCreatePanel";
+import Project5DragCreatePanel from "./Project5DragCreatePanel";
+import Project5CommandEnterPanel from "./Project5CommandEnterPanel";
+import Project5IntentRecognitionPanel from "./Project5IntentRecognitionPanel";
+import Project5DistanceMemoryPanel from "./Project5DistanceMemoryPanel";
+import Project5CollisionLogicPanel from "./Project5CollisionLogicPanel";
+import Project5ViewportStrategyPanel from "./Project5ViewportStrategyPanel";
+import Project5SortingPanel from "./Project5SortingPanel";
 
 function extractTextContent(children: ReactNode): string {
   if (typeof children === "string" || typeof children === "number") {
@@ -85,6 +99,20 @@ export function getMDXComponents(): MDXComponents {
     Project5CreationModesDemo,
     Project5ConnectionPriorityDemo,
     Project5BoundaryStabilityDemo,
+    Project5HeatZoneActivationDemo,
+    Project5HeatZoneCoverageDemo,
+    Project5HeatZoneAdaptiveDemo,
+    Project5ControlPointHitAreaDemo,
+    Project5HeatZoneCoveragePanel,
+    Project5HeatZoneAdaptivePanel,
+    Project5ClickCreatePanel,
+    Project5DragCreatePanel,
+    Project5CommandEnterPanel,
+    Project5IntentRecognitionPanel,
+    Project5DistanceMemoryPanel,
+    Project5CollisionLogicPanel,
+    Project5ViewportStrategyPanel,
+    Project5SortingPanel,
 
     // Override default HTML elements for consistent styling
     h2: (props) => {

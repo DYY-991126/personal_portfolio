@@ -2,6 +2,7 @@
 
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import Project5StickyNoteCard from "./Project5StickyNoteCard";
+import Project5CanvasToolNode from "./Project5CanvasToolNode";
 import type { Project5CanvasNode } from "./Project5CanvasNodeTypes";
 
 interface Project5CanvasNodeViewProps {
@@ -32,6 +33,10 @@ export default function Project5CanvasNodeView({
         onCommandEnter={onCommandEnter}
       />
     );
+  }
+
+  if (node.type === "pencil" || node.type === "highlighter") {
+    return <Project5CanvasToolNode node={node} preview={preview} />;
   }
 
   return (
