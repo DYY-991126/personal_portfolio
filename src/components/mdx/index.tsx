@@ -70,6 +70,15 @@ import Project5SortingPanel, {
   Project5SortingOrderPanel,
   Project5SortingSpacingPanel,
 } from "./Project5SortingPanel";
+import {
+  Project6BaseComponentPanel,
+  Project6ColorTokensPanel,
+  Project6IconSystemPanel,
+  Project6LayoutPanel,
+  Project6ShadowMotionPanel,
+  Project6TypographyPanel,
+  Project6UIPanel,
+} from "./Project6DesignSystemPanels";
 
 function extractTextContent(children: ReactNode): string {
   if (typeof children === "string" || typeof children === "number") {
@@ -154,6 +163,13 @@ export function getMDXComponents(): MDXComponents {
     Project5SortingInsertPanel,
     Project5SortingSpacingPanel,
     Project5SortingOrderPanel,
+    Project6ColorTokensPanel,
+    Project6TypographyPanel,
+    Project6LayoutPanel,
+    Project6ShadowMotionPanel,
+    Project6IconSystemPanel,
+    Project6BaseComponentPanel,
+    Project6UIPanel,
 
     // Override default HTML elements for consistent styling
     h2: (props) => {

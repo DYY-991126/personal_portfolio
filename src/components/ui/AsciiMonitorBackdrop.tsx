@@ -1,8 +1,10 @@
 "use client";
 
 import { Silkscreen } from "next/font/google";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import RetroMp3Player from "./RetroMp3Player";
 
 const silkscreen = Silkscreen({
   subsets: ["latin"],
@@ -21,6 +23,30 @@ const ASCII_ROWS = [
 ];
 
 const WELCOME_MESSAGE = "Welcome :)";
+
+/** Green + purple: screen/bezel overlap band (not on cream casing). */
+const CABINET_STICKER_LAYOUT = [
+  {
+    src: "/sticker1.png",
+    left: "-1%",
+    bottom: "-5%",
+    width: "clamp(3.4rem, 14vmin, 10rem)",
+    rotate: -11,
+    z: 2,
+    tx: "0.12rem",
+    ty: "0.08rem",
+  },
+  {
+    src: "/sticker4.png",
+    right: "1%",
+    bottom: "5%",
+    width: "clamp(3.1rem, 15.5vmin, 15.4rem)",
+    rotate: 8,
+    z: 3,
+    tx: "-0.06rem",
+    ty: "0.1rem",
+  },
+] as const;
 
 const MONITOR_THEMES = [
   { name: "Mono", filter: "grayscale(1) sepia(0.08) brightness(1.02) contrast(1.06)", glow: "#f4f1dc" },
@@ -147,7 +173,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
           <div className="ascii-monitor-rim absolute inset-[1rem] rounded-[1.7rem] md:inset-[1.35rem] md:rounded-[2.2rem]" />
 
           {/* Monitor Screen Frame / Bezel */}
-          <div className="absolute left-[3.4%] right-[3.4%] top-[6.1%] bottom-[15.3%] rounded-[1.5rem] border-2 border-[#151715] bg-[#2a2d2a] shadow-[inset_0_10px_24px_rgba(255,255,255,0.05),inset_0_-16px_30px_rgba(0,0,0,0.62),inset_0_0_0_5px_rgba(7,8,7,0.36),0_8px_18px_rgba(0,0,0,0.26)] md:rounded-[1.9rem]">
+          <div className="absolute left-[3.4%] right-[3.4%] top-[6.1%] bottom-[15.3%] z-0 rounded-[1.5rem] border-2 border-[#151715] bg-[#2a2d2a] shadow-[inset_0_10px_24px_rgba(255,255,255,0.05),inset_0_-16px_30px_rgba(0,0,0,0.62),inset_0_0_0_5px_rgba(7,8,7,0.36),0_8px_18px_rgba(0,0,0,0.26)] md:rounded-[1.9rem]">
             <div className="ascii-screen-inner absolute inset-[0.72rem] overflow-hidden rounded-[1.6rem] border-[4px] border-[#0a0a0a] bg-[#03110b] shadow-[inset_0_2px_0_rgba(255,255,255,0.04),inset_0_22px_36px_rgba(0,0,0,0.28),inset_0_-28px_44px_rgba(0,0,0,0.44)] md:inset-[0.98rem] md:rounded-[2rem]">
               <div className="ascii-screen-curvature absolute inset-0" />
               <div className="ascii-screen-lightfall absolute inset-0" />
@@ -210,10 +236,71 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                 <div className={`ascii-boot-fade absolute inset-0 z-[8] transition-opacity duration-700 ${bootPhase === "done" ? "opacity-0" : "opacity-100"}`} />
               </div>
             </div>
+
+            {/* Biohazard / property label: bezel top-right corner, hug rim */}
+            <Image
+              aria-hidden
+              src="/sticker2.png"
+              alt=""
+              width={256}
+              height={256}
+              className="pointer-events-none absolute right-0 top-0 z-[20] h-auto w-[clamp(4.75rem,19vmin,8.5rem)] object-contain select-none md:w-[clamp(5.25rem,20vmin,9.25rem)]"
+              style={
+                {
+                  transform: "translate(18%, -12%) rotate(11deg)",
+                  filter:
+                    "drop-shadow(0 1px 0 rgba(255,255,255,0.22)) drop-shadow(0 3px 5px rgba(0,0,0,0.28))",
+                  opacity: 0.97,
+                } as CSSProperties
+              }
+            />
+          </div>
+
+          {/* Stickers: screen edge overlap (green monster + purple) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 z-[5] overflow-visible"
+            style={{
+              top: "min(79%, calc(71% + 0.75vh))",
+              bottom: "max(4.85rem, min(13%, 6.5rem))",
+            }}
+          >
+            {CABINET_STICKER_LAYOUT.map((item) => (
+              <Image
+                key={item.src}
+                src={item.src}
+                alt=""
+                width={256}
+                height={256}
+                className="absolute h-auto object-contain select-none"
+                style={
+                  {
+                    ...("left" in item ? { left: item.left } : { right: item.right }),
+                    bottom: item.bottom,
+                    width: item.width,
+                    zIndex: item.z,
+                    transform: `translate(${item.tx}, ${item.ty}) rotate(${item.rotate}deg)`,
+                    filter:
+                      "drop-shadow(0 1px 0 rgba(255,255,255,0.22)) drop-shadow(0 3px 5px rgba(0,0,0,0.28))",
+                    opacity: 0.97,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+
+          {/* Retro MP3: native compact size (no scale — reliable hit-testing); position then rotate */}
+          <div
+            className="absolute left-[48%] bottom-[11%] z-20 flex justify-center"
+            style={{ transform: "translate(calc(-50% + 250px), 40px)" }}
+          >
+            <div style={{ transform: "rotate(-3deg)", transformOrigin: "50% 100%" }}>
+              <RetroMp3Player />
+            </div>
           </div>
 
           {/* Bottom Control Panel */}
-          <div className="absolute left-[6%] right-[6%] bottom-[4%] flex items-center justify-between">
+          <div className="absolute left-[6%] right-[6%] bottom-[4%] z-[6] flex items-center justify-between">
             {/* Left side: Ventilation / Speaker grilles */}
             <div className="flex gap-2 opacity-70">
               {Array.from({ length: 10 }).map((_, i) => (

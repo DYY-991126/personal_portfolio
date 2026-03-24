@@ -1,50 +1,63 @@
 ---
 id: "project-6"
-title: "Stellar AI Copilot"
-category: "AI & Tools"
+title: "构建设计系统"
+subtitle: "作为主要参与者，搭建设计规范与基础模块"
+category: "Design System"
 year: "2024"
-client: "Stellar Labs"
-role: "Product Designer"
-coverImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop"
-description: "An AI-powered contextual assistant that seamlessly integrates into developers' workflow to boost productivity."
+client: "内部项目"
+role: "产品设计师（主要参与）"
+coverImage: "/project_cover/图像.jpg"
+description: "我主要参与了设计系统中颜色、字体、图标、基础组件与界面规范等模块的整理与沉淀。"
 ---
 
-## The Design Challenge
+## 项目背景
 
-The challenge with AI tools is not just the model, but how gracefully they sit in the user's peripheral vision until needed. An AI copilot that disrupts flow is worse than no copilot at all.
+这个项目发生在即时设计一次底层重构的阶段。由于产品早期积累了大量历史实现，前端组件层存在明显的维护成本问题，例如组件职责混乱、参数设计失控、复用边界不清晰，部分组件的 props 数量甚至已经膨胀到非常不合理的程度。
 
-<ImageBlock
-  src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop"
-  caption="Inline command palette with contextual suggestions"
-/>
+随着底层能力重做，团队也同步启动了设计系统建设，希望借这次重构机会，把原本零散、粗糙的界面与组件规则重新收束成一套更清晰、可维护、可持续扩展的系统。我在这个阶段作为主要参与者之一，重点参与了 token、图标、基础组件和复合界面模块的整理与沉淀。
 
-## Interaction Modes
+## Design Token
 
-We designed three distinct interaction modes, each with increasing levels of AI involvement:
+这一层主要展示设计系统里最基础、最稳定、也最容易被复用的部分。对我来说，token 层最重要的价值不是“写了一份规范”，而是把颜色、字体、阴影和间距整理成了团队之后可以持续沿用的基础规则。
 
-1. **Passive** — Subtle inline hints that appear only when the model has high-confidence suggestions
-2. **Active** — User invokes the copilot via command palette for specific tasks
-3. **Collaborative** — Extended multi-turn sessions for complex refactoring or architecture discussions
+### Colors
 
-## Context Engine
+颜色系统不是简单列一批颜色，而是把基础色、不同层级的色阶，以及浅色 / 深色语境里的对应关系，整理成可复用的 token 结构。
 
-```python
-class ContextEngine:
-    def gather(self, cursor_position: Position) -> Context:
-        return Context(
-            current_file=self.get_file_content(),
-            imports=self.resolve_imports(),
-            recent_edits=self.get_edit_history(limit=10),
-            project_structure=self.get_tree(depth=3),
-        )
-```
+<Project6ColorTokensPanel />
 
-<Callout type="tip">
-  We found that providing the AI with the last 10 edits (not just the current file) improved suggestion relevance by 34%.
-</Callout>
+### Typography
 
-## Key Metrics
+字体系统这部分，我更在意跨平台的一致性，以及不同信息层级下的可读性。除了字体本身，还包括字号、字重、行高和内容密度之间的关系。
 
-- **80%** suggestion acceptance rate (vs. 45% industry average)
-- **2.3x** developer productivity gain in code review tasks
-- **< 200ms** average suggestion latency
+<Project6TypographyPanel />
+
+### Box Shadow
+
+阴影系统负责处理层级、悬浮和浮层之间的关系。它看起来是细节，但真正落到产品里，会直接影响组件的层次感和信息密度。
+
+<Project6ShadowMotionPanel />
+
+### Spacing
+
+间距系统决定了界面的节奏感，也决定了组件和界面在扩展时是否还能保持稳定。对设计系统来说，这是一层很基础但非常关键的规则。
+
+<Project6LayoutPanel />
+
+## Icon Library
+
+图标库是这次工作里最能体现“细碎但体量很大”的模块之一。它不是一两个图标，而是一整套覆盖不同尺寸、不同入口和不同使用场景的图标资产。
+
+<Project6IconSystemPanel />
+
+## Base Components
+
+基础组件是设计系统里最直接的一层输出。这里我把内容拆成通用组件和业务组件两部分，让阅读路径更清楚，也更容易看出我参与过的工作范围。
+
+<Project6BaseComponentPanel />
+
+## Composite Components
+
+除了 token、图标和基础组件，这套设计系统也沉淀到了更复杂的复合模块中。这里我保留了左侧面板、右侧面板、顶部栏和工具栏这几类更贴近真实编辑器场景的部分，用来证明这套系统最后是怎样落到复杂 UI 里的。
+
+<Project6UIPanel />
