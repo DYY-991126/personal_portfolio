@@ -503,7 +503,7 @@ export default function TerminalHero() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key !== "Enter") { terminalAudio?.playKeystroke(); triggerTyping(); } }}
+                onKeyDown={(e) => { if (e.key !== "Enter") { terminalAudio?.playKeystroke(); } }}
                 onFocus={() => setFocusedIdx(-1)}
                 spellCheck={false}
                 autoComplete="off"
