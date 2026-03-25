@@ -2,7 +2,7 @@
 
 import { Silkscreen } from "next/font/google";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import RetroMp3Player from "./RetroMp3Player";
 
@@ -85,28 +85,36 @@ function MonitorKnob({
   const rotation = -120 + (value / Math.max(steps - 1, 1)) * 240;
 
   return (
-    <button
-      type="button"
-      aria-label={`${label}, position ${Math.round(value) + 1}`}
-      onClick={onChange}
-      onKeyDown={handleKeyDown}
-      className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-transform active:translate-y-px"
-    >
-      <span className="pointer-events-none absolute inset-1 rounded-full border border-black/10 bg-gradient-to-b from-[#e8e2d3] to-[#b5ac95] shadow-[0_3px_5px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.9)]" />
-      <span className="pointer-events-none absolute inset-[6px] rounded-full border border-white/45 opacity-65" />
-      <span
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[9px] w-[2px] -translate-x-1/2 -translate-y-[85%] rounded-full bg-black/45 shadow-[0_0_2px_rgba(255,255,255,0.24)]"
-        style={{ transform: `translate(-50%, -85%) rotate(${rotation}deg)`, transformOrigin: "50% calc(100% + 7px)" }}
-      />
-    </button>
+    <div className="flex h-[2.35rem] w-[2.35rem] items-center justify-center">
+      <button
+        type="button"
+        aria-label={`${label}, position ${Math.round(value) + 1}`}
+        onClick={onChange}
+        onKeyDown={handleKeyDown}
+        className="group relative flex h-[2.35rem] w-[2.35rem] cursor-pointer items-center justify-center rounded-full transition-transform duration-150 active:translate-y-px"
+      >
+        <span className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.16),rgba(255,255,255,0)_34%),radial-gradient(circle_at_50%_70%,rgba(0,0,0,0),rgba(0,0,0,0.26)_78%,rgba(0,0,0,0.46)_100%)] opacity-85" />
+        <span className="pointer-events-none absolute inset-[2px] rounded-full border border-[#d3d0c8]/26 bg-[linear-gradient(180deg,#f2f1ec_0%,#c3beb4_44%,#888277_100%)] shadow-[0_6px_12px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.78),inset_0_-1px_1px_rgba(52,48,43,0.16)] transition-shadow duration-150 group-hover:shadow-[0_7px_14px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.84),inset_0_-1px_1px_rgba(52,48,43,0.18)]" />
+        <span className="pointer-events-none absolute inset-[5px] rounded-full border border-[#58534b]/20 bg-[linear-gradient(180deg,#3c3935_0%,#1d1b18_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-2px_3px_rgba(0,0,0,0.46)]" />
+        <span className="pointer-events-none absolute inset-[8px] rounded-full border border-white/8 bg-[linear-gradient(180deg,#d6d2ca_0%,#ada79b_100%)] shadow-[0_3px_6px_rgba(0,0,0,0.14),inset_0_0.5px_0_rgba(255,255,255,0.34),inset_0_-1px_1px_rgba(67,62,54,0.12)]" />
+        <span className="pointer-events-none absolute inset-[9px] rounded-full bg-[radial-gradient(circle_at_30%_24%,rgba(255,255,255,0.34),rgba(255,255,255,0)_34%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0)_30%)] opacity-75" />
+        <span
+          className="pointer-events-none absolute left-1/2 top-1/2 h-0 w-0"
+          style={{ transform: `translate(-50%, -50%) rotate(${rotation}deg)` }}
+        >
+          <span className="absolute left-1/2 top-1/2 h-[9px] w-[2px] -translate-x-1/2 -translate-y-[11px] rounded-full bg-[linear-gradient(180deg,#0f0f0d,#2b2924)] shadow-[0_0_3px_rgba(255,255,255,0.16),0_0_8px_rgba(255,248,220,0.18)]" />
+        </span>
+        <span className="pointer-events-none absolute inset-[11px] rounded-full border border-black/10 opacity-55" />
+      </button>
+    </div>
   );
 }
 
 export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropProps) {
   const [bootPhase, setBootPhase] = useState<"off" | "wake" | "map" | "resolve" | "done">("off");
   const [welcomeText, setWelcomeText] = useState("");
-  const [bootSeed, setBootSeed] = useState(0);
-  const [screenInstanceKey, setScreenInstanceKey] = useState(0);
+  const [bootSeed] = useState(0);
+  const [screenInstanceKey] = useState(0);
   const brightnessLevels = useMemo(() => [28, 62, 100], []);
   const [brightnessIndex, setBrightnessIndex] = useState(2);
   const [themeIndex, setThemeIndex] = useState(1);
@@ -120,13 +128,6 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
       filter: `brightness(${0.38 + normalizedBrightness * 0.92}) ${activeTheme.filter}`,
     };
   }, [activeTheme, brightness]);
-
-  const restartMonitor = useCallback(() => {
-    setBootPhase("off");
-    setWelcomeText("");
-    setScreenInstanceKey((value) => value + 1);
-    setBootSeed((value) => value + 1);
-  }, []);
 
   useEffect(() => {
     const timers = [
@@ -289,13 +290,25 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             ))}
           </div>
 
-          {/* Retro MP3: native compact size (no scale — reliable hit-testing); position then rotate */}
+          {/* Retro MP3: magnetically docked under the cabinet lip */}
           <div
-            className="absolute left-[48%] bottom-[11%] z-20 flex justify-center"
-            style={{ transform: "translate(calc(-50% + 250px), 40px)" }}
+            className="absolute left-[48%] bottom-[11.8%] z-20 flex justify-center"
+            style={{ transform: "translate(calc(-50% + 248px), 49px)" }}
           >
-            <div style={{ transform: "rotate(-3deg)", transformOrigin: "50% 100%" }}>
-              <RetroMp3Player />
+            <div className="relative">
+              <span className="pointer-events-none absolute left-1/2 top-[-8px] h-[12px] w-[84%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.26)_0%,rgba(0,0,0,0.12)_44%,rgba(0,0,0,0)_80%)] blur-[2px]" />
+              <span className="pointer-events-none absolute left-1/2 top-[-3px] h-[6px] w-[74%] -translate-x-1/2 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(255,255,255,0))]" />
+              <span className="pointer-events-none absolute left-1/2 top-[-2px] h-[2px] w-[62%] -translate-x-1/2 rounded-full bg-black/7 blur-[0.5px]" />
+              <div
+                className="relative"
+                style={{
+                  transform: "rotate(-1.5deg)",
+                  transformOrigin: "50% 0%",
+                  filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.09)) drop-shadow(0 4px 6px rgba(0,0,0,0.05))",
+                }}
+              >
+                <RetroMp3Player />
+              </div>
             </div>
           </div>
 
@@ -308,40 +321,23 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
               ))}
             </div>
             
-            {/* Center: Model Badge */}
-            <div className="flex flex-col items-center gap-1.5 translate-x-4">
-              <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#6e6557]/90 font-medium">CTR 1999</span>
-            </div>
-
             {/* Right side: Control Dials & Power */}
-            <div className="flex items-center gap-5 md:gap-7">
-              <div className="flex gap-3 md:gap-4">
-                <MonitorKnob
-                  label={`Brightness ${Math.round(brightness)} percent`}
-                  value={brightnessIndex}
-                  steps={brightnessLevels.length}
-                  onChange={() => setBrightnessIndex((value) => (value + 1) % brightnessLevels.length)}
-                />
-                <MonitorKnob
-                  label={`Theme ${activeTheme.name}`}
-                  value={themeIndex}
-                  steps={MONITOR_THEMES.length}
-                  onChange={() => setThemeIndex((value) => (value + 1) % MONITOR_THEMES.length)}
-                />
-              </div>
-              
-              {/* Power Button */}
-              <button
-                type="button"
-                aria-label="Restart monitor"
-                onClick={restartMonitor}
-                className="relative flex h-8 w-10 cursor-pointer items-center justify-center rounded-md border border-[#a19882] bg-gradient-to-b from-[#e0d9c8] to-[#b8af98] shadow-[0_3px_6px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.9)] active:translate-y-px active:shadow-[0_1px_2px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(0,0,0,0.3)]"
-              >
-                <div
-                  className="h-1.5 w-1.5 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.6)]"
-                  style={{ backgroundColor: activeTheme.glow, boxShadow: `0 0 8px ${activeTheme.glow}, inset 0 1px 2px rgba(255,255,255,0.6)` }}
-                />
-              </button>
+            <div
+              className="absolute -right-[10px] flex -translate-y-1/2 items-center gap-4 md:gap-5"
+              style={{ top: "42%" }}
+            >
+              <MonitorKnob
+                label="Bright"
+                value={brightnessIndex}
+                steps={brightnessLevels.length}
+                onChange={() => setBrightnessIndex((value) => (value + 1) % brightnessLevels.length)}
+              />
+              <MonitorKnob
+                label="Phosphor"
+                value={themeIndex}
+                steps={MONITOR_THEMES.length}
+                onChange={() => setThemeIndex((value) => (value + 1) % MONITOR_THEMES.length)}
+              />
             </div>
           </div>
         </div>
