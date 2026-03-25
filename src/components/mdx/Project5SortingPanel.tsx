@@ -148,8 +148,8 @@ function Project5SortingMessyPanel() {
 function Project5SortingNeatPanel() {
   const lines: Project5ConnectionLine[] = CHILDREN.map((node) => ({
     id: `neat-${node.id}`,
-    sourceId: String(SOURCE_NODE.id),
-    targetId: String(node.id),
+    sourceId: SOURCE_NODE.id,
+    targetId: node.id,
     sourceX: SOURCE_NODE.x + SOURCE_NODE.width / 2,
     sourceY: SOURCE_NODE.y,
     sourceDirection: "right",
