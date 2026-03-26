@@ -12,7 +12,6 @@ import { CatLumi } from "@/components/ui/CatLumi";
 
 // ── Constants ──
 
-const SESSION_KEY = "terminal_intro_done";
 const CHAT_KEY = "terminal_chat_history";
 
 const MAIN_MENU = [
@@ -28,10 +27,6 @@ const INTRO_LINES = [
 ];
 
 // ── Helpers ──
-
-function getSessionFlag(): boolean {
-  try { return sessionStorage.getItem(SESSION_KEY) === "1"; } catch { return false; }
-}
 
 function getSavedChat(): Array<{ role: "user" | "dyy"; content: string; animate?: boolean }> {
   try { const r = sessionStorage.getItem(CHAT_KEY); return r ? JSON.parse(r) : []; } catch { return []; }
@@ -60,13 +55,8 @@ function deriveScreenState(projectListVisible: boolean): ScreenState {
 export default function TerminalHero() {
   // Hydration guard
   const [mounted, setMounted] = useState(false);
-  const isReturning = useRef(false);
 
-  // Intro animation state
-  const [displayedLines, setDisplayedLines] = useState<string[]>([""]);
-  const [lineIndex, setLineIndex] = useState(0);
-  const [introDone, setIntroDone] = useState(false);
-  const [menuReady, setMenuReady] = useState(false);
+  const menuReady = true;
 
   // Interactive state
   const [projectListOpen, setProjectListOpen] = useState(false);
@@ -80,8 +70,6 @@ export default function TerminalHero() {
 
   // Effects / CRT
   const [glitch, setGlitch] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,12 +78,6 @@ export default function TerminalHero() {
   const triggerGlitch = useCallback(() => {
     setGlitch(true);
     setTimeout(() => setGlitch(false), 250);
-  }, []);
-
-  const triggerTyping = useCallback(() => {
-    setTyping(true);
-    if (typingTimer.current) clearTimeout(typingTimer.current);
-    typingTimer.current = setTimeout(() => setTyping(false), 100);
   }, []);
 
   const scrollToBottom = useCallback(() => {
@@ -114,14 +96,7 @@ export default function TerminalHero() {
   // ── Mount & session restore ──
 
   useEffect(() => {
-    isReturning.current = getSessionFlag();
-    if (isReturning.current) {
-      setDisplayedLines(INTRO_LINES);
-      setLineIndex(INTRO_LINES.length);
-      setIntroDone(true);
-      setMenuReady(true);
-      setChat(getSavedChat());
-    }
+    setChat(getSavedChat());
     setMounted(true);
   }, []);
 
@@ -132,45 +107,8 @@ export default function TerminalHero() {
     } catch { /* */ }
   }, [chat]);
 
-  useEffect(() => { scrollToBottom(); }, [chat, introDone, menuReady, projectListOpen, scrollToBottom]);
+  useEffect(() => { scrollToBottom(); }, [chat, menuReady, projectListOpen, scrollToBottom]);
   useEffect(() => { if (menuReady && inputRef.current) inputRef.current.focus(); }, [menuReady]);
-
-  // ── Intro typing animation ──
-
-  useEffect(() => {
-    if (!mounted || isReturning.current) return;
-
-    if (lineIndex >= INTRO_LINES.length) {
-      setTimeout(() => {
-        setIntroDone(true);
-        setTimeout(() => {
-          setMenuReady(true);
-          try { sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* */ }
-        }, 600);
-      }, 500);
-      return;
-    }
-
-    const text = INTRO_LINES[lineIndex];
-    let charIdx = 0;
-
-    const iv = setInterval(() => {
-      if (charIdx <= text.length) {
-        setDisplayedLines((prev) => {
-          const next = [...prev];
-          next[lineIndex] = text.slice(0, charIdx);
-          return next;
-        });
-        charIdx++;
-        if (charIdx % 2 === 0) { terminalAudio?.playKeystroke(); triggerTyping(); }
-      } else {
-        clearInterval(iv);
-        setTimeout(() => { setLineIndex((p) => p + 1); setDisplayedLines((p) => [...p, ""]); }, 200);
-      }
-    }, 20);
-
-    return () => clearInterval(iv);
-  }, [lineIndex, triggerTyping, mounted]);
 
   // ── Keyboard navigation ──
 
@@ -387,7 +325,7 @@ export default function TerminalHero() {
   return (
     <div
       onMouseLeave={() => setFocusedIdx(-1)}
-      className={`absolute inset-0 h-full w-full flex crt-screen overflow-hidden !bg-transparent ${glitch ? "trigger-glitch" : "flicker-effect"} ${typing ? "power-surge" : ""}`}
+      className={`absolute inset-0 h-full w-full flex crt-screen overflow-hidden !bg-transparent ${glitch ? "trigger-glitch" : "flicker-effect"}`}
     >
       {/* CLI Panel */}
       <div className={`flex-1 flex flex-col font-mono text-sm sm:text-base h-full relative z-20 transition-all duration-700 ease-[0.16,1,0.3,1] ${hoveredProject ? "md:max-w-[50vw]" : "w-full"}`}>
@@ -402,26 +340,19 @@ export default function TerminalHero() {
 
         {/* Scrollable Content */}
         <div ref={scrollRef} className="p-6 md:p-12 flex-1 overflow-y-auto crt-scrollbar" data-lenis-prevent>
+          {mounted ? (
+            <div className="mb-10 space-y-4">
+              {INTRO_LINES.map((line, index) => (
+                <div key={index} className="flex">
+                  <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
+                  <span className="phosphor-text leading-relaxed tracking-wide">{line}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
 
-          {/* Intro Lines */}
-          <div className="space-y-4 mb-10">
-            {displayedLines.map((line, i) => (
-              <div key={i} className="flex">
-                {i < lineIndex || (i === lineIndex && line.length > 0) ? (
-                  <>
-                    <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                    <span className="phosphor-text leading-relaxed tracking-wide">
-                      {line}
-                      {i === lineIndex && !introDone && <span className="caret-block ml-1" />}
-                    </span>
-                  </>
-                ) : null}
-              </div>
-            ))}
-          </div>
-
-          {/* Main Menu (always visible once ready) */}
-          {introDone && (
+          {/* Main Menu */}
+          {mounted && (
             <div className="mb-10">
               <div className="flex mb-6">
                 <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>

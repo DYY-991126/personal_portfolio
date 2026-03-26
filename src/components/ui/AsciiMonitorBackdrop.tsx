@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { Silkscreen } from "next/font/google";
+import { Caveat } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -12,24 +12,12 @@ import type {
 } from "react";
 import HomeWebGLScene from "./HomeWebGLScene";
 import RetroMp3Player from "./RetroMp3Player";
+import AsciiStartupIntro from "./AsciiStartupIntro";
 
-const silkscreen = Silkscreen({
+const signatureFont = Caveat({
   subsets: ["latin"],
   weight: ["700"],
 });
-
-const ASCII_ROWS = [
-  "01001001 00100000 01100001 01101101 00100000 01110011 01110100 01101001 01101100 01101100 00100000 01110111 01100001 01101011 01101001 01101110 01100111",
-  "> render.layout --quality high --mood atmospheric --structure adaptive",
-  "{ grid: 12, rhythm: 'measured', typography: 'editorial', motion: 'soft' }",
-  "████▒▒▒░░░ SYSTEM CHECK :: visual coherence / hierarchy / originality",
-  "design -> research -> direction -> structure -> code -> preload -> reveal",
-  "if quality < benchmark: refine(prompt.principles) && retry(render.pipeline)",
-  "A site should feel intentional before it feels impressive.",
-  "$ skill.invoke(style_system) --tone premium --avoid generic-ui",
-];
-
-const WELCOME_MESSAGE = "Welcome :)";
 
 /** Green + purple: screen/bezel overlap band (not on cream casing). */
 const CABINET_STICKER_LAYOUT = [
@@ -132,9 +120,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerFrameRef = useRef<number | null>(null);
   const pendingPointerRef = useRef({ x: 0, y: 0 });
-  const [bootPhase, setBootPhase] = useState<"off" | "wake" | "map" | "resolve" | "done">("off");
-  const [welcomeText, setWelcomeText] = useState("");
-  const [bootSeed] = useState(0);
+  const [startupStage, setStartupStage] = useState<"intro" | "handoff" | "home">("intro");
   const [screenInstanceKey] = useState(0);
   const brightnessLevels = useMemo(() => [88, 100, 122], []);
   const [brightnessIndex, setBrightnessIndex] = useState(2);
@@ -149,6 +135,9 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
 
   const activeTheme = MONITOR_THEMES[themeIndex];
   const brightness = brightnessLevels[brightnessIndex];
+  const handoffActive = startupStage === "handoff";
+  const showHomeScene = startupStage !== "intro";
+  const startupVisible = startupStage !== "home";
   const activePointerX = useTransform(() => smoothPointerX.get() * smoothIntensity.get());
   const activePointerY = useTransform(() => smoothPointerY.get() * smoothIntensity.get());
   const cabinetRotateX = useTransform(() => activePointerY.get() * -6.6);
@@ -172,47 +161,26 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   }, [activeTheme, brightness]);
 
   useEffect(() => {
-    const timers = [
-      window.setTimeout(() => setBootPhase("wake"), 90),
-      window.setTimeout(() => setBootPhase("map"), 680),
-      window.setTimeout(() => setBootPhase("resolve"), 1380),
-      window.setTimeout(() => setBootPhase("done"), 4200),
-    ];
-
-    return () => {
-      timers.forEach((timer) => window.clearTimeout(timer));
-    };
-  }, [bootSeed]);
-
-  useEffect(() => {
-    let typingTimer: number | undefined;
-    const startTimer = window.setTimeout(() => {
-      let index = 0;
-      typingTimer = window.setInterval(() => {
-        index += 1;
-        setWelcomeText(WELCOME_MESSAGE.slice(0, index));
-
-        if (index >= WELCOME_MESSAGE.length) {
-          window.clearInterval(typingTimer);
-        }
-      }, 90);
-    }, 1500);
-
-    return () => {
-      window.clearTimeout(startTimer);
-      if (typingTimer) {
-        window.clearInterval(typingTimer);
-      }
-    };
-  }, [bootSeed]);
-
-  useEffect(() => {
     interactionIntensity.set(prefersReducedMotion ? 0 : 1);
     if (prefersReducedMotion) {
       pointerX.set(0);
       pointerY.set(0);
     }
   }, [interactionIntensity, pointerX, pointerY, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!handoffActive) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setStartupStage("home");
+    }, 1600);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [handoffActive]);
 
   useEffect(() => {
     return () => {
@@ -292,7 +260,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_32%),linear-gradient(180deg,_#151515_0%,_#070707_45%,_#020202_100%)]">
-      <HomeWebGLScene />
+      {showHomeScene ? <HomeWebGLScene /> : null}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_35%,_rgba(0,0,0,0.35)_100%)]" />
       <motion.div
         aria-hidden
@@ -379,57 +347,81 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                   <div className="ascii-screen-glow absolute inset-0" />
                   <div className="ascii-screen-depth absolute inset-0" />
                   <div className="ascii-screen-microgrid absolute inset-0" />
-                  <div className="absolute inset-0 opacity-45">
-                    {ASCII_ROWS.map((row, index) => (
-                      <div
-                        key={`${row}-${index}`}
-                        className="ascii-row absolute whitespace-nowrap font-mono text-[10px] leading-none text-[#c8ffd8]/40 md:text-[13px]"
-                        style={
-                          {
-                            top: `${8 + index * 10.5}%`,
-                            animationDelay: `${index * -2.1}s`,
-                          } as CSSProperties
-                        }
-                      >
-                        {row}
-                      </div>
-                    ))}
-                  </div>
-
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.06),transparent_28%),radial-gradient(circle_at_center,transparent_48%,rgba(0,0,0,0.26)_100%)]" />
                   <div className="ascii-scanline absolute inset-0 opacity-30" />
-                  <div className={`absolute inset-0 z-[9] transition-opacity duration-700 ${bootPhase === "done" ? "opacity-0" : "opacity-100"}`}>
-                    <div className="ascii-boot-stage absolute inset-0">
-                      <div className="ascii-boot-flow absolute inset-0 opacity-90">
-                        {Array.from({ length: 14 }).map((_, index) => (
-                          <div
-                            key={index}
-                            className="ascii-boot-stream font-mono text-[9px] uppercase tracking-[0.28em] text-[#aaffc5]/[0.16] md:text-[11px]"
-                            style={
-                              {
-                                top: `${index * 7.2}%`,
-                                animationDelay: `${index * -0.85}s`,
-                              } as CSSProperties
-                            }
-                          >
-                            {ASCII_ROWS[index % ASCII_ROWS.length]} :: {ASCII_ROWS[(index + 3) % ASCII_ROWS.length]} :: {ASCII_ROWS[(index + 5) % ASCII_ROWS.length]}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="ascii-boot-edge-pulse absolute inset-0" />
-                      <div className="ascii-boot-sweep absolute inset-0" />
-                      <div className="absolute inset-0 flex items-center justify-center px-6">
-                        <div className={`ascii-boot-welcome ${silkscreen.className} ${welcomeText ? "is-visible" : ""}`}>
-                          <span className="phosphor-text">{welcomeText}</span>
-                          {welcomeText.length < WELCOME_MESSAGE.length && bootPhase === "resolve" ? <span className="caret-block ml-2" /> : null}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={`absolute inset-0 z-10 transition-opacity duration-500 ${bootPhase === "done" ? "opacity-100" : "opacity-0"}`}>
+                  {startupVisible ? (
+                    <AsciiStartupIntro
+                      phase={handoffActive ? "handoff" : "intro"}
+                      onComplete={() => setStartupStage("handoff")}
+                    />
+                  ) : null}
+                  <motion.div
+                    className="absolute inset-0 z-10"
+                    initial={false}
+                    animate={
+                      startupStage !== "intro"
+                        ? {
+                            opacity: 1,
+                            scale: 1,
+                            y: 0,
+                          }
+                        : {
+                            opacity: 0,
+                            scale: 1.012,
+                            y: 6,
+                          }
+                    }
+                    transition={{
+                      duration: 1.6,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                  >
                     {children}
-                  </div>
-                  <div className={`ascii-boot-fade absolute inset-0 z-[8] transition-opacity duration-700 ${bootPhase === "done" ? "opacity-0" : "opacity-100"}`} />
+                  </motion.div>
+                  <motion.div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 z-[11] bg-[#03110b] blur-[12px]"
+                    initial={false}
+                    animate={
+                      startupStage !== "intro"
+                        ? {
+                            opacity: 0,
+                            scale: 1,
+                          }
+                        : {
+                            opacity: 0.22,
+                            scale: 1.05,
+                          }
+                    }
+                    transition={{
+                      duration: 1.45,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                  />
+                  <motion.div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 z-[12] blur-[8px]"
+                    initial={false}
+                    animate={
+                      startupStage !== "intro"
+                        ? {
+                            opacity: 0,
+                            scale: 1,
+                          }
+                        : {
+                            opacity: 0.36,
+                            scale: 1.04,
+                          }
+                    }
+                    transition={{
+                      duration: 1.3,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    style={{
+                      background:
+                        "radial-gradient(circle at 50% 48%, rgba(126,255,204,0.2), rgba(126,255,204,0) 42%), linear-gradient(180deg, rgba(2,8,6,0.08), rgba(3,17,11,0.32)), repeating-linear-gradient(180deg, rgba(153,255,213,0.06) 0px, rgba(153,255,213,0.06) 1px, transparent 1px, transparent 4px)",
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -518,6 +510,27 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             style={{ transform: "translateZ(34px)" }}
           >
             <div className="relative flex items-center justify-between">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 flex h-[1.6rem] w-[clamp(5rem,12vw,8rem)] -translate-x-1/2 items-center justify-center md:h-[1.8rem] md:w-[clamp(6rem,11vw,9rem)]"
+                style={{ bottom: "calc(2% + 16px)" }}
+              >
+                <div className="relative flex h-full w-full items-center justify-center px-4">
+                  <span
+                    aria-hidden
+                    className={`${signatureFont.className} select-none text-[2rem] font-bold leading-none tracking-[0.02em] opacity-80 mix-blend-multiply md:text-[2.2rem]`}
+                    style={{
+                      color: "#665B49",
+                      transform: "translateY(-1px) rotate(-4deg)",
+                      filter:
+                        "drop-shadow(0 1px 0 rgba(255,248,232,0.12)) drop-shadow(0 -1px 0 rgba(94,84,70,0.16))",
+                    }}
+                  >
+                    DYY
+                  </span>
+                </div>
+              </div>
+
               {/* Left side: Ventilation / Speaker grilles */}
               <div className="flex gap-2 opacity-70">
                 {Array.from({ length: 10 }).map((_, i) => (

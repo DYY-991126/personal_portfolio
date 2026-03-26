@@ -1,50 +1,178 @@
 ---
 id: "project-7"
-title: "Oasis Mindfulness"
-category: "Mobile App"
-year: "2022"
-client: "Oasis Health"
-role: "UI/UX Designer"
-coverImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2000&auto=format&fit=crop"
-description: "A serene, calming mobile application designed to help users track and improve their mental wellbeing."
+title: "ugic"
+subtitle: "利用 Figma Design System 生成原型与设计稿"
+category: "Figma Plugin / AI Design Workflow"
+year: "2025"
+client: "Figma 平台产品"
+role: "产品设计师"
+coverImage: "/project_cover/图像3.jpg"
+description: "ugic 是一款运行在 Figma 上、基于用户组件库生成 UI 草稿的 AI 插件。我在这个项目中同时承担 AI 能力调试、成本控制、产品设计与商业化、项目管理和埋点等工作。"
 ---
 
-## Creating Calm Through Design
+## 项目概述
 
-We utilized soft gradients, fluid animations, and a distinct lack of sharp edges to promote a sense of calm. Every micro-interaction was tuned to feel gentle and unhurried.
+ugic 是一款基于 AI 驱动、建立在用户自有 Design System 之上的 Figma 插件。它的目标不是凭空画出一张“像设计稿的图”，而是根据用户诉求，从已有组件库中挑选合适的组件，生成可以继续编辑的多语言 UI draft。
 
-<ImageBlock
-  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2000&auto=format&fit=crop"
-  caption="App home screen and meditation player"
-/>
+这个项目最吸引我的地方在于，它同时踩在三个高难点上：
 
-## Design Principles
+- AI 生成结果要足够好，不能只是看起来像 UI
+- 生成必须真实复用用户组件库，而不是绕开 Design System
+- 产品要能跑通商业模型，不能只有效果，没有成本和交付逻辑
 
-- **Soft geometry** — All corners use a minimum 16px radius; no sharp angles anywhere
-- **Breathing rhythm** — Animations follow 4-7-8 breathing patterns (inhale, hold, exhale)
-- **Muted palette** — Colors stay within 30% saturation to avoid visual stress
-- **Generous whitespace** — Content density is deliberately low to reduce cognitive load
+在 ugic 中，我不仅参与产品设计，也深度参与了能力调试、成本控制、商业化策略、埋点与项目推进。它更像一个需要从能力、产品到生意一起成立的项目。
 
-> "The best wellness app is one that makes you feel calmer just by looking at it."
+## 我负责的事情
 
-## Color System
+我在这个项目里承担的工作比较完整，覆盖了从能力打磨到上线后的持续跟进：
 
-```css
-:root {
-  --oasis-dawn: hsl(32, 60%, 92%);
-  --oasis-sky: hsl(210, 40%, 88%);
-  --oasis-sage: hsl(150, 25%, 82%);
-  --oasis-dusk: hsl(260, 30%, 86%);
-  --oasis-text: hsl(220, 15%, 30%);
-}
-```
+- AI 能力调试：Mobile 与 Web 端的生成效果优化
+- 成本控制：压低单页生成成本，建立更可持续的模型
+- 产品设计：核心流程、关键界面与交互定义
+- 商业化：权益设计、成本测算、定价策略
+- 项目管理：推进能力、产品、上线节奏的协同
+- 数据埋点：区分业务与环境，监控关键转化与成本表现
 
-<Callout type="insight">
-  User testing revealed that session completion rates increased by 40% after we slowed all transitions to a minimum of 600ms, matching the natural breathing tempo.
-</Callout>
+## 冷启动结果
 
-## Outcomes
+根据文档里当时记录的数据，ugic 在冷启动阶段已经验证出了一定的市场信号：
 
-- **4.8★** App Store rating with 12K+ reviews
-- **68%** 30-day retention (vs. 25% wellness app average)
-- **40%** increase in session completion after animation tuning
+- 截止当时已有 **207 人付费**
+- 收入约 **$2160 / 15336 RMB**
+- 付费转化率约 **3.83%**
+
+文档后续记录里还保留了一组更细的漏斗数据：
+
+- `查看 -> 使用 -> 付费`：`10991 -> 3800 -> 125`
+- 使用率约 **34%**
+- 付费转化率约 **3.28%**
+
+对我来说，这些数据的重要性不只是“证明有人买单”，而是说明 ugic 已经不再停留在 demo 阶段，而是开始进入真实用户、真实成本、真实收入的产品状态。
+
+## 最核心的挑战
+
+这个项目真正困难的地方，不是做一个 Figma AI 功能，而是同时解决三个问题：
+
+1. AI 是否真的能理解需求并拆成合理页面
+2. AI 是否真的能准确调用用户组件库生成页面
+3. 单次生成成本是否低到足以支撑产品成立
+
+如果这三个问题里任意一个不成立，ugic 都很难走到上线。
+
+最早期的调试里，我遇到两个很典型的问题。
+
+### 问题一：AI 会“说组件”，但不会真正用组件
+
+在最初的链路里，前一个 AI 节点会描述页面，说这个页面需要哪些元素、布局和组件；但后一个 AI 节点并不能稳定地把这些要求转成正确的组件使用。结果就是：
+
+- 它理解了页面描述，却没用对组件
+- 或者根本没找到组件，页面出现空缺
+- 信息一多之后，干脆忽略要求，直接退化成泛化输出
+
+这让我意识到，这不是单纯的 prompt 问题，而是信息组织方式有问题。自然语言对组件的描述太模糊，AI 节点之间的沟通关系也太脆弱。
+
+### 问题二：AI 不擅长把复杂需求拆成合理页面
+
+比如用户需求里同时包含“下载”“流程”“分享”三个内容时，AI 往往会把所有内容堆到一个页面里。反过来，当一个页面需要按模块组织时，它也不一定能稳定地完成拆分。
+
+如果这个问题不解决，后续设计再精细也没有意义，因为最上游的页面结构就已经错了。
+
+## 我做的关键优化
+
+### 1. 把组件库前置给 AI，而不是让它凭想象描述组件
+
+后来的关键突破，是把组件库信息前置给负责页面组织的 AI 节点。让它不再用自然语言模糊地说“这里需要一个列表组件”，而是直接以页面维度从现有组件库中做选择，并输出结构化结果。
+
+这个调整的本质，是把“描述组件”改成“选择组件”。
+
+它带来了两个明显变化：
+
+- AI 选组件时不再完全凭想象
+- 组件调用变得更可控，也更容易排查错误
+
+这一步直接改善了生成结果里“说得到但做不到”的问题。
+
+### 2. 用工程手段拆开页面描述和组件信息
+
+我还发现，如果把所有结构化信息和页面描述都混在一起喂给模型，结果反而会更差。于是我在请求层做了一次更重要的整理：
+
+- 页面描述继续保留在用户语义层
+- 组件信息通过工程方式注入到 system 层
+
+这样做之后，负责执行生成的 AI 不需要同时消化一大堆混杂信号，而是能更稳定地在“页面目标”和“可用组件”之间建立映射。
+
+这不是简单的 prompt 调整，而是一次产品与工程共同完成的信息架构优化。
+
+### 3. 围绕 DSL 和 Figma 布局系统做工程优化
+
+在页面生成这一层，我做的不只是 prompt 调试，还包括对 DSL 和工程实现的理解与优化。
+
+文档里提到，当时 DSL 更接近 Figma 的布局系统，而不是完整的前端布局系统；并且默认只支持 `frame / text / component` 三种类型。为了让生成结果更接近高保真设计稿，我参与推动了几件事：
+
+- 扩展 DSL，让布局与 Figma 映射更一致
+- 增加图片注入和图标注入能力
+- 优化布局在 Canvas 中的实际渲染问题
+- 处理不同端侧下布局策略不一致的问题
+
+这类工作不一定最“显眼”，但它们是生成效果稳定的基础。
+
+### 4. 用产品层承接 AI 不擅长的复杂拆解
+
+针对“复杂需求无法稳定拆页”的问题，我没有继续无限堆 AI 节点。虽然多节点校验能提升质量，但会显著增加时间成本和金钱成本，而收益并不成比例。
+
+于是我转向产品方案，把一部分复杂度从能力层迁移到产品层，做了 `PageStructure` 这样的中间页面，让用户可以检查 AI 拆出来的页面和每个页面结构。
+
+这背后的判断是：不是所有问题都该在模型层解决。有些复杂度，转移到产品交互层，反而更可控、也更符合成本与效率的平衡。
+
+## 成本控制是这个项目能不能成立的关键
+
+ugic 最初一个非常现实的问题是成本。
+
+文档里记录，当时的技术架构下，**单页面生成成本一度高达 $1 到 $3**。如果继续沿用这套方案，用户很快就会把额度消耗完，产品几乎不可能形成可持续的使用关系。
+
+后来通过技术架构和信息组织方式的迭代，我把 **单页面成本压到约 $0.1**。这件事非常关键，因为它直接决定了后续权益包、试用策略和商业模型能不能站住。
+
+对这个项目来说，生成质量当然重要，但如果没有成本控制，产品根本没有资格进入市场。
+
+## 商业化判断
+
+在商业化上，我做的不是简单的“给一个价格”，而是先重新算清楚成本与权益之间的关系。
+
+早期方案更偏保守，比如按生成次数给权益。但我在测算中引入了用户行为占比，做了“乐观估算”和“悲观估算”的区间判断，并最终把交易单位从“次数”改成了“page”。
+
+最后形成的策略是：
+
+- **$10 = 50 page**
+
+这个策略的意义在于，它更贴近用户真实理解方式，也更容易和实际单页成本建立对应关系。文档里也记录了，上线后一周我就开始跟进真实成本数据，结果和前期预估基本接近。
+
+## 上线后的工作
+
+项目上线不是结束，反而是另一轮验证的开始。上线后我继续跟进了几类事情：
+
+- 用户声音收集：Twitter、Discord、Google Form、用户访谈
+- 转化漏斗分析：从触达、邀请码兑换到付费
+- 成本与收益监控：单次生成成本、总收益、总成本
+- 新用户引入策略：试用、邀请码、免费权益与预算平衡
+- 运营与 GTM：官网、Help Center、视频、产品详情页、社区维护
+
+我很看重这一部分，因为它说明 ugic 不是一个只停留在内部研发阶段的产品，而是真正进入了市场和用户环境中。
+
+## 这个项目对我的价值
+
+ugic 对我而言，不只是“我做过一个 Figma AI 插件”，而是一次完整的产品训练：
+
+- 我需要在生成质量和稳定性之间做判断
+- 我需要在模型、工程、产品之间定位问题
+- 我需要在用户体验和成本之间找到平衡
+- 我需要把一个能工作的能力，推进成一个可以上线和收费的产品
+
+这个项目让我更确信一件事：AI 产品真正难的，从来不是把模型接进来，而是让能力、产品、成本和商业逻辑同时成立。
+
+## 小结
+
+如果要用一句话概括 ugic，我会说：
+
+它不是一个“自动帮你画 UI”的插件，而是一套尝试把用户 Design System、AI 生成能力、产品流程和商业模型串成闭环的 Figma 产品。
+
+而我在这个项目里做的事，正是不断把这个闭环补齐。
