@@ -37,11 +37,11 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 
 class AsciiEffectImpl extends Effect {
   constructor(texture: THREE.Texture, characters = 10, charSize = 24) {
-    const uniforms = new Map<string, THREE.IUniform>([
-      ["tAscii", new THREE.Uniform(texture)],
-      ["characters", new THREE.Uniform(characters)],
-      ["charSize", new THREE.Uniform(charSize)],
-      ["resolution", new THREE.Uniform(new THREE.Vector2())],
+    const uniforms = new Map<string, THREE.Uniform<unknown>>([
+      ["tAscii", new THREE.Uniform<unknown>(texture)],
+      ["characters", new THREE.Uniform<unknown>(characters)],
+      ["charSize", new THREE.Uniform<unknown>(charSize)],
+      ["resolution", new THREE.Uniform<unknown>(new THREE.Vector2())],
     ]);
 
     super("AsciiEffect", asciiFragmentShader, {
@@ -499,14 +499,16 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
         <FlowerCluster />
         <CameraRig />
         <FadeController />
-        <EffectComposer disableNormalPass>
+        <EffectComposer enableNormalPass={false}>
           {asciiData ? (
             <AsciiEffect
               texture={asciiData.texture}
               characters={asciiData.numChars}
               charSize={12}
             />
-          ) : null}
+          ) : (
+            <></>
+          )}
           <Bloom
             luminanceThreshold={0.38}
             luminanceSmoothing={0.78}
