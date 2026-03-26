@@ -37,14 +37,16 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 
 class AsciiEffectImpl extends Effect {
   constructor(texture: THREE.Texture, characters = 10, charSize = 24) {
+    const uniforms = new Map<string, THREE.IUniform>([
+      ["tAscii", new THREE.Uniform(texture)],
+      ["characters", new THREE.Uniform(characters)],
+      ["charSize", new THREE.Uniform(charSize)],
+      ["resolution", new THREE.Uniform(new THREE.Vector2())],
+    ]);
+
     super("AsciiEffect", asciiFragmentShader, {
       blendFunction: BlendFunction.NORMAL,
-      uniforms: new Map([
-        ["tAscii", new THREE.Uniform(texture)],
-        ["characters", new THREE.Uniform(characters)],
-        ["charSize", new THREE.Uniform(charSize)],
-        ["resolution", new THREE.Uniform(new THREE.Vector2())],
-      ]),
+      uniforms,
     });
   }
 
