@@ -1,14 +1,22 @@
 "use client";
 
+type WindowWithWebkitAudio = Window & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
 class TerminalAudio {
   private ctx: AudioContext | null = null;
 
   private init() {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioWindow = window as WindowWithWebkitAudio;
+      const AudioContextCtor = globalThis.AudioContext || audioWindow.webkitAudioContext;
+      if (!AudioContextCtor) return;
+      this.ctx = new AudioContextCtor();
     }
-    if (this.ctx.state === "suspended") {
-      this.ctx.resume();
+    const ctx = this.ctx;
+    if (ctx && ctx.state === "suspended") {
+      void ctx.resume();
     }
   }
 
@@ -76,6 +84,7 @@ class TerminalAudio {
       // Ignore errors
     }
   }
+
 }
 
 // Export a singleton instance

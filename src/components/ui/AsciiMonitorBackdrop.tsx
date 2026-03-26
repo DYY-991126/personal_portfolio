@@ -175,7 +175,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
 
     const timer = window.setTimeout(() => {
       setStartupStage("home");
-    }, 1600);
+    }, 720);
 
     return () => {
       window.clearTimeout(timer);
@@ -372,8 +372,8 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                           }
                     }
                     transition={{
-                      duration: 1.6,
-                      ease: [0.16, 1, 0.3, 1],
+                      duration: 0.78,
+                      ease: [0.25, 0.25, 0.75, 0.75],
                     }}
                   >
                     {children}
@@ -394,8 +394,8 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                           }
                     }
                     transition={{
-                      duration: 1.45,
-                      ease: [0.16, 1, 0.3, 1],
+                      duration: 0.62,
+                      ease: [0.25, 0.25, 0.75, 0.75],
                     }}
                   />
                   <motion.div
@@ -414,7 +414,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                           }
                     }
                     transition={{
-                      duration: 1.3,
+                      duration: 0.58,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                     style={{

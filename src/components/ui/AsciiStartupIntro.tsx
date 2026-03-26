@@ -13,7 +13,10 @@ interface AsciiStartupIntroProps {
   phase: "intro" | "handoff";
 }
 
-const LOOP_DURATION_MS = 12000;
+const LOOP_DURATION_MS = 8000;
+const GROWTH_END = 5.8;
+const ANIMATION_END = 8.0;
+const SETTLE_BLEND_START = 5.55;
 
 const asciiFragmentShader = `
 uniform sampler2D tAscii;
@@ -327,13 +330,13 @@ function MovingLight() {
   useFrame(({ clock }) => {
     if (!lightRef.current) return;
 
-    const time = Math.min(clock.getElapsedTime(), 12);
+    const time = Math.min(clock.getElapsedTime(), ANIMATION_END);
     let growth = 0;
 
-    if (time > 0.5 && time <= 6.5) {
-      const t = (time - 0.5) / 6;
+    if (time > 0.45 && time <= GROWTH_END) {
+      const t = (time - 0.45) / (GROWTH_END - 0.45);
       growth = 1 - Math.pow(1 - t, 3);
-    } else if (time > 6.5) {
+    } else if (time > GROWTH_END) {
       growth = 1;
     }
 
@@ -349,7 +352,7 @@ function CameraRig() {
 
   useFrame(({ camera, clock }) => {
     const time = clock.getElapsedTime();
-    const loopTime = Math.min(time, 12);
+    const loopTime = Math.min(time, ANIMATION_END);
     const baseAngle = time * 0.15;
 
     let targetY = 0;
@@ -357,20 +360,26 @@ function CameraRig() {
     let radius = 15;
     let angle = 0;
     let growth = 0;
+    let settleBlend = 0;
 
-    if (loopTime > 0.5 && loopTime <= 6.5) {
-      const t = (loopTime - 0.5) / 6;
+    if (loopTime > 0.45 && loopTime <= GROWTH_END) {
+      const t = (loopTime - 0.45) / (GROWTH_END - 0.45);
       growth = 1 - Math.pow(1 - t, 3);
-    } else if (loopTime > 6.5) {
+    } else if (loopTime > GROWTH_END) {
       growth = 1;
     }
 
-    if (loopTime < 0.5) {
+    if (loopTime > SETTLE_BLEND_START) {
+      const blendT = Math.min(1, (loopTime - SETTLE_BLEND_START) / (ANIMATION_END - SETTLE_BLEND_START));
+      settleBlend = blendT;
+    }
+
+    if (loopTime < 0.45) {
       targetY = -10;
       cameraY = -10;
       radius = 12;
       angle = baseAngle;
-    } else if (loopTime <= 6.5) {
+    } else if (loopTime <= GROWTH_END) {
       const tipY = -10 + growth * 20;
       targetY = tipY;
       cameraY = tipY - 2;
@@ -380,14 +389,24 @@ function CameraRig() {
       targetY = 10;
       cameraY = 8;
       radius = 20;
-      angle = baseAngle + Math.PI * 2.5 + Math.max(loopTime - 6.5, 0) * 0.3;
+      angle = baseAngle + Math.PI * 2.5;
     }
 
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, Math.cos(angle) * radius, 0.05);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, cameraY, 0.05);
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, Math.sin(angle) * radius, 0.05);
+    const settleTargetY = THREE.MathUtils.lerp(10, 8.45, settleBlend);
+    const settleCameraY = THREE.MathUtils.lerp(8, 6.2, settleBlend);
+    const settleRadius = THREE.MathUtils.lerp(20, 15.0, settleBlend);
+    const settleAngle = baseAngle + Math.PI * 2.5 + settleBlend * 1.18;
 
-    targetRef.current.lerp(new THREE.Vector3(0, targetY, 0), 0.08);
+    targetY = THREE.MathUtils.lerp(targetY, settleTargetY, settleBlend);
+    cameraY = THREE.MathUtils.lerp(cameraY, settleCameraY, settleBlend);
+    radius = THREE.MathUtils.lerp(radius, settleRadius, settleBlend);
+    angle = THREE.MathUtils.lerp(angle, settleAngle, settleBlend);
+
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, Math.cos(angle) * radius, 0.07);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, cameraY, 0.07);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, Math.sin(angle) * radius, 0.07);
+
+    targetRef.current.lerp(new THREE.Vector3(0, targetY, 0), 0.095);
     camera.lookAt(targetRef.current);
   });
 
@@ -396,8 +415,8 @@ function CameraRig() {
 
 function FadeController() {
   useFrame(({ clock }) => {
-    const elapsed = Math.min(clock.getElapsedTime(), 12);
-    const opacity = elapsed > 11 ? Math.min(0.46, (elapsed - 11) * 0.46) : 0;
+    const elapsed = Math.min(clock.getElapsedTime(), ANIMATION_END);
+    const opacity = elapsed > 7.62 ? Math.min(0.18, (elapsed - 7.62) * 0.52) : 0;
     const overlay = document.getElementById("ascii-startup-fade");
     if (overlay) overlay.style.opacity = opacity.toString();
   });
@@ -420,8 +439,8 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
       animate={
         phase === "handoff"
           ? {
-              opacity: 0.42,
-              scale: 1.01,
+              opacity: 0,
+              scale: 1.004,
             }
           : {
               opacity: 1,
@@ -429,7 +448,7 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
             }
       }
       transition={{
-        duration: 1.2,
+        duration: 0.72,
         ease: [0.16, 1, 0.3, 1],
       }}
     >
@@ -445,8 +464,8 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
         animate={
           phase === "handoff"
             ? {
-                opacity: 0.72,
-                scale: 1,
+                opacity: 0,
+                scale: 0.992,
               }
             : {
                 opacity: 0,
@@ -454,7 +473,7 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
               }
         }
         transition={{
-          duration: 1.15,
+          duration: 0.64,
           ease: [0.16, 1, 0.3, 1],
         }}
         style={{
@@ -469,8 +488,8 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
         animate={
           phase === "handoff"
             ? {
-                opacity: 0.38,
-                scaleY: 1,
+                opacity: 0,
+                scaleY: 0.985,
               }
             : {
                 opacity: 0,
@@ -478,7 +497,7 @@ export default function AsciiStartupIntro({ onComplete, phase }: AsciiStartupInt
               }
         }
         transition={{
-          duration: 1,
+          duration: 0.58,
           ease: [0.16, 1, 0.3, 1],
         }}
         style={{
