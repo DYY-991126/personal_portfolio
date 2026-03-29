@@ -1,6 +1,8 @@
 import type { MDXComponents } from "mdx/types";
 import { isValidElement, type ReactNode } from "react";
 import ImageBlock from "./ImageBlock";
+import BeforeAfterBlock from "./BeforeAfterBlock";
+import PdfBlock from "./PdfBlock";
 import VideoBlock from "./VideoBlock";
 import { Pre } from "./CodeBlock";
 import InteractiveBlock from "./InteractiveBlock";
@@ -100,6 +102,8 @@ export function getMDXComponents(): MDXComponents {
   return {
     // Custom blocks
     ImageBlock,
+    BeforeAfterBlock,
+    PdfBlock,
     VideoBlock,
     InteractiveBlock,
     Gallery,

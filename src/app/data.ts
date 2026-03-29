@@ -73,7 +73,7 @@ export const PROJECTS: Project[] = [
     title: "ugic",
     subtitle: "利用 Figma Design System 生成原型与设计稿",
     category: "Figma Plugin / AI Design Workflow",
-    year: "2025",
+    year: "2024.06 – 2024.09",
     client: "Figma 平台产品",
     role: "产品设计师 / AI 能力调试 / 商业化",
     coverImage: "/project_cover/图像3.jpg",
