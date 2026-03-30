@@ -9,6 +9,7 @@ import type { AIAction, ScreenState } from "@/lib/ai-tools";
 import { terminalAudio } from "@/lib/audio";
 import { ChatMessageText } from "@/components/ui/ChatMessageText";
 import { CatLumi } from "@/components/ui/CatLumi";
+import { ResumeModal } from "@/components/ui/ResumeModal";
 
 // ── Constants ──
 
@@ -28,7 +29,11 @@ const INTRO_LINES = [
 
 // ── Helpers ──
 
-function getSavedChat(): Array<{ role: "user" | "dyy"; content: string; animate?: boolean }> {
+type TerminalChatMessage =
+  | { role: "user"; content: string }
+  | { role: "dyy"; content: string; animate?: boolean; resume?: boolean };
+
+function getSavedChat(): TerminalChatMessage[] {
   try { const r = sessionStorage.getItem(CHAT_KEY); return r ? JSON.parse(r) : []; } catch { return []; }
 }
 
@@ -64,12 +69,14 @@ export default function TerminalHero() {
   const [focusedIdx, setFocusedIdx] = useState(-1);
 
   // Chat state
-  const [chat, setChat] = useState<Array<{ role: "user" | "dyy"; content: string; animate?: boolean }>>([]);
+  const [chat, setChat] = useState<TerminalChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Effects / CRT
   const [glitch, setGlitch] = useState(false);
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [resumeLaunchPending, setResumeLaunchPending] = useState(false);
 
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -91,6 +98,28 @@ export default function TerminalHero() {
         }
       }, 50);
     }
+  }, []);
+
+  const openResumeWithTransition = useCallback((opts?: { userAlreadyInChat?: boolean }) => {
+    setResumeLaunchPending(true);
+    setChat((p) => {
+      const next: TerminalChatMessage[] = [...p];
+      if (!opts?.userAlreadyInChat) {
+        next.push({ role: "user", content: MAIN_MENU[0]?.label ?? "1. 更多关于我 (About Me)" });
+      }
+      next.push({
+        role: "dyy",
+        content: "正在为你调取他的档案...",
+        animate: true,
+        resume: true,
+      });
+      return next;
+    });
+
+    setTimeout(() => {
+      setResumeModalOpen(true);
+      setResumeLaunchPending(false);
+    }, 900);
   }, []);
 
   // ── Mount & session restore ──
@@ -233,7 +262,7 @@ export default function TerminalHero() {
 
   // ── Menu selection (from keyboard/click/number input) ──
 
-  const handleMenuSelect = useCallback((idx: number) => {
+  const handleMenuSelect = useCallback((idx: number, opts?: { userAlreadyInChat?: boolean }) => {
     const item = MAIN_MENU[idx];
     if (!item) return;
     if (item.id === "projects") {
@@ -250,9 +279,13 @@ export default function TerminalHero() {
       }
       return;
     }
+    if (item.id === "about") {
+      openResumeWithTransition({ userAlreadyInChat: opts?.userAlreadyInChat });
+      return;
+    }
     sendToAI(item.label);
     if (item.id === "chat") setTimeout(() => inputRef.current?.focus(), 100);
-  }, [router, sendToAI]);
+  }, [openResumeWithTransition, router, sendToAI]);
 
   // ── Form submit: input router ──
 
@@ -300,7 +333,7 @@ export default function TerminalHero() {
     if (!isNaN(num)) {
       if (!projectListOpen && num >= 1 && num <= MAIN_MENU.length) {
         setChat((p) => [...p, { role: "user", content: raw }]);
-        handleMenuSelect(num - 1);
+        handleMenuSelect(num - 1, { userAlreadyInChat: true });
         return;
       }
       if (projectListOpen && num >= 1 && num <= PROJECTS.length) {
@@ -325,7 +358,7 @@ export default function TerminalHero() {
   return (
     <div
       onMouseLeave={() => setFocusedIdx(-1)}
-      className={`absolute inset-0 h-full w-full flex crt-screen overflow-hidden !bg-transparent ${glitch ? "trigger-glitch" : "flicker-effect"}`}
+      className={`absolute inset-0 h-full w-full flex crt-screen overflow-hidden !bg-transparent transition-transform duration-700 ease-[0.16,1,0.3,1] ${resumeLaunchPending ? "scale-[0.965]" : "scale-100"} ${glitch ? "trigger-glitch" : "flicker-effect"}`}
     >
       {/* CLI Panel */}
       <div className={`flex-1 flex flex-col font-mono text-sm sm:text-base h-full relative z-20 transition-all duration-700 ease-[0.16,1,0.3,1] ${hoveredProject ? "md:max-w-[50vw]" : "w-full"}`}>
@@ -397,18 +430,33 @@ export default function TerminalHero() {
                         <span className="phosphor-blue whitespace-pre-wrap tracking-wide"><ChatMessageText content={msg.content} /></span>
                       </div>
                     ) : (
-                      <div className="flex">
+                      <div className="flex w-full min-w-0">
                         <span className="phosphor-text mr-4 shrink-0 mt-0.5">❯</span>
-                        <span className="phosphor-text whitespace-pre-wrap tracking-wide">
+                        <div className="min-w-0 flex-1 phosphor-text whitespace-pre-wrap tracking-wide">
                           {msg.content === "Thinking..." ? (
                             <span className="flex items-center gap-3 opacity-80">
                               <Loader2 className="w-4 h-4 animate-spin" />
                               [ PROCESSING QUERY ]...
                             </span>
                           ) : (
-                            <ChatMessageText content={msg.content} animate={msg.animate} />
+                            <>
+                              <ChatMessageText content={msg.content} animate={msg.animate} />
+                              {msg.role === "dyy" && msg.resume ? (
+                                <button
+                                  type="button"
+                                  className="mt-3 block cursor-pointer font-mono text-[11px] uppercase tracking-widest text-[#00ff41]/60 underline underline-offset-4 decoration-[#00ff41]/40 transition-colors hover:text-[#00ff41] hover:decoration-[#00ff41]"
+                                  onClick={() => {
+                                    terminalAudio?.playEnter();
+                                    triggerGlitch();
+                                    openResumeWithTransition({ userAlreadyInChat: true });
+                                  }}
+                                >
+                                  打开档案
+                                </button>
+                              ) : null}
+                            </>
                           )}
-                        </span>
+                        </div>
                       </div>
                     )}
                   </motion.div>
@@ -468,6 +516,8 @@ export default function TerminalHero() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ResumeModal open={resumeModalOpen} onOpenChange={setResumeModalOpen} />
     </div>
   );
 }

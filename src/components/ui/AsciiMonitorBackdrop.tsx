@@ -14,6 +14,8 @@ import HomeWebGLScene from "./HomeWebGLScene";
 import RetroMp3Player from "./RetroMp3Player";
 import AsciiStartupIntro from "./AsciiStartupIntro";
 
+const STARTUP_INTRO_SEEN_KEY = "home_startup_intro_seen_v1";
+
 const signatureFont = Caveat({
   subsets: ["latin"],
   weight: ["700"],
@@ -120,7 +122,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerFrameRef = useRef<number | null>(null);
   const pendingPointerRef = useRef({ x: 0, y: 0 });
-  const [startupStage, setStartupStage] = useState<"intro" | "handoff" | "home">("intro");
+  const [startupStage, setStartupStage] = useState<"intro" | "handoff" | "home" | null>(null);
   const [screenInstanceKey] = useState(0);
   const brightnessLevels = useMemo(() => [88, 100, 122], []);
   const [brightnessIndex, setBrightnessIndex] = useState(2);
@@ -136,8 +138,8 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   const activeTheme = MONITOR_THEMES[themeIndex];
   const brightness = brightnessLevels[brightnessIndex];
   const handoffActive = startupStage === "handoff";
-  const showHomeScene = startupStage !== "intro";
-  const startupVisible = startupStage !== "home";
+  const showHomeScene = startupStage !== "intro" && startupStage !== null;
+  const startupVisible = startupStage !== "home" && startupStage !== null;
   const activePointerX = useTransform(() => smoothPointerX.get() * smoothIntensity.get());
   const activePointerY = useTransform(() => smoothPointerY.get() * smoothIntensity.get());
   const cabinetRotateX = useTransform(() => activePointerY.get() * -6.6);
@@ -161,6 +163,15 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   }, [activeTheme, brightness]);
 
   useEffect(() => {
+    try {
+      const introSeen = window.localStorage.getItem(STARTUP_INTRO_SEEN_KEY) === "1";
+      setStartupStage(introSeen ? "home" : "intro");
+    } catch {
+      setStartupStage("intro");
+    }
+  }, []);
+
+  useEffect(() => {
     interactionIntensity.set(prefersReducedMotion ? 0 : 1);
     if (prefersReducedMotion) {
       pointerX.set(0);
@@ -174,6 +185,11 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
     }
 
     const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(STARTUP_INTRO_SEEN_KEY, "1");
+      } catch {
+        // Ignore storage write failures and continue.
+      }
       setStartupStage("home");
     }, 720);
 
@@ -352,14 +368,21 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                   {startupVisible ? (
                     <AsciiStartupIntro
                       phase={handoffActive ? "handoff" : "intro"}
-                      onComplete={() => setStartupStage("handoff")}
+                      onComplete={() => {
+                        try {
+                          window.localStorage.setItem(STARTUP_INTRO_SEEN_KEY, "1");
+                        } catch {
+                          // Ignore storage write failures and continue.
+                        }
+                        setStartupStage("handoff");
+                      }}
                     />
                   ) : null}
                   <motion.div
                     className="absolute inset-0 z-10"
                     initial={false}
                     animate={
-                      startupStage !== "intro"
+                      startupStage !== "intro" && startupStage !== null
                         ? {
                             opacity: 1,
                             scale: 1,
@@ -383,7 +406,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                     className="pointer-events-none absolute inset-0 z-[11] bg-[#03110b] blur-[12px]"
                     initial={false}
                     animate={
-                      startupStage !== "intro"
+                      startupStage !== "intro" && startupStage !== null
                         ? {
                             opacity: 0,
                             scale: 1,
@@ -403,7 +426,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                     className="pointer-events-none absolute inset-0 z-[12] blur-[8px]"
                     initial={false}
                     animate={
-                      startupStage !== "intro"
+                      startupStage !== "intro" && startupStage !== null
                         ? {
                             opacity: 0,
                             scale: 1,
