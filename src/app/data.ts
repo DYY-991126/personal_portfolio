@@ -13,8 +13,7 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     id: "project-1",
-    title: "Wegic 2.0",
-    subtitle: "上线后目标定义与路径拆解",
+    title: "产品里程碑定义与落地拆解",
     year: "2025.12 – 2026.02",
     role: "Goal Definition & Team Alignment",
     coverImage: "/projects/project-1/cover.jpg",

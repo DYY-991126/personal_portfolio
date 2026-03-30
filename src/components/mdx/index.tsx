@@ -9,6 +9,7 @@ import InteractiveBlock from "./InteractiveBlock";
 import Gallery from "./Gallery";
 import Callout from "./Callout";
 import Columns from "./Columns";
+import ServiceExperiencePreview from "./ServiceExperiencePreview";
 import ProcessFlow from "./ProcessFlow";
 import AssetFormMockup from "./AssetFormMockup";
 import ProgressBarDemo from "./ProgressBarDemo";
@@ -109,6 +110,7 @@ export function getMDXComponents(): MDXComponents {
     Gallery,
     Callout,
     Columns,
+    ServiceExperiencePreview,
     ProcessFlow,
     AssetFormMockup,
     ProgressBarDemo,

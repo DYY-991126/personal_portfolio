@@ -10,6 +10,7 @@ interface PdfBlockProps {
   caption?: string;
   previewHeight?: number;
   previewSrc?: string;
+  openMode?: "modal" | "new_tab";
 }
 
 export default function PdfBlock({
@@ -18,18 +19,36 @@ export default function PdfBlock({
   caption,
   previewHeight = 420,
   previewSrc,
+  openMode = "modal",
 }: PdfBlockProps) {
   const [open, setOpen] = useState(false);
   const pdfSrc = `${encodeURI(src)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+  const handleOpen = () => {
+    if (openMode === "new_tab") {
+      window.open(src, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    setOpen(true);
+  };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || openMode !== "modal") return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [open, openMode]);
 
   return (
     <>
@@ -42,7 +61,7 @@ export default function PdfBlock({
       >
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           className="group block w-full text-left rounded-2xl overflow-hidden border border-border/30 bg-white"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/20 bg-background/90">
@@ -55,7 +74,7 @@ export default function PdfBlock({
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-              <span>展开查看</span>
+              <span>{openMode === "new_tab" ? "打开 PDF" : "展开查看"}</span>
               <Maximize2 className="w-4 h-4" />
             </div>
           </div>
@@ -83,32 +102,28 @@ export default function PdfBlock({
       </motion.figure>
 
       <AnimatePresence>
-        {open ? (
+        {open && openMode === "modal" ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 bg-black/90 backdrop-blur-md p-4 md:p-8"
+            className="fixed inset-0 z-100 bg-black/88"
+            onClick={() => setOpen(false)}
           >
-            <div className="w-full h-full max-w-7xl mx-auto flex flex-col rounded-3xl overflow-hidden border border-white/10 bg-white shadow-2xl">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-black/10">
-                <div>
-                  <div className="text-xs font-mono uppercase tracking-[0.24em] text-muted-foreground">
-                    Architecture PDF
-                  </div>
-                  <div className="text-lg font-semibold tracking-tight text-foreground mt-1">
-                    {title}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="w-10 h-10 rounded-full border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <iframe title={`${title} full view`} src={pdfSrc} className="w-full flex-1 bg-white" />
+            <button
+              type="button"
+              aria-label="关闭 PDF 预览"
+              onClick={() => setOpen(false)}
+              className="absolute right-4 top-[240px] z-20 flex h-14 w-14 items-center justify-center rounded-full bg-white/96 text-black/70 shadow-[0_10px_30px_rgba(0,0,0,0.28)] transition-colors hover:text-black md:right-6 md:top-[86px]"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="h-full w-full" onClick={(event) => event.stopPropagation()}>
+              <iframe
+                title={`${title} full view`}
+                src={pdfSrc}
+                className="h-full w-full bg-white"
+              />
             </div>
           </motion.div>
         ) : null}
