@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { Caveat } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -53,6 +53,48 @@ const MONITOR_THEMES = [
   { name: "Rose", filter: "hue-rotate(158deg) saturate(0.95)", glow: "#ff85cb" },
 ] as const;
 
+function polarToCartesian(center: number, radius: number, angle: number) {
+  const radians = (angle * Math.PI) / 180;
+  return {
+    x: center + Math.cos(radians) * radius,
+    y: center + Math.sin(radians) * radius,
+  };
+}
+
+function createTaperedArcPath({
+  center,
+  startAngle,
+  endAngle,
+  innerRadius,
+  outerRadius,
+  tipInset,
+}: {
+  center: number;
+  startAngle: number;
+  endAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  tipInset: number;
+}) {
+  const outerStart = polarToCartesian(center, outerRadius, startAngle + tipInset);
+  const outerEnd = polarToCartesian(center, outerRadius, endAngle - tipInset);
+  const innerStart = polarToCartesian(center, innerRadius, startAngle + tipInset);
+  const innerEnd = polarToCartesian(center, innerRadius, endAngle - tipInset);
+  const tipStart = polarToCartesian(center, (innerRadius + outerRadius) / 2, startAngle);
+  const tipEnd = polarToCartesian(center, (innerRadius + outerRadius) / 2, endAngle);
+  const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+  return [
+    `M ${tipStart.x.toFixed(2)} ${tipStart.y.toFixed(2)}`,
+    `L ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
+    `L ${tipEnd.x.toFixed(2)} ${tipEnd.y.toFixed(2)}`,
+    `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+    "Z",
+  ].join(" ");
+}
+
 interface AsciiMonitorBackdropProps {
   children: ReactNode;
 }
@@ -72,6 +114,8 @@ interface MonitorKnobProps {
   label: string;
   value: number;
   steps?: number;
+  tiltX: MotionValue<number>;
+  tiltY: MotionValue<number>;
   onChange: () => void;
 }
 
@@ -79,6 +123,8 @@ function MonitorKnob({
   label,
   value,
   steps = 4,
+  tiltX,
+  tiltY,
   onChange,
 }: MonitorKnobProps) {
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
@@ -91,9 +137,59 @@ function MonitorKnob({
   };
 
   const rotation = -120 + (value / Math.max(steps - 1, 1)) * 240;
+  const ringLightAngle = useTransform(() => {
+    const x = tiltX.get();
+    const y = tiltY.get();
+    if (Math.hypot(x, y) < 0.001) {
+      return 90;
+    }
+
+    return Math.atan2(y, x) * (180 / Math.PI) + 90;
+  });
+  const ringIntensity = useTransform(() => Math.min(1, Math.hypot(tiltX.get(), tiltY.get()) * 1.35));
+  const ringCoreOpacity = useTransform(() => 1.04 + ringIntensity.get() * 0.12);
+  const ringShoulderOpacity = useTransform(() => 0.9 + ringIntensity.get() * 0.14);
+  const ringHighlightOpacity = useTransform(() => 0.68 + ringIntensity.get() * 0.14);
+  const ringGlowOpacity = useTransform(() => 0.34 + ringIntensity.get() * 0.14);
+  const ringShadowOpacity = useTransform(() => 0.24 + ringIntensity.get() * 0.1);
+  const ringId = label.toLowerCase().replace(/\s+/g, "-");
+  const ringGlowPath = createTaperedArcPath({
+    center: 50,
+    startAngle: -128,
+    endAngle: -44,
+    innerRadius: 41.5,
+    outerRadius: 44.9,
+    tipInset: 9,
+  });
+  const ringShoulderPath = createTaperedArcPath({
+    center: 50,
+    startAngle: -126,
+    endAngle: -48,
+    innerRadius: 41.95,
+    outerRadius: 44.35,
+    tipInset: 10,
+  });
+  const ringHighlightPath = createTaperedArcPath({
+    center: 50,
+    startAngle: -123,
+    endAngle: -54,
+    innerRadius: 42.3,
+    outerRadius: 43.6,
+    tipInset: 11,
+  });
+  const ringCorePath = createTaperedArcPath({
+    center: 50,
+    startAngle: -121,
+    endAngle: -56,
+    innerRadius: 42.55,
+    outerRadius: 43.45,
+    tipInset: 12.5,
+  });
+  const ringGradientStart = polarToCartesian(50, 43.2, -126);
+  const ringGradientEnd = polarToCartesian(50, 43.2, -48);
 
   return (
-    <div className="flex h-[2.35rem] w-[2.35rem] items-center justify-center">
+    <div className="relative flex h-[2.35rem] w-[2.35rem] items-center justify-center">
       <button
         type="button"
         aria-label={`${label}, position ${Math.round(value) + 1}`}
@@ -101,8 +197,126 @@ function MonitorKnob({
         onKeyDown={handleKeyDown}
         className="group relative flex h-[2.35rem] w-[2.35rem] cursor-pointer items-center justify-center rounded-full transition-transform duration-150 active:translate-y-px"
       >
-        <span className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.16),rgba(255,255,255,0)_34%),radial-gradient(circle_at_50%_70%,rgba(0,0,0,0),rgba(0,0,0,0.26)_78%,rgba(0,0,0,0.46)_100%)] opacity-85" />
-        <span className="pointer-events-none absolute inset-[2px] rounded-full border border-[#d3d0c8]/26 bg-[linear-gradient(180deg,#f2f1ec_0%,#c3beb4_44%,#888277_100%)] shadow-[0_6px_12px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.78),inset_0_-1px_1px_rgba(52,48,43,0.16)] transition-shadow duration-150 group-hover:shadow-[0_7px_14px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.84),inset_0_-1px_1px_rgba(52,48,43,0.18)]" />
+        <span className="pointer-events-none absolute inset-[2px] rounded-full border border-[#d7d0c4]/22 bg-[#b8b0a1] shadow-[0_2px_4px_rgba(0,0,0,0.15),inset_0_0.5px_0_rgba(255,255,255,0.2),inset_0_0_0_1px_rgba(66,60,52,0.04),inset_0_8px_10px_rgba(255,255,255,0.04),inset_0_-8px_10px_rgba(62,56,48,0.18)] transition-shadow duration-150 group-hover:shadow-[0_2px_5px_rgba(0,0,0,0.16),inset_0_0.5px_0_rgba(255,255,255,0.22),inset_0_0_0_1px_rgba(66,60,52,0.05),inset_0_8px_10px_rgba(255,255,255,0.05),inset_0_-8px_10px_rgba(62,56,48,0.2)]" />
+        <motion.svg
+          aria-hidden
+          viewBox="0 0 100 100"
+          className="pointer-events-none absolute inset-0 overflow-visible"
+        >
+          <defs>
+            <filter id={`knob-ring-glow-${ringId}`} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="0.92" />
+            </filter>
+            <filter id={`knob-ring-soft-${ringId}`} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="0.34" />
+            </filter>
+            <filter id={`knob-ring-shadow-${ringId}`} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="0.48" />
+            </filter>
+            <linearGradient
+              id={`knob-ring-glow-fill-${ringId}`}
+              gradientUnits="userSpaceOnUse"
+              x1={ringGradientStart.x}
+              y1={ringGradientStart.y}
+              x2={ringGradientEnd.x}
+              y2={ringGradientEnd.y}
+            >
+              <stop offset="0%" stopColor="rgb(255, 248, 235)" stopOpacity="0" />
+              <stop offset="12%" stopColor="rgb(255, 248, 235)" stopOpacity="0.22" />
+              <stop offset="30%" stopColor="rgb(255, 248, 235)" stopOpacity="0.44" />
+              <stop offset="50%" stopColor="rgb(255, 249, 238)" stopOpacity="0.9" />
+              <stop offset="70%" stopColor="rgb(255, 248, 235)" stopOpacity="0.44" />
+              <stop offset="88%" stopColor="rgb(255, 248, 235)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="rgb(255, 248, 235)" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient
+              id={`knob-ring-shoulder-fill-${ringId}`}
+              gradientUnits="userSpaceOnUse"
+              x1={ringGradientStart.x}
+              y1={ringGradientStart.y}
+              x2={ringGradientEnd.x}
+              y2={ringGradientEnd.y}
+            >
+              <stop offset="0%" stopColor="rgb(255, 252, 246)" stopOpacity="0" />
+              <stop offset="13%" stopColor="rgb(255, 252, 246)" stopOpacity="0.2" />
+              <stop offset="29%" stopColor="rgb(255, 252, 246)" stopOpacity="0.56" />
+              <stop offset="50%" stopColor="rgb(255, 252, 246)" stopOpacity="1" />
+              <stop offset="71%" stopColor="rgb(255, 252, 246)" stopOpacity="0.56" />
+              <stop offset="87%" stopColor="rgb(255, 252, 246)" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="rgb(255, 252, 246)" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient
+              id={`knob-ring-highlight-fill-${ringId}`}
+              gradientUnits="userSpaceOnUse"
+              x1={ringGradientStart.x}
+              y1={ringGradientStart.y}
+              x2={ringGradientEnd.x}
+              y2={ringGradientEnd.y}
+            >
+              <stop offset="0%" stopColor="rgb(255, 246, 236)" stopOpacity="0" />
+              <stop offset="16%" stopColor="rgb(255, 246, 236)" stopOpacity="0.14" />
+              <stop offset="34%" stopColor="rgb(255, 246, 236)" stopOpacity="0.42" />
+              <stop offset="50%" stopColor="rgb(255, 248, 240)" stopOpacity="0.78" />
+              <stop offset="66%" stopColor="rgb(255, 246, 236)" stopOpacity="0.42" />
+              <stop offset="84%" stopColor="rgb(255, 246, 236)" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="rgb(255, 246, 236)" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient
+              id={`knob-ring-core-fill-${ringId}`}
+              gradientUnits="userSpaceOnUse"
+              x1={ringGradientStart.x}
+              y1={ringGradientStart.y}
+              x2={ringGradientEnd.x}
+              y2={ringGradientEnd.y}
+            >
+              <stop offset="0%" stopColor="rgb(255, 255, 255)" stopOpacity="0" />
+              <stop offset="22%" stopColor="rgb(255, 255, 255)" stopOpacity="0.18" />
+              <stop offset="40%" stopColor="rgb(255, 255, 255)" stopOpacity="0.84" />
+              <stop offset="50%" stopColor="rgb(255, 255, 255)" stopOpacity="1" />
+              <stop offset="60%" stopColor="rgb(255, 255, 255)" stopOpacity="0.84" />
+              <stop offset="78%" stopColor="rgb(255, 255, 255)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="rgb(255, 255, 255)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <motion.g style={{ rotate: ringLightAngle, transformOrigin: "50% 50%" }}>
+            <motion.path
+              d={ringGlowPath}
+              fill={`url(#knob-ring-glow-fill-${ringId})`}
+              filter={`url(#knob-ring-glow-${ringId})`}
+              style={{ opacity: ringGlowOpacity }}
+            />
+            <motion.path
+              d={ringShoulderPath}
+              fill={`url(#knob-ring-shoulder-fill-${ringId})`}
+              filter={`url(#knob-ring-soft-${ringId})`}
+              style={{ opacity: ringShoulderOpacity }}
+            />
+            <motion.path
+              d={ringHighlightPath}
+              fill={`url(#knob-ring-highlight-fill-${ringId})`}
+              filter={`url(#knob-ring-soft-${ringId})`}
+              style={{ opacity: ringHighlightOpacity }}
+            />
+            <motion.path
+              d={ringCorePath}
+              fill={`url(#knob-ring-core-fill-${ringId})`}
+              style={{ opacity: ringCoreOpacity }}
+            />
+            <motion.circle
+              cx="50"
+              cy="50"
+              r="43.7"
+              fill="none"
+              stroke="rgba(52, 46, 40, 0.62)"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeDasharray="40 234"
+              transform="rotate(64 50 50)"
+              filter={`url(#knob-ring-shadow-${ringId})`}
+              style={{ opacity: ringShadowOpacity }}
+            />
+          </motion.g>
+        </motion.svg>
         <span className="pointer-events-none absolute inset-[5px] rounded-full border border-[#58534b]/20 bg-[linear-gradient(180deg,#3c3935_0%,#1d1b18_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-2px_3px_rgba(0,0,0,0.46)]" />
         <span className="pointer-events-none absolute inset-[8px] rounded-full border border-white/8 bg-[linear-gradient(180deg,#d6d2ca_0%,#ada79b_100%)] shadow-[0_3px_6px_rgba(0,0,0,0.14),inset_0_0.5px_0_rgba(255,255,255,0.34),inset_0_-1px_1px_rgba(67,62,54,0.12)]" />
         <span className="pointer-events-none absolute inset-[9px] rounded-full bg-[radial-gradient(circle_at_30%_24%,rgba(255,255,255,0.34),rgba(255,255,255,0)_34%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0)_30%)] opacity-75" />
@@ -570,12 +784,16 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                   label="Bright"
                   value={brightnessIndex}
                   steps={brightnessLevels.length}
+                  tiltX={activePointerX}
+                  tiltY={activePointerY}
                   onChange={() => setBrightnessIndex((value) => (value + 1) % brightnessLevels.length)}
                 />
                 <MonitorKnob
                   label="Phosphor"
                   value={themeIndex}
                   steps={MONITOR_THEMES.length}
+                  tiltX={activePointerX}
+                  tiltY={activePointerY}
                   onChange={() => setThemeIndex((value) => (value + 1) % MONITOR_THEMES.length)}
                 />
               </div>
