@@ -14,6 +14,7 @@ import ProcessFlow from "./ProcessFlow";
 import AssetFormMockup from "./AssetFormMockup";
 import ProgressBarDemo from "./ProgressBarDemo";
 import ChatPanelDemo from "./ChatPanelDemo";
+import Project2AIPanel from "./Project2AIPanel";
 import ChatPanelTwoTypesDemo from "./ChatPanelTwoTypesDemo";
 import AgentTaskExpandPanel from "./AgentTaskExpandPanel";
 import ToolCallCardBase from "./ToolCallCardBase";
@@ -29,6 +30,11 @@ import WorkProductCodeStream from "./WorkProductCodeStream";
 import TaskVideoGallery from "./TaskVideoGallery";
 import FrameworkSimplificationTable from "./FrameworkSimplificationTable";
 import GranularityAxis from "./GranularityAxis";
+import Mermaid from "./Mermaid";
+import Project3AgentArchitectureMermaid from "./Project3AgentArchitectureMermaid";
+import Project4LiveSiteGallery from "./Project4LiveSiteGallery";
+import Project4WebsiteGenerationMermaid from "./Project4WebsiteGenerationMermaid";
+import Project4WebsiteSkillHierarchyMermaid from "./Project4WebsiteSkillHierarchyMermaid";
 import InterfaceFrameworkDemo from "./InterfaceFrameworkDemo";
 import Project5SystemMap from "./Project5SystemMap";
 import Project5QuickCreateCanvas from "./Project5QuickCreateCanvas";
@@ -73,6 +79,23 @@ import Project5SortingPanel, {
   Project5SortingOrderPanel,
   Project5SortingSpacingPanel,
 } from "./Project5SortingPanel";
+import InlineTooltip from "./InlineTooltip";
+import Project2ExpectationFramework from "./Project2ExpectationFramework";
+import Project2ContentStructurePreviewPanel from "./Project2ContentStructurePreviewPanel";
+import Project2StyleReferencePreviewPanel from "./Project2StyleReferencePreviewPanel";
+import Project2AssetCollectionPreviewPanel from "./Project2AssetCollectionPreviewPanel";
+import Project2WebsiteReadyPreviewPanel from "./Project2WebsiteReadyPreviewPanel";
+import {
+  Project2DiscoveryAllInputPanels,
+  Project2DiscoveryFirecrawlPanel,
+  Project2DiscoveryGoalPanel,
+  Project2DiscoveryOpeningPanel,
+  Project2DiscoveryOptionsPanel,
+  Project2DiscoveryQuestionFilterPanel,
+  Project2DiscoverySuggestionsPanel,
+  Project2DiscoveryUploadPanel,
+  Project2DiscoveryVoiceInputPanel,
+} from "./Project2DiscoveryPanels";
 import {
   Project6BaseComponentPanel,
   Project6ColorTokensPanel,
@@ -82,6 +105,10 @@ import {
   Project6TypographyPanel,
   Project6UIPanel,
 } from "./Project6DesignSystemPanels";
+
+function Project2WideChatPanel() {
+  return <Project2AIPanel width={760} />;
+}
 
 function extractTextContent(children: ReactNode): string {
   if (typeof children === "string" || typeof children === "number") {
@@ -113,6 +140,22 @@ export function getMDXComponents(): MDXComponents {
     ServiceExperiencePreview,
     ProcessFlow,
     AssetFormMockup,
+    InlineTooltip,
+    Project2ExpectationFramework,
+    Project2ContentStructurePreviewPanel,
+    Project2AssetCollectionPreviewPanel,
+    Project2StyleReferencePreviewPanel,
+    Project2WebsiteReadyPreviewPanel,
+    Project2DiscoveryOpeningPanel,
+    Project2DiscoveryQuestionFilterPanel,
+    Project2DiscoveryGoalPanel,
+    Project2DiscoveryOptionsPanel,
+    Project2DiscoveryVoiceInputPanel,
+    Project2DiscoverySuggestionsPanel,
+    Project2DiscoveryUploadPanel,
+    Project2DiscoveryFirecrawlPanel,
+    Project2DiscoveryAllInputPanels,
+    Project2WideChatPanel,
     ProgressBarDemo,
     ChatPanelDemo,
     ChatPanelTwoTypesDemo,
@@ -130,6 +173,11 @@ export function getMDXComponents(): MDXComponents {
     TaskVideoGallery,
     FrameworkSimplificationTable,
     GranularityAxis,
+    Mermaid,
+    Project3AgentArchitectureMermaid,
+    Project4LiveSiteGallery,
+    Project4WebsiteGenerationMermaid,
+    Project4WebsiteSkillHierarchyMermaid,
     InterfaceFrameworkDemo,
     Project5SystemMap,
     Project5QuickCreateCanvas,

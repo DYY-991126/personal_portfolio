@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "project-2",
-    title: "首次生成符合用户预期",
+    title: "首次生成网站符合预期",
     subtitle: "生成前沟通系统的设计与落地",
     year: "2025.12 – 2026.02",
     role: "项目负责人 & 产品设计师",
@@ -29,7 +29,6 @@ export const PROJECTS: Project[] = [
   {
     id: "project-3",
     title: "Agent 架构下的 0 到 1 产品设计",
-    subtitle: "技术架构升级后的产品框架与对话流设计",
     year: "2025.12 – 2026.02",
     role: "产品设计师 & 架构参与",
     coverImage: "/projects/project-3/cover.jpg",
@@ -41,9 +40,9 @@ export const PROJECTS: Project[] = [
     category: "AI Website Generation",
     year: "2025.09 – 2025.10",
     client: "Wegic",
-    role: "产品设计师 & 生成质量探索",
+    role: "项目负责人",
     coverImage: "/project_cover/logo animation motion design 3D cinema 4d Concert opening.jpg",
-    description: "在 Wegic 网站生成质量探索阶段，我参与推动团队从“硬约束 prompt”转向“原则性生成框架”，并在发现 Gemini 机会点后，通过低成本验证与快速推进，在 3 天内把新方案接入产品生成流程。",
+    description: "Claude 4.5 视觉未达预期时 Gemini 3 同期上线；小范围验证后扩样、立项双轨并推动产线上线，主线收敛 Gemini 3。正文说明 Website Design 主/子技能、联网基建、交付门禁与端到端链路。",
   },
   {
     id: "project-5",

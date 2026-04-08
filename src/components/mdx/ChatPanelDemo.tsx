@@ -5,7 +5,11 @@ import ProgressBarDemo from "./ProgressBarDemo";
 import ToolCallCardPanel from "./ToolCallCardPanel";
 import { ToolCallCardPanelCards } from "./ToolCallCardPanelDemo";
 
-export default function ChatPanelDemo() {
+type ChatPanelDemoProps = {
+  width?: number;
+};
+
+export default function ChatPanelDemo({ width = 380 }: ChatPanelDemoProps) {
   const [showToolPanel, setShowToolPanel] = useState(false);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const expandedPanelRef = useRef<HTMLDivElement>(null);
@@ -25,8 +29,9 @@ export default function ChatPanelDemo() {
   return (
     <div className="my-10 flex justify-center bg-[#f3f4f6] py-10">
       <div
-        className="h-[820px] w-[380px] overflow-hidden rounded-2xl flex flex-col"
+        className="h-[820px] overflow-hidden rounded-2xl flex flex-col"
         style={{
+          width,
           fontFamily: "var(--font-sans), Inter, sans-serif",
           backgroundColor: "#F7F6F5",
           boxShadow: "0 0 10px 0 #E3E0DB, 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 2px 2px #FFFFFF",

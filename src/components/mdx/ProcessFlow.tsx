@@ -69,12 +69,6 @@ export default function ProcessFlow({ variant, steps }: ProcessFlowProps) {
           </div>
         ))}
       </div>
-      <div className="mt-8 flex items-center justify-center gap-2 text-sm">
-        <span className="font-medium text-foreground">结果</span>
-        <span className="text-muted-foreground">
-          视觉、内容、功能均符合用户预期
-        </span>
-      </div>
     </div>
   );
 }

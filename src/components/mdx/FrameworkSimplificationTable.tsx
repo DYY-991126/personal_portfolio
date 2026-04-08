@@ -2,15 +2,7 @@
 
 const ROWS: { category: string; items: string[]; followUp: string }[] = [
   {
-    category: "引导相关",
-    items: [
-      "界面教程的引导",
-      "商业化增长为目标的 onboarding 流程、付费弹窗",
-    ],
-    followUp: "移除",
-  },
-  {
-    category: "AI 可覆盖的 GUI 操作",
+    category: "可 AI 替代的 GUI 操作",
     items: [
       "模块上移 / 下移",
       "新增模块",
@@ -29,40 +21,43 @@ const ROWS: { category: string; items: string[]; followUp: string }[] = [
     followUp: "1. 移除；2. 通过增强用户多模态输入来解决",
   },
   {
-    category: "旧技术架构下的功能（无法迁移）",
+    category: "新架构下无法迁移功能",
     items: ["留咨表单", "支付功能"],
     followUp: "在新架构下重做产品设计方案，因体量大不在 MVP 做",
   },
   {
-    category: "旧技术架构下的功能（不需要）",
+    category: "新架构下不需要功能",
     items: ["绿色定位器"],
     followUp: "直接移除",
   },
   {
-    category: "原功能做得不够好，上线后没迭代一直留在线上的功能",
+    category: "早期不完善且上线后长期未迭代",
     items: [
       "圈绘（且有多处存在）",
       "信息同步",
       "AI 客服",
       "智能建议（是写死的建议）",
     ],
-    followUp: "记录到需求池，按优先级判断后重新做产品设计方案",
+    followUp: "记录到需求池内，上线后按优先级判断是否重做方案",
   },
   {
-    category: "评估后必要性不足以在一级页面的信息 / UI 入口",
+    category: "必要性不足在一级页面的信息 / UI 入口",
     items: ["积分剩余", "域名", "网站状态", "网站设置"],
     followUp: "若信息在其他地方可见则移除；独立 UI 入口收纳到二级页面",
+  },
+  {
+    category: "界面简化后不必要的引导",
+    items: [
+      "界面教程的引导",
+      "商业化增长为目标的 onboarding 流程、付费弹窗",
+    ],
+    followUp: "移除",
   },
 ];
 
 export default function FrameworkSimplificationTable() {
   return (
     <div className="my-14 overflow-hidden rounded-xl border-2 border-border/50 bg-muted/40 shadow-[0_0_0_1px_rgba(255,255,255,0.03)_inset]">
-      <div className="border-b border-border/40 bg-muted/60 px-6 py-4">
-        <p className="text-sm font-semibold text-foreground">
-          全面梳理产品后，对功能或 UI 进行移除、合并、转移。
-        </p>
-      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm table-fixed">
           <thead>
