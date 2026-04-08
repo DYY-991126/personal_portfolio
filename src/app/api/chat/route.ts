@@ -9,10 +9,49 @@ import {
 } from "@/lib/ai-tools";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-// 更换为更快的模型，提升用户体验和工具调用响应速度
-// 可以选择 anthropic/claude-3-haiku, google/gemini-flash-1.5 等以速度见长的模型
-// 这里换成 gemini-2.5-flash，它在处理大量上下文和工具调用时速度极快且稳定
-const MODEL = "google/gemini-2.5-flash";
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+// OpenRouter：默认 gemini-2.5-flash（工具调用与速度平衡较好）
+const OPENROUTER_DEFAULT_MODEL = "google/gemini-2.5-flash";
+// OpenAI 直连：未设置 PORTFOLIO_CHAT_MODEL 时使用
+const OPENAI_DEFAULT_MODEL = "gpt-4o-mini";
+
+type LLMTarget = {
+  url: string;
+  model: string;
+  headers: Record<string, string>;
+};
+
+function resolveLLMTarget(): LLMTarget | null {
+  const portfolioModel = process.env.PORTFOLIO_CHAT_MODEL?.trim();
+
+  const openrouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (openrouterKey) {
+    return {
+      url: OPENROUTER_URL,
+      model: portfolioModel || OPENROUTER_DEFAULT_MODEL,
+      headers: {
+        Authorization: `Bearer ${openrouterKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+        "X-Title": "DYY Portfolio",
+      },
+    };
+  }
+
+  const openaiKey = process.env.OPENAI_API_KEY?.trim();
+  if (openaiKey) {
+    return {
+      url: OPENAI_URL,
+      model: portfolioModel || OPENAI_DEFAULT_MODEL,
+      headers: {
+        Authorization: `Bearer ${openaiKey}`,
+        "Content-Type": "application/json",
+      },
+    };
+  }
+
+  return null;
+}
 
 // ── System prompt builder ──
 
@@ -60,14 +99,14 @@ ${projectsContext}
 // ── LLM caller ──
 
 async function callLLM(
-  apiKey: string,
+  target: LLMTarget,
   messages: Array<Record<string, unknown>>,
   systemPrompt: string,
   tools?: Array<Record<string, unknown>>
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body: Record<string, any> = {
-    model: MODEL,
+    model: target.model,
     messages: [{ role: "system", content: systemPrompt }, ...messages],
   };
 
@@ -76,14 +115,9 @@ async function callLLM(
     body.tool_choice = "auto";
   }
 
-  const res = await fetch(OPENROUTER_URL, {
+  const res = await fetch(target.url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-      "X-Title": "DYY Portfolio",
-    },
+    headers: target.headers,
     body: JSON.stringify(body),
   });
 
@@ -99,9 +133,15 @@ async function callLLM(
 // ── API route ──
 
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+  const target = resolveLLMTarget();
+  if (!target) {
+    return NextResponse.json(
+      {
+        error:
+          "未配置 AI 密钥：请在 .env.local 中设置 OPENROUTER_API_KEY（OpenRouter）或 OPENAI_API_KEY（OpenAI）。可选：PORTFOLIO_CHAT_MODEL 覆盖默认模型。",
+      },
+      { status: 500 }
+    );
   }
 
   try {
@@ -116,7 +156,7 @@ export async function POST(req: Request) {
     const tools = getToolsForScreen(screenState as ScreenState);
 
     // Step 1: LLM call with dynamically provisioned tools
-    const data = await callLLM(apiKey, messages, prompt, tools);
+    const data = await callLLM(target, messages, prompt, tools);
     const choice = data.choices[0];
     const assistantMsg = choice.message;
 
@@ -130,7 +170,7 @@ export async function POST(req: Request) {
     const toolResults = buildToolResultMessages(assistantMsg.tool_calls);
 
     const followUpData = await callLLM(
-      apiKey,
+      target,
       [
         ...messages,
         { role: "assistant", content: assistantMsg.content ?? "", tool_calls: assistantMsg.tool_calls },

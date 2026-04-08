@@ -244,12 +244,21 @@ export default function TerminalHero() {
       });
       const data = await res.json();
 
+      const reply =
+        typeof data.message === "string" && data.message.length > 0
+          ? data.message
+          : typeof data.error === "string" && data.error.length > 0
+            ? data.error
+            : "哎呀，出了点问题。";
+
       setChat((p) => {
         const prev = p.slice(0, -1);
-        return [...prev, { role: "dyy" as const, content: data.message || "哎呀，出了点问题。", animate: true }];
+        return [...prev, { role: "dyy" as const, content: reply, animate: true }];
       });
 
-      if (data.actions?.length) executeActions(data.actions);
+      if (res.ok && Array.isArray(data.actions) && data.actions.length > 0) {
+        executeActions(data.actions);
+      }
     } catch {
       setChat((p) => {
         const prev = p.slice(0, -1);
