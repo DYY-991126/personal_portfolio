@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PROJECTS } from "@/app/data";
+import { getPersonaBaselineContext, loadProjectCasePlainText } from "@/lib/digital-persona-knowledge";
 import {
   getToolsForScreen,
   parseToolCalls,
@@ -60,27 +61,34 @@ function buildSystemPrompt(opts: {
   currentProjectId?: string;
   screenContext?: string;
 }) {
-  const projectsContext = PROJECTS.map(
+  const projectIndex = PROJECTS.map(
     (p) =>
-      `项目ID: ${p.id} | 名称: ${p.title} | 类别: ${p.category} | 年份: ${p.year} | 客户: ${p.client} | 角色: ${p.role} | 描述: ${p.description}`
+      `· ${p.id}｜${p.title}${p.subtitle ? `（${p.subtitle}）` : ""}｜${p.year}｜${p.role}`
   ).join("\n");
 
-  let prompt = `你是 DYY，一名拥有 5 年经验的产品设计师，专长于 AI 和复杂交互设计。
-你也承担产品经理角色——定义目标、规划路线图、拆解交付路径，并推动需求从概念到上线。
-你主导的 Wegic 核心模块实现了支付率 80% 的增长。
+  const baseline = getPersonaBaselineContext();
 
-联系方式：
-- 电话：17623066004
-- 邮箱：dyyisgod@gmail.com
-- 微信：_DYYYYYD_
+  let prompt = `你是邓毅洋（DYY）在本站上的「数字分身」：第一人称「我」发言，语气自信、专业、友善。
+你有 6 年行业经验，角色是产品设计师，并常承担产品负责人工作（目标定义、路线图、拆解交付、推动上线）。
 
-项目档案：
-${projectsContext}
+【你的知识来源】
+1) 下方「档案」含简历全文 + 项目一览（标题、周期、角色、简介）。回答经历与个人数据时以简历为准，不要编造。
+2) 各项目案例的**长篇正文默认不在系统提示里**，避免上下文膨胀。当需要引用某案例的段落、方法、具体数据或章节逻辑时，**必须调用 read_project_case(projectId)**，由服务端从 MDX 按需读取（仍可能截断，且已去掉大部分组件标签）。
+3) 可连续多轮调用 read_project_case 对比多个项目；若仍缺信息（如图表、PDF、交互 Demo），请让用户打开站内对应项目页。
+4) 若档案与工具结果里都没有某内容，明确说「这部分没有写」，不要臆测。
 
-你可以通过工具操控网页。根据用户意图选择合适的工具调用。
-当用户选择了某个选项时，不要反问，直接执行或给出内容。
+【站内项目索引（口头引用 / 导航 id）】
+${projectIndex}
 
-请以 DYY 的口吻回答，自信、专业、友善、简练（100-200 字以内）。`;
+【档案】
+${baseline}
+
+【对外联系方式】（可与简历互相印证）
+电话：17623066004｜邮箱：dyyisgod@gmail.com｜微信：_DYYYYYD_
+
+【工具】read_project_case = 按需读案例 MDX；navigate_to_project / navigate_home / show_project_index = 帮用户跳转。按意图选用；用户已点选菜单时不要反问。
+
+【篇幅】回答简练，通常 120–280 字；需要罗列步骤或对比时可略长，避免冗长寒暄。`;
 
   if (opts.currentProjectId) {
     const p = PROJECTS.find((p) => p.id === opts.currentProjectId);
@@ -155,33 +163,47 @@ export async function POST(req: Request) {
     const prompt = buildSystemPrompt({ screenState, currentProjectId, screenContext });
     const tools = getToolsForScreen(screenState as ScreenState);
 
-    // Step 1: LLM call with dynamically provisioned tools
-    const data = await callLLM(target, messages, prompt, tools);
-    const choice = data.choices[0];
-    const assistantMsg = choice.message;
+    let convo: Array<Record<string, unknown>> = [...messages];
+    const accumulatedActions: AIAction[] = [];
+    const maxToolRounds = 8;
 
-    // No tool calls → plain text
-    if (!assistantMsg.tool_calls?.length) {
-      return NextResponse.json({ message: assistantMsg.content ?? "", actions: [] });
+    for (let round = 0; round < maxToolRounds; round++) {
+      const data = await callLLM(target, convo, prompt, tools);
+      const assistantMsg = data.choices[0]?.message;
+      if (!assistantMsg) {
+        return NextResponse.json(
+          { error: "AI 无有效回复", actions: accumulatedActions },
+          { status: 502 }
+        );
+      }
+
+      if (!assistantMsg.tool_calls?.length) {
+        return NextResponse.json({
+          message: assistantMsg.content ?? "",
+          actions: accumulatedActions,
+        });
+      }
+
+      accumulatedActions.push(...parseToolCalls(assistantMsg.tool_calls));
+      const toolResults = buildToolResultMessages(assistantMsg.tool_calls, {
+        readProjectCase: loadProjectCasePlainText,
+      });
+
+      convo = [
+        ...convo,
+        {
+          role: "assistant",
+          content: assistantMsg.content ?? "",
+          tool_calls: assistantMsg.tool_calls,
+        },
+        ...toolResults,
+      ];
     }
 
-    // Step 2: Parse actions + get follow-up text
-    const actions: AIAction[] = parseToolCalls(assistantMsg.tool_calls);
-    const toolResults = buildToolResultMessages(assistantMsg.tool_calls);
-
-    const followUpData = await callLLM(
-      target,
-      [
-        ...messages,
-        { role: "assistant", content: assistantMsg.content ?? "", tool_calls: assistantMsg.tool_calls },
-        ...toolResults,
-      ],
-      prompt
-    );
-
     return NextResponse.json({
-      message: followUpData.choices[0].message.content ?? "好的，已执行。",
-      actions,
+      message:
+        "我这边读取档案的轮次有点多，可以先问单个项目，或把问题拆成更小的一步再问。",
+      actions: accumulatedActions,
     });
   } catch (error) {
     console.error("Chat error:", error);

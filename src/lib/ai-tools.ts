@@ -47,6 +47,26 @@ const TOOL_NAVIGATE_HOME = {
   },
 };
 
+const TOOL_READ_PROJECT_CASE = {
+  type: "function" as const,
+  function: {
+    name: "read_project_case",
+    description:
+      "按需读取本站某个作品集项目对应的 MDX 案例正文（已剥离大部分 React/MDX 组件标签）。当用户追问某项目的背景、方法、数据、章节细节，而仅凭简历与项目一览无法准确回答时调用；可对不同 projectId 多次调用。若用户只是想打开网页浏览，应使用 navigate_to_project。",
+    parameters: {
+      type: "object",
+      properties: {
+        projectId: {
+          type: "string",
+          enum: PROJECTS.map((p) => p.id),
+          description: "项目 ID，例如 project-2",
+        },
+      },
+      required: ["projectId"],
+    },
+  },
+};
+
 const TOOL_SHOW_PROJECT_INDEX = {
   type: "function" as const,
   function: {
@@ -72,11 +92,11 @@ const TOOL_SHOW_PROJECT_INDEX = {
 export function getToolsForScreen(screenState: ScreenState) {
   switch (screenState) {
     case "menu":
-      return [TOOL_SHOW_PROJECT_INDEX, TOOL_NAVIGATE_HOME];
+      return [TOOL_READ_PROJECT_CASE, TOOL_SHOW_PROJECT_INDEX, TOOL_NAVIGATE_HOME];
     case "project_list":
-      return [TOOL_NAVIGATE_TO_PROJECT, TOOL_NAVIGATE_HOME];
+      return [TOOL_READ_PROJECT_CASE, TOOL_NAVIGATE_TO_PROJECT, TOOL_NAVIGATE_HOME];
     case "project_detail":
-      return [TOOL_NAVIGATE_TO_PROJECT, TOOL_NAVIGATE_HOME, TOOL_SHOW_PROJECT_INDEX];
+      return [TOOL_READ_PROJECT_CASE, TOOL_NAVIGATE_TO_PROJECT, TOOL_NAVIGATE_HOME, TOOL_SHOW_PROJECT_INDEX];
   }
 }
 
@@ -102,6 +122,8 @@ export function parseToolCalls(
             return PROJECTS.find((p) => p.id === args.projectId) || args.projectId === undefined
               ? { type: "show_project_index" as const, projectId: args.projectId }
               : null;
+          case "read_project_case":
+            return null;
           default:
             return null;
         }
@@ -115,10 +137,23 @@ export function parseToolCalls(
 // ── Build tool result messages for the follow-up LLM call ──
 
 export function buildToolResultMessages(
-  toolCalls: Array<{ id: string; function: { name: string; arguments: string } }>
+  toolCalls: Array<{ id: string; function: { name: string; arguments: string } }>,
+  options?: { readProjectCase?: (projectId: string) => string }
 ) {
   return toolCalls.map((tc) => {
-    const args = JSON.parse(tc.function.arguments);
+    let args: Record<string, unknown>;
+    try {
+      args = JSON.parse(tc.function.arguments) as Record<string, unknown>;
+    } catch {
+      return { role: "tool" as const, tool_call_id: tc.id, content: "工具参数解析失败。" };
+    }
+
+    if (tc.function.name === "read_project_case" && options?.readProjectCase) {
+      const projectId = typeof args.projectId === "string" ? args.projectId : "";
+      const content = options.readProjectCase(projectId);
+      return { role: "tool" as const, tool_call_id: tc.id, content };
+    }
+
     let content = "操作已执行。";
 
     if (tc.function.name === "navigate_to_project") {
@@ -131,6 +166,8 @@ export function buildToolResultMessages(
       content = project
         ? `已打开「${project.title}」的 Index 项目浏览层。`
         : "已打开过往项目的 Index 项目浏览层。";
+    } else if (tc.function.name === "read_project_case") {
+      content = "read_project_case 未配置服务端读取器。";
     }
 
     return { role: "tool" as const, tool_call_id: tc.id, content };

@@ -23,7 +23,7 @@ const MAIN_MENU = [
 ];
 
 const INTRO_LINES = [
-  "Hi, I'm DYY, a Product Designer with 5 years of experience specializing in AI and complex interaction design.",
+  "Hi, I'm DYY, a Product Designer with 6 years of industry experience specializing in AI and complex interaction design.",
   "I build LLM-driven products, drive requirements from conception to launch, and rely on data analysis to validate outcomes.",
 ];
 

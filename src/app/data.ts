@@ -46,7 +46,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "project-5",
-    title: "围绕对象继续创作",
+    title: "白板内的对象创建交互体系",
     subtitle: "白板编辑器中的快速创建与连接系统",
     category: "编辑器交互系统",
     year: "2024",
@@ -68,7 +68,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "project-7",
-    title: "ugic",
+    title: "构建 AI 生成设计稿 - Ugic",
     subtitle: "利用 Figma Design System 生成原型与设计稿",
     category: "Figma Plugin / AI Design Workflow",
     year: "2024.06 – 2024.09",

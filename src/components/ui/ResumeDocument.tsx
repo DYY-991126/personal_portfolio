@@ -5,6 +5,7 @@ import Image from "next/image";
 /**
  * 简历正文：编辑此文件即可更新「关于我」中展示的简历。
  * 作品集链接请在下方 PORTFOLIO_URL 填写。
+ * Home 页 AI 的简历要点来自 `src/lib/digital-persona-knowledge.ts` 中的 RESUME_PLAIN_FOR_LLM，请一并维护。
  */
 
 const PORTFOLIO_URL = ""; // 例：https://yoursite.com
@@ -72,7 +73,7 @@ export function ResumeDocument() {
     <article className="font-sans text-[10.5pt] leading-[1.75] text-[#101010] subpixel-antialiased selection:bg-neutral-300/60">
       <header className="mb-2 pb-8">
         <h1 className="text-[22pt] font-bold tracking-tight text-black">邓毅洋</h1>
-        <p className="mt-2 text-[11pt] font-medium text-[#141414]">求职意向：AI 产品设计师 / 设计负责人（六年经验，26）</p>
+        <p className="mt-2 text-[11pt] font-medium text-[#141414]">求职意向：AI 产品设计师 / 设计负责人（6 年行业经验，26）</p>
         <div className="mt-4 grid grid-cols-3 gap-x-8 gap-y-2 text-[10.5pt] leading-[1.8] text-[#1f1f1f]">
           <ContactItem label="手机" value="176 2306 6004" />
           <ContactItem label="邮箱" value="dyyisgod@gmail.com" />

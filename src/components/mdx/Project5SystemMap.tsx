@@ -27,7 +27,7 @@ export default function Project5SystemMap() {
   return (
     <Project5DemoFrame
       title="系统地图"
-      description="这一页不是在讲某一个按钮，而是在讲一套围绕对象继续创作的交互系统。下面这 4 个模块共同决定了它能不能顺畅、稳定、可预测。"
+      description="这一页不是在讲某一个按钮，而是在讲白板内的对象创建交互体系。下面这 4 个模块共同决定了它能不能顺畅、稳定、可预测。"
       footer={
         <div className="grid gap-3 md:grid-cols-3">
           <Project5MiniStat label="入口" value="创建点由热区激活，不常驻屏幕" />
@@ -87,7 +87,7 @@ export default function Project5SystemMap() {
             Core Interaction
           </p>
           <h4 className="mt-2 text-2xl font-semibold tracking-tight">
-            围绕对象继续创作
+            白板内的对象创建交互体系
           </h4>
           <p className="mt-2 text-sm leading-relaxed text-white/72">
             让对象本身成为下一步操作的起点，而不是让用户回到工具栏重新开始。

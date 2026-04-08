@@ -662,6 +662,18 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
                 </div>
               </div>
             </div>
+            {/* Bottom lip: strict mirror of top lip (same plastic read as L/R/T — not a separate specular band) */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-[0.22rem] right-[0.22rem] bottom-[0.08rem] z-[2] h-[0.22rem] rounded-b-[1.18rem] md:left-[0.28rem] md:right-[0.28rem] md:h-[0.26rem] md:rounded-b-[1.48rem]"
+              style={{
+                transform: "translateZ(18px)",
+                background:
+                  "linear-gradient(180deg, rgba(31, 34, 31, 0.48) 0%, rgba(54, 58, 54, 0.92) 46%, rgba(78, 84, 78, 0.92) 100%)",
+                boxShadow:
+                  "inset 0 -1px 0 rgba(255,255,255,0.08), inset 0 1px 0 rgba(0,0,0,0.24)",
+              }}
+            />
 
           </div>
 
