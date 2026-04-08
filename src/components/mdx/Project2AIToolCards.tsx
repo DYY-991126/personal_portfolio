@@ -998,22 +998,24 @@ export function Project2UIToolCard({
   onRunSkill,
 }: {
   tool: Project2UIToolCall;
-  onQuickReply: (message: string) => void;
+  onQuickReply?: (message: string) => void;
   onSendMessage?: (message: string) => void | Promise<void>;
   onRunSkill?: (skill: "website_design" | "image_generation" | "video_generation") => void;
 }) {
+  const reply = onQuickReply ?? (() => {});
+
   switch (tool.type) {
     case "show_input_options":
-      return <OptionsCard payload={tool.payload} onQuickReply={onQuickReply} />;
+      return <OptionsCard payload={tool.payload} onQuickReply={reply} />;
     case "firecrawl":
-      return <LinkReaderCard payload={tool.payload} onQuickReply={onQuickReply} />;
+      return <LinkReaderCard payload={tool.payload} onQuickReply={reply} />;
     case "design_content_structure":
       return <StructureCard payload={tool.payload} />;
     case "show_style_references":
       return (
         <StyleReferenceCard
           payload={tool.payload}
-          onQuickReply={onQuickReply}
+          onQuickReply={reply}
           onSendMessage={onSendMessage}
         />
       );
@@ -1021,7 +1023,7 @@ export function Project2UIToolCard({
       return (
         <AssetCollectionCard
           payload={tool.payload}
-          onQuickReply={onQuickReply}
+          onQuickReply={reply}
           onSendMessage={onSendMessage}
         />
       );
@@ -1031,7 +1033,7 @@ export function Project2UIToolCard({
       return (
         <GenerationExecutionPlanCard
           payload={tool.payload}
-          onQuickReply={onQuickReply}
+          onQuickReply={reply}
           onRunSkill={onRunSkill}
         />
       );
