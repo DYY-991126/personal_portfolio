@@ -89,7 +89,7 @@ export default function Project2AIRunCard({
                   <Project2UIToolCard
                     key={item.id}
                     tool={item.tool}
-                    onQuickReply={onQuickReply}
+                    onQuickReply={onQuickReply ?? (() => {})}
                     onRunSkill={onRunSkill}
                   />
                 );

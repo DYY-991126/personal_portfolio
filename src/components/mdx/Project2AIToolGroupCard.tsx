@@ -76,7 +76,7 @@ export default function Project2AIToolGroupCard({
             <Project2UIToolCard
               key={item.id}
               tool={item.tool}
-              onQuickReply={onQuickReply}
+              onQuickReply={onQuickReply ?? (() => {})}
               onRunSkill={onRunSkill}
             />
           ))}
