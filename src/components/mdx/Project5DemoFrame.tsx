@@ -7,6 +7,10 @@ export const PROJECT5_CANVAS_STYLE: CSSProperties = {
   backgroundSize: "16px 16px",
 };
 
+/** Vertical rhythm for canvas previews in MDX (matches `Project5DemoFrame` `my-14`). */
+export const PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS =
+  "my-12 md:my-14 w-full min-w-0";
+
 interface Project5DemoFrameProps {
   title: string;
   description?: string;

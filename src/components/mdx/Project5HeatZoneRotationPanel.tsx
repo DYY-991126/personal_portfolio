@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import Project5ControlPoint from "./Project5ControlPoint";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode, Project5Direction } from "./Project5CanvasNodeTypes";
 
@@ -72,18 +75,22 @@ export function Project5HeatZoneRotationDirectionComparePanel() {
   }, []);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div
+      className={`grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`}
+    >
       <SingleRotationBoard
         angle={getAnimatedRotation(elapsed, -90)}
         elapsed={elapsed}
         hoveredSlot="left"
         usePhysicalDirection={false}
+        embedded
       />
       <SingleRotationBoard
         angle={getAnimatedRotation(elapsed, -90)}
         elapsed={elapsed}
         hoveredSlot="left"
         usePhysicalDirection
+        embedded
       />
     </div>
   );
@@ -94,11 +101,13 @@ function SingleRotationBoard({
   elapsed,
   hoveredSlot,
   usePhysicalDirection,
+  embedded = false,
 }: {
   angle: number;
   elapsed: number;
   hoveredSlot: SlotKey;
   usePhysicalDirection: boolean;
+  embedded?: boolean;
 }) {
   const workspaceWidth = 420;
   const workspaceHeight = 250;
@@ -193,7 +202,7 @@ function SingleRotationBoard({
 
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] border border-border/20"
+      className={`${embedded ? "" : `${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} `}relative overflow-hidden rounded-[24px] border border-border/20`}
       style={{ ...PROJECT5_CANVAS_STYLE, width: "100%", minHeight: BOARD_HEIGHT }}
     >
       <div

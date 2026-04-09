@@ -53,18 +53,6 @@ export const PROJECTS: Project[] = [
     client: "即时设计",
     role: "产品设计师（交互专项）",
     coverImage: "/project_cover/图像.jpg",
-    description: "我在即时设计的白板 / 编辑器场景中，设计了一套围绕创建点展开的快速创建与连接系统，让用户在高频操作里更快地产生内容、建立关系，并在复杂画布中始终保持空间感与可控感。",
-  },
-  {
-    id: "project-6",
-    title: "构建设计系统",
-    subtitle: "作为主要参与者，搭建设计规范与基础模块",
-    category: "Design System",
-    year: "2024",
-    client: "内部项目",
-    role: "产品设计师（主要参与）",
-    coverImage: "/project_cover/图像.jpg",
-    description: "我主要参与了设计系统的搭建工作，包括颜色、字体、布局、阴影、动效与图标等基础模块的整理与沉淀。",
   },
   {
     id: "project-7",
@@ -75,6 +63,5 @@ export const PROJECTS: Project[] = [
     client: "Figma 平台产品",
     role: "产品设计师 / AI 能力调试 / 商业化",
     coverImage: "/project_cover/图像3.jpg",
-    description: "ugic 是一款运行在 Figma 上、基于用户组件库生成 UI 草稿的 AI 插件。我在这个项目中同时承担 AI 能力调试、成本控制、产品设计与商业化、项目管理和埋点等工作。",
   },
 ];

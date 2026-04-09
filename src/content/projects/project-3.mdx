@@ -8,36 +8,26 @@ coverImage: "/projects/project-3/cover.jpg"
 
 ## 背景
 
-2025 年 9 月 Wegic 决定重做。在技术架构更换的大背景下，1.0 时期的各个功能在 2.0 都需要重新考虑。本项目相当于对 Wegic 2.0 进行了从 0 到 1 的产品设计。
+产品因技术架构过时，导致退款率居高不下，业务发展受阻。2025 年 9 月，Wegic 决定重做。在技术架构更换的大背景下，1.0 时期的各个功能在 2.0 都需要重新考虑。本项目相当于对 Wegic 2.0 进行了从 0 到 1 的产品设计。
 
-## 项目挑战
+## 新架构下的产品范围层梳理
 
-1. 人力与时间资源打进，但要求在 2 周内快速交付
-2. 团队内缺乏对于 Agent 产品的产品设计经验
-
-## 应对策略
-
-1. 协作策略上，我们尽量减少了人员节点。设计承担产品的工作，利用 cursor 制作代码设计稿交付开发。
-2. 设计策略上，我们完全保留了 1.0 的视觉风格，主要聚焦于范围层到框架层。
-
----
-
-## 功能与内容梳理与取舍
-
-我对 Wegic 2.0 的产品设计命题理解：一个对小白用户易用的 AI 建站产品的交互体验是怎样的。许多功能生长于 1.0 的背景下，因旧技术架构的限制与产品高速迭代都使得产品走向复杂。要做到简单易用，对 1.0 的功能进行照搬是行不通的。我们的具体策略如下：
-
-1. 梳理系统内全量功能，明确每个功能完成的用户任务及实现的用户目标。以对话交互为核心，衍生出一套交互体系。判断能被这套体系替代掉的 GUI 操作
-2. 在新架构/产品设计下，对用户/业务没有价值的功能进行移除
-3. 具备用户价值但需要重设计技术方案的功能，不纳入 2.0 mvp 范围。放入需求池后做优先级评估
+在 1.0 时期，有很多功能因为技术限制采取了 GUI 的操作思路，导致界面整体逐渐走向复杂。在 Agent 架构下，大部分可以用对话交互体系平替。以下梳理出在新架构下不必要的功能：
 
 <FrameworkSimplificationTable />
 
 ## 界面与交互框架设计
 
-### 界面简化策略
+### 界面简化与结构调整
 
-1. 根据功能与内容简化策略，移除掉大量 GUI
+1. 根据范围层梳理结果，移除掉大量 GUI
 2. 剩余功能/信息按重要性、频率将核心功能外露至一级界面；次要功能进行收纳二级/概念合并
+3. 对话面板调至左侧，加强以「对话为主」印象。并为后续扩展留出空间。
+
+### 改版后优势：
+
+1. 用户任务更清晰，使用更聚焦。从 1.0 录屏观测，用户进入产品后会在各个按钮中来回犹豫、点击探索，整个过程持续 8–15s 左右。
+2. 改版后从定性 30 条用户操作录屏来看，用户进入编辑页后平均 5s 内进入对话编辑。
 
 <div className="my-12 flex flex-col gap-12 md:gap-16 max-w-6xl">
   <ImageBlock
@@ -58,7 +48,7 @@ coverImage: "/projects/project-3/cover.jpg"
 
 ### 交互模式改变
 
-1.0 是默认进入编辑模式，点击网页内的元素出现【对象-功能】面板。2.0 进行了降级，将选中元素作为模式，需用户主动开启。开启后选中元素功能，复用对话交互。
+1.0 是默认进入编辑模式，点击网页内的元素出现【对象-功能】面板。
 
 <div className="my-12 flex flex-col gap-12 md:gap-16 max-w-6xl">
   <ImageBlock
@@ -68,6 +58,7 @@ coverImage: "/projects/project-3/cover.jpg"
     gallerySrcs="/projects/project-3/UISturcture_V0_model.png"
     galleryCaptions="之后"
   />
+  2.0 进行了降级，将选中元素作为模式，需要时开启。默认对话一方面降低了使用复杂度，另一方面让用户从一开始在更高的层次对网站进行修改，而不陷入细节。
   <ImageBlock
     src="/projects/project-3/UISturcture_V0_model.png"
     caption="之后"
@@ -77,62 +68,89 @@ coverImage: "/projects/project-3/cover.jpg"
   />
 </div>
 
-## AI 对话流设计
+## 对话中的 Agent 运行与任务呈现设计
 
 ### 理解 Agent 架构
-
-#### Agent 架构的运作方式
-
-用户输入进入主 Agent，在 Agent Loop 内按需调用 Tools，调用完成后回传主 Agent，无工具调用则输出最终回复。
+Query 进入 Agent 后，在 Agent Loop 内按需调用 Tools，调用完成后回传主 Agent，无工具调用则输出最终回复。
 
 <Project3AgentArchitectureMermaid />
 
-#### 技术架构要点
+### 竞品 AI 对话设计调研
 
-1. **主 Agent（Kimmy）与 Tools**：用户消息进入 Kimmy；经 Function Calling、MCP 等挂载工具执行，并含 code-review 等分支；调用与收束由模型自主决定。
-2. **assign-task 与子角色**：可并行委托 researcher、finder 等；与产品侧 Kimmy / Timmy 等角色呈现对应。
-3. **Skills**：经 skill-enhance 接入 design、visual 等技能层（如 SKILL.md），对用户呈现为高阶任务语义。
-4. **沙盒与运行特征**：生成与用户站点在沙盒隔离运行；ReAct（Thought → Action → Observation）多轮推理，工具与子任务可并行调度，流程非固定——执行顺序与前端展示不必一致，相对 1.0 流程化架构差异显著。
+通过横向竞品调研 **Manus**、**Cursor**、**GPT**、**Lovable** 等产品，同类对话产品在「运行过程是否外露」上的差异，可用下表概括。
 
-面对 Agent 架构，核心设计命题是：**AI 的运行过程不确定、并行、多工具调用——如何在前端让用户感知 AI 正在干活，又不被复杂的系统信息淹没？**
+<div className="my-10 overflow-x-auto">
+  <table className="w-full min-w-[720px] border-collapse border border-border/40 text-sm">
+    <thead>
+      <tr className="bg-muted/40">
+        <th className="border border-border/40 px-3 py-3 text-left font-medium align-bottom w-[5rem]">产品</th>
+        <th className="border border-border/40 px-3 py-3 text-left font-medium align-bottom">定位与典型场景</th>
+        <th className="border border-border/40 px-3 py-3 text-left font-medium align-bottom">任务与耗时</th>
+        <th className="border border-border/40 px-3 py-3 text-left font-medium align-bottom">运行过程呈现</th>
+        <th className="border border-border/40 px-3 py-3 text-left font-medium align-bottom w-[min(28vw,200px)]">界面示意</th>
+      </tr>
+    </thead>
+    <tbody className="text-muted-foreground">
+      <tr className="align-top">
+        <td className="border border-border/40 px-3 py-3 text-foreground font-medium">GPT</td>
+        <td className="border border-border/40 px-3 py-3">通用聊天助手，面向日常问答与轻量任务。</td>
+        <td className="border border-border/40 px-3 py-3">任务偏轻，一般很快能看到回复。</td>
+        <td className="border border-border/40 px-3 py-3">运行过程少展开，多用一两句状态交代「在做什么」。</td>
+        <td className="border border-border/40 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/projects/project-3/competitor-gpt-chat-encapsulation.png" alt="GPT 对话界面示意" className="w-full h-auto rounded-sm border border-border/30 bg-muted" loading="lazy" decoding="async" />
+        </td>
+      </tr>
+      <tr className="align-top">
+        <td className="border border-border/40 px-3 py-3 text-foreground font-medium">Manus</td>
+        <td className="border border-border/40 px-3 py-3">自主 Agent，按子任务一条龙推进复杂事项。</td>
+        <td className="border border-border/40 px-3 py-3">多步链路长，单次会话往往要等更久。</td>
+        <td className="border border-border/40 px-3 py-3">子任务和中间动作分层列出来，进度颗粒度更细。</td>
+        <td className="border border-border/40 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/projects/project-3/competitor-manus-task-flow.png" alt="Manus 界面示意" className="w-full h-auto rounded-sm border border-border/30 bg-muted" loading="lazy" decoding="async" />
+        </td>
+      </tr>
+      <tr className="align-top">
+        <td className="border border-border/40 px-3 py-3 text-foreground font-medium">Lovable</td>
+        <td className="border border-border/40 px-3 py-3">对话生成网站 / 小应用，边聊边看预览。</td>
+        <td className="border border-border/40 px-3 py-3">要产出可点可看的页面，生成链路通常不短。</td>
+        <td className="border border-border/40 px-3 py-3">思考耗时、读配置、改界面等拆成可展开的动作卡片展示。</td>
+        <td className="border border-border/40 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/projects/project-3/competitor-lovable-chat-run-surface.png" alt="Lovable 界面示意" className="w-full h-auto rounded-sm border border-border/30 bg-muted" loading="lazy" decoding="async" />
+        </td>
+      </tr>
+      <tr className="align-top">
+        <td className="border border-border/40 px-3 py-3 text-foreground font-medium">Cursor</td>
+        <td className="border border-border/40 px-3 py-3">面向开发者的 AI 编程工具，扎根代码仓库。</td>
+        <td className="border border-border/40 px-3 py-3">多文件、多轮修改常见，耗时可长可短。</td>
+        <td className="border border-border/40 px-3 py-3">思路、命令和代码 diff 在界面里铺开，方便逐条核对。</td>
+        <td className="border border-border/40 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/projects/project-3/competitor-cursor-run-surface.png" alt="Cursor 界面示意" className="w-full h-auto rounded-sm border border-border/30 bg-muted" loading="lazy" decoding="async" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-### 调研：信息暴露程度的光谱
+### **设计挑战** 
+1. 将复杂的内部运行原理包装为小白用户**利于理解**的方式呈现给用户
+2. 延续 1.0 的三个 IP 形象，**将这三个 IP 利用起来，以 AI Team 的概念进行包装**。让用户感觉一个团队正在为你干活的感觉
 
-我快速调研了 Cursor、Lovable、HeyBoss、Manus 等产品，按「系统运行信息暴露给用户的程度」来排列，可以画出一条从低封装到高封装的轴：
+### 方案设计思路
 
-<GranularityAxis />
+#### 基于 Agent 行为设计消息卡片
 
-- **封装程度低**（如 Cursor）：把运行过程全量暴露给用户，每一步工具调用、推理过程都可见
-- **封装程度高**（如 Lovable、HeyBoss、Manus）：对过程进行包装，只暴露少量、用户可理解的信息
+在该技术架构下，AI 在接收到用户信息后只有两类动作：
 
-### 从目标用户出发：我们该落在哪里
-
-暴露运行过程固然能增加系统可见性，对建立用户信任有一定作用。但我的判断是：**我们的目标用户是小白用户，这个信任不需要在我们的产品内被构建。**
-
-小白用户不需要看到、理解 AI 的内部运行。他们关心的是 AI 输出的结果，而非过程信息。我们与小白用户之间的信任，应该来自一次又一次输出的好结果，以及专业的服务体验——而不是把 AI 的内部运行细节摊开来给他们看。
-
-因此，**Wegic 的封装程度落在封装程度高的一端。**
-
-### 设计原则
-
-1. **不主动展示全量过程**：不主动向用户展示 AI 处理任务的全量过程信息。
-2. **只展示当前调用过程，并做概念包装**：只展示当前任务正在调用工具时的过程信息，并把这类信息用用户能理解的概念进行包装。让用户知道 AI 现在正在干活，而不是卡住了。
-3. **提供可探索的入口**：当用户希望了解 AI 实际在干什么时，提供一个自然、明显的入口，让他们可以查看到 AI 正在做什么。
-
-### 方案推导
-
-#### 第一步：理解 AI 行为分类
-
-明确原则后，第一件事是想清楚 AI 到底会产生哪几类行为。AI 的本质只有两类动作：
-
-1. **普通文本回复**——无论是否在思考，输出都是纯文本，无需特殊设计。
-2. **调用 Skill 或 Tool 做事**——这是设计重点。
-
+1. **LLM 无须调用工具，文本回复**
+2. **LLM 调用 Tool 或 Skill 完成用户输入任务后，回复用户**，对于此类行为单独设计了 AI Running 卡片。
 <ChatPanelTwoTypesDemo />
 
-对于第二类行为，需要解决「如何封装并呈现给用户」的问题。
 
-#### 第二步：识别系统能力
+#### 识别系统能力
 
 先梳理清楚系统里有哪些 Tools 和 Skills：
 
@@ -141,59 +159,34 @@ coverImage: "/projects/project-3/cover.jpg"
 | Tool | assignTaskTool、listDirectoryTool、readFileTool、writeFileTool、searchReplaceTool、genImageTool、editImageTool、genVideoTool、webSearchTool、deepResearchTool、managePlanTool、readLogTool、globTool、grepTool、execCommandTool、skill-enhance、firecrawl |
 | Skill | design（website、effect）、visual（hero_video、launch_video、gen_logo） |
 
-#### 第三步：封装——任务概念归类
+#### 概念包装
 
-按照设计原则，用户不需要知道 AI 调用了什么工具，只需要知道 AI 正在做什么**任务**。
+将 Tools 和 Skills 按任务概念归类；**每次调用工具时**，卡片上出现使用用户能理解的白话告知用户 AI 正在做什么。同时，我们为不同任务类型制作了不同 ip 动画
 
-我们将上述 Tools 和 Skills 按任务概念归类，当 AI 调用某个工具时，对外输出一个用户能理解的 description：
-
-| 任务概念 | 对应工具 | 负责 IP |
-| --- | --- | --- |
-| 找文件 | readFileTool、grepTool、listDirectoryTool、globTool | Timmy、Turi |
-| 做计划 / 更新计划 | managePlanTool | Kimmy |
-| 生成图片 | genImageTool | Kimmy |
-| 修改图片 | editImageTool | Kimmy |
-| 生成视频 | genVideoTool | Kimmy |
-| 做设计 | searchReplaceTool、execCommandTool、writeFileTool | Kimmy |
-| 调研 | firecrawl、deepResearchTool | Kimmy、Turi |
-| 测试 | readLogTool | Timmy |
-
-#### 第四步：IP 与任务动画
-
-每个任务概念对应一个专属 IP 形象，由它来负责这个任务的视觉呈现。IP 并非装饰性的，而是对底层 Agent 角色结构的映射——Kimmy 对应主 Agent（设计 / 产品方向），Timmy 对应工程类子角色，Turi 对应运营 / 研究类子角色。
-
-每个 IP 在执行对应任务时，会播放与任务语义匹配的动画，让用户在不理解技术细节的情况下，也能直观感知到「正在有人在帮我做事」。
+| 任务概念 | 对应工具 | 调用工具时面向用户的内容（示例 description） | 负责 IP |
+| --- | --- | --- | --- |
+| 找文件 | readFileTool、grepTool、listDirectoryTool、globTool | 正在项目里查找和「……」相关的文件。 / 正在打开 `某某文件` 查看里面的内容。 | Timmy、Turi |
+| 做计划 / 更新计划 | managePlanTool | 正在把你的目标拆成一步步任务清单。 / 正在更新当前任务安排，对齐最新需求。 | Kimmy |
+| 生成图片 | genImageTool | 正在按你的描述生成一张配图。 | Kimmy |
+| 修改图片 | editImageTool | 正在按你的要求修改这张图片。 | Kimmy |
+| 生成视频 | genVideoTool | 正在生成一段短视频，请稍等。 | Kimmy |
+| 做设计 | searchReplaceTool、execCommandTool、writeFileTool | 正在改页面上的文案和样式。 / 正在把你的修改写进网站代码里。 | Kimmy |
+| 调研 | firecrawl、deepResearchTool | 正在上网查阅资料，帮你汇总要点。 / 正在针对这个主题做更深一些的检索。 | Kimmy、Turi |
+| 测试 | readLogTool | 正在查看运行日志，确认有没有报错或异常。 | Timmy |
 
 <TaskVideoGallery />
 
-#### 第五步：外层卡片设计
-
-至此，概念包装的底层逻辑已经完整。接下来要解决的是：**这些信息在卡片层面如何组织和呈现。**
-
-用户发送一条指令后，AI 开始执行。从接到指令到任务结束，中途所有的工具调用都**封装在一个卡片内**。这个卡片的设计原则是：**让用户感知到 AI 正在运行，而不是卡住了；同时不用关心运行细节。**
-
-卡片的具体呈现：
-
-- **进度条 + 百分比**：表达整体任务进度
-- **IP 头像 + 任务 description**：展示当前 AI 正在做什么，description 由 AI 调用工具时自动生成，用用户能理解的自然语言表述
-- **结果物（Work Product）**：description 下方展示该任务的产出——做计划时展示待办面板，写代码时展示代码流，生成图片时直接展示图片
-- **展开入口**：右侧提供展开按钮，进入 Wegic Studio 查看 AI 的全量运行记录
-
-<ProgressBarDemo />
-
 以上是进度卡片的完整形态。下方是嵌入对话流后的实际效果：
-
 <ChatPanelDemo />
+
 
 ### Wegic Studio：AI 全量工作记录
 
-虽然主要目标用户是小白用户，但数据观测中发现仍有一定比例的专业型用户。因此核心策略是：**默认直观，可选深入。**
-
-点击卡片右侧的展开按钮，进入 Wegic Studio 面板。这里呈现的是 AI 从接到用户指令开始、到任务结束为止的**完整工具调用记录**——所有并发运行的任务、各自的执行状态，以及具体的结果产出。
+如果用户希望进一步了解 AI 的运行过程，可以进入 Wegic Studio 面板内了解更详细的情况
 
 <ToolCallCardPanelDemo />
 
-Studio 内部的每一条记录，对应一次工具调用的完整上下文：负责的 IP、任务类型、执行状态，以及对应的结果物。以下是全部卡片类型的示例：
+在 Wegic Studio 内，我们为每一个工具调用设计了相关卡片，考虑到复用性，每个卡片结构一致，区别在于结果物不同：
 
 <ToolCallCardDemo1 />
 

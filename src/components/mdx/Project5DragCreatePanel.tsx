@@ -7,7 +7,10 @@ import Project5ConnectionLayer from "./Project5ConnectionLayer";
 import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
 import Project5ControlPoint from "./Project5ControlPoint";
 import type { Project5CanvasNode, Project5CreateOption } from "./Project5CanvasNodeTypes";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5HeatZone from "./Project5HeatZone";
 import Project5ShapeCreatePanel from "./Project5ShapeCreatePanel";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
@@ -183,7 +186,7 @@ export default function Project5DragCreatePanel() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] border border-border/20"
+      className={`${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} relative overflow-hidden rounded-[24px] border border-border/20`}
       style={{ ...PROJECT5_CANVAS_STYLE, width: "100%", minHeight: BOARD_HEIGHT }}
     >
       <Project5ConnectionLayer width={BOARD_WIDTH} height={BOARD_HEIGHT} lines={lines} />

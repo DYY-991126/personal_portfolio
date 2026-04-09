@@ -6,7 +6,10 @@ import type { ReactNode } from "react";
 
 import Project5ConnectionLayer from "./Project5ConnectionLayer";
 import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5CanvasNodeView from "./Project5CanvasNodeView";
 import { createStickyNoteNode, type Project5CanvasNode } from "./Project5CanvasNodeTypes";
 
@@ -216,7 +219,10 @@ export function Project5ManualConnectionPanel() {
   );
 }
 
-export function Project5AutoConnectionPanel({ contentScale = 1 }: { contentScale?: number } = {}) {
+export function Project5AutoConnectionPanel({
+  contentScale = 1,
+  embedded = false,
+}: { contentScale?: number; embedded?: boolean } = {}) {
   const elapsed = useLoopElapsed();
 
   const sourceRight = SOURCE_NODE.x + SOURCE_NODE.width / 2;
@@ -263,6 +269,7 @@ export function Project5AutoConnectionPanel({ contentScale = 1 }: { contentScale
       usesHandPointer={usesHandPointer}
       label={null}
       contentScale={contentScale}
+      embedded={embedded}
     >
       <Node node={SOURCE_NODE} />
       <Node node={TARGET_NODE} highlighted={highlightExisting} />
@@ -270,7 +277,10 @@ export function Project5AutoConnectionPanel({ contentScale = 1 }: { contentScale
   );
 }
 
-export function Project5AutoCreatePanel({ contentScale = 1 }: { contentScale?: number } = {}) {
+export function Project5AutoCreatePanel({
+  contentScale = 1,
+  embedded = false,
+}: { contentScale?: number; embedded?: boolean } = {}) {
   const elapsed = useLoopElapsed();
 
   const sourceRight = SOURCE_NODE.x + SOURCE_NODE.width / 2;
@@ -318,6 +328,7 @@ export function Project5AutoCreatePanel({ contentScale = 1 }: { contentScale?: n
       usesHandPointer={usesHandPointer}
       label={null}
       contentScale={contentScale}
+      embedded={embedded}
     >
       <Node node={SOURCE_NODE} />
       <Node node={OFF_AXIS_NODE} />
@@ -328,9 +339,11 @@ export function Project5AutoCreatePanel({ contentScale = 1 }: { contentScale?: n
 
 export function Project5AutoDirectionComparePanel() {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Project5AutoCreatePanel contentScale={0.66} />
-      <Project5AutoConnectionPanel contentScale={0.66} />
+    <div
+      className={`grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`}
+    >
+      <Project5AutoCreatePanel contentScale={0.66} embedded />
+      <Project5AutoConnectionPanel contentScale={0.66} embedded />
     </div>
   );
 }
@@ -606,7 +619,9 @@ export function Project5AutoTypeComparePanel() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div
+      className={`grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`}
+    >
       <ConnectionBoard
         lines={mismatchLines}
         pointer={pointer}
@@ -616,6 +631,7 @@ export function Project5AutoTypeComparePanel() {
         viewportScale={mismatchViewportScale}
         viewportTranslateX={mismatchViewportTranslateX}
         viewportTranslateY={mismatchViewportTranslateY}
+        embedded
       >
         <Node node={SOURCE_NODE} />
         <Node node={STICKY_TARGET_NODE} />
@@ -633,6 +649,7 @@ export function Project5AutoTypeComparePanel() {
         usesHandPointer={usesHandPointer}
         label={null}
         contentScale={0.66}
+        embedded
       >
         <Node node={SOURCE_NODE} />
         <Node node={TARGET_NODE} highlighted={elapsed >= 1180} />
@@ -656,6 +673,7 @@ function ConnectionBoard({
   viewportTranslateX = 0,
   viewportTranslateY = 0,
   overlayChildren = null,
+  embedded = false,
 }: {
   children: ReactNode;
   lines: Project5ConnectionLine[];
@@ -667,10 +685,11 @@ function ConnectionBoard({
   viewportTranslateX?: number;
   viewportTranslateY?: number;
   overlayChildren?: ReactNode;
+  embedded?: boolean;
 }) {
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] border border-border/20"
+      className={`${embedded ? "" : `${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} `}relative overflow-hidden rounded-[24px] border border-border/20`}
       style={{
         ...PROJECT5_CANVAS_STYLE,
         width: "100%",

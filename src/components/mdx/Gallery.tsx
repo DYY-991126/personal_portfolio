@@ -88,8 +88,9 @@ export default function Gallery({ images: imagesProp, data, srcs, captions }: Ga
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 src={images[activeIdx].src}
                 alt={images[activeIdx].caption || `Gallery image ${activeIdx + 1}`}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto"
                 loading="lazy"
+                decoding="async"
               />
             </AnimatePresence>
           </div>

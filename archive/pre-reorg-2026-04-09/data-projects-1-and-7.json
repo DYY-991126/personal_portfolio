@@ -1,0 +1,20 @@
+[
+  {
+    "id": "project-1",
+    "title": "产品里程碑定义与落地拆解",
+    "year": "2025.12 – 2026.02",
+    "role": "Goal Definition & Team Alignment",
+    "coverImage": "/projects/project-1/cover.jpg"
+  },
+  {
+    "id": "project-7",
+    "title": "构建 AI 生成设计稿 - Ugic",
+    "subtitle": "利用 Figma Design System 生成原型与设计稿",
+    "category": "Figma Plugin / AI Design Workflow",
+    "year": "2024.06 – 2024.09",
+    "client": "Figma 平台产品",
+    "role": "产品设计师 / AI 能力调试 / 商业化",
+    "coverImage": "/project_cover/图像3.jpg",
+    "description": "ugic 是一款运行在 Figma 上、基于用户组件库生成 UI 草稿的 AI 插件。我在这个项目中同时承担 AI 能力调试、成本控制、产品设计与商业化、项目管理和埋点等工作。"
+  }
+]

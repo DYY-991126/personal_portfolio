@@ -1,0 +1,15 @@
+{
+  "created": "2026-04-09",
+  "purpose": "Snapshot before rebuilding project-1 … project-7 in the live site.",
+  "paths": {
+    "content": "content/*.mdx — copies of src/content/projects/project-[1-7].mdx",
+    "public": "public/projects/* — only folders that existed under public/projects; project-4/5 had no static asset root",
+    "publicProjectCovers": "public/project_cover/* — list-cover images referenced by data.ts for project-4,5,6,7",
+    "code": "code/mdx — full copy of src/components/mdx (shared imports between Project2–6 demos)",
+    "data": "data-projects-1-7.json — PROJECTS entries 1–7 from src/app/data.ts"
+  },
+  "reuse": {
+    "mdxOnly": "Restore from content/ + match paths in MDX under public/",
+    "interactiveDemos": "Diff or copy files from code/mdx into src/components/mdx; re-register components in src/components/mdx/index.tsx if you add renamed exports"
+  }
+}

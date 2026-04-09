@@ -1,0 +1,11 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 3H3V4H4V3Z" fill="black" fill-opacity="0.9"/>
+<path d="M13 3H12V4H13V3Z" fill="black" fill-opacity="0.9"/>
+<path d="M3 12H4V13H3V12Z" fill="black" fill-opacity="0.9"/>
+<path d="M4 5H3V11H4V5Z" fill="black" fill-opacity="0.9"/>
+<path d="M12 5H13V11H12V5Z" fill="black" fill-opacity="0.9"/>
+<path d="M11 4V3H5V4L11 4Z" fill="black" fill-opacity="0.9"/>
+<path d="M11 12V13H5V12H11Z" fill="black" fill-opacity="0.9"/>
+<path d="M13 12H12V13H13V12Z" fill="black" fill-opacity="0.9"/>
+<path d="M12.583 12.417V12.583H12.417V12.417H12.583ZM10.583 12.417V12.583H5.41699V12.417H10.583ZM3.58301 12.417V12.583H3.41699V12.417H3.58301ZM12.583 5.41699V10.583H12.417V5.41699H12.583ZM3.58301 5.41699V10.583H3.41699V5.41699H3.58301ZM12.583 3.41699V3.58301H12.417V3.41699H12.583ZM10.583 3.41699V3.58301H5.41699V3.41699H10.583ZM3.58301 3.41699V3.58301H3.41699V3.41699H3.58301Z" stroke="black" stroke-opacity="0.9" stroke-width="0.833333"/>
+</svg>

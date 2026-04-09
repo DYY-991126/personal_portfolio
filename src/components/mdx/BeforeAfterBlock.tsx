@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 interface BeforeAfterBlockProps {
   label?: string;
-  title: string;
+  title?: string;
   images?: string;
   imageAlts?: string;
   caption?: string;
@@ -17,32 +17,41 @@ function ComparisonBlock({
   imageAlts,
   caption,
 }: {
-  label: string;
-  title: string;
+  label?: string;
+  title?: string;
   images?: string;
   imageAlts?: string;
   caption?: string;
 }) {
   const imageList = (images ?? "").split(",").map((item) => item.trim()).filter(Boolean);
   const altList = imageAlts?.split("|").map((item) => item.trim()) ?? [];
+  const labelTrim = label?.trim();
+  const titleTrim = title?.trim();
+  const showHeader = Boolean(labelTrim || titleTrim);
 
   return (
     <div className="rounded-3xl border border-border/30 bg-muted/20 overflow-hidden">
-      <div className="px-6 pt-6 pb-4 border-b border-border/20">
-        <div className="text-xs font-mono uppercase tracking-[0.24em] text-muted-foreground mb-2">
-          {label}
+      {showHeader ? (
+        <div className="px-6 pt-6 pb-4 border-b border-border/20">
+          {labelTrim ? (
+            <div className="text-xs font-mono uppercase tracking-[0.24em] text-muted-foreground mb-2">
+              {labelTrim}
+            </div>
+          ) : null}
+          {titleTrim ? (
+            <h4 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+              {titleTrim}
+            </h4>
+          ) : null}
         </div>
-        <h4 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-          {title}
-        </h4>
-      </div>
+      ) : null}
       <div className="p-4 md:p-6 space-y-4">
         {imageList.map((src, index) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={src}
             src={src}
-            alt={altList[index] || `${title} ${index + 1}`}
+            alt={altList[index] || (titleTrim ? `${titleTrim} ${index + 1}` : `Image ${index + 1}`)}
             className="w-full h-auto rounded-2xl border border-border/20 bg-background"
             loading="lazy"
           />
@@ -56,7 +65,7 @@ function ComparisonBlock({
 }
 
 export default function BeforeAfterBlock({
-  label = "Before",
+  label,
   title,
   images = "",
   imageAlts,

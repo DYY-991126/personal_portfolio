@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 
 import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
 import Project5ConnectionLayer from "./Project5ConnectionLayer";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode } from "./Project5CanvasNodeTypes";
 
@@ -67,20 +70,34 @@ const CHILDREN: Project5CanvasNode[] = [
 ] as const;
 
 export function Project5SortingInsertPanel() {
-  return <Project5SortingMessyPanel />;
+  return (
+    <div className={PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}>
+      <Project5SortingMessyPanel />
+    </div>
+  );
 }
 
 export function Project5SortingSpacingPanel() {
-  return <Project5SortingNeatPanel />;
+  return (
+    <div className={PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}>
+      <Project5SortingNeatPanel />
+    </div>
+  );
 }
 
 export function Project5SortingOrderPanel() {
-  return <Project5SortingNeatPanel />;
+  return (
+    <div className={PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}>
+      <Project5SortingNeatPanel />
+    </div>
+  );
 }
 
 export default function Project5SortingPanel() {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div
+      className={`grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`}
+    >
       <Project5SortingMessyPanel />
       <Project5SortingNeatPanel />
     </div>

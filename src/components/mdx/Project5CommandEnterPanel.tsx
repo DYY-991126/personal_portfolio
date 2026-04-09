@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5StickyNoteCard, {
   PROJECT5_NOTE_HEIGHT,
   PROJECT5_NOTE_WIDTH,
@@ -97,7 +100,7 @@ export default function Project5CommandEnterPanel() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] border border-border/20"
+      className={`${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} relative overflow-hidden rounded-[24px] border border-border/20`}
       style={{ ...PROJECT5_CANVAS_STYLE, width: "100%", minHeight: BOARD_HEIGHT }}
     >
       <div

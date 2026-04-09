@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import Project5ControlPoint from "./Project5ControlPoint";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode, Project5Direction } from "./Project5CanvasNodeTypes";
 
@@ -37,7 +40,9 @@ export default function Project5HeatZoneAdaptivePanel() {
   const nodeScale = Math.round(lerp(76, 146, progress));
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div
+      className={`grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`}
+    >
       <AdaptiveColumn
         label="OBJECT SIZE"
         value={nodeScale}

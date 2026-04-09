@@ -12,7 +12,7 @@ export interface ProjectFrontmatter {
   client: string;
   role: string;
   coverImage: string;
-  description: string;
+  description?: string;
 }
 
 export function getProjectSlugs(): string[] {

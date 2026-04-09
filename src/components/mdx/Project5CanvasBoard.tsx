@@ -2,7 +2,10 @@
 
 import type { CSSProperties, ReactNode, RefObject } from "react";
 import { Minus, Plus } from "lucide-react";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 
 interface Project5CanvasBoardProps {
   children: ReactNode;
@@ -42,7 +45,7 @@ export default function Project5CanvasBoard({
   return (
     <div
       ref={rootRef}
-      className="relative my-10 overflow-hidden rounded-[32px] border border-border/30 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+      className={`relative ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} overflow-hidden rounded-[32px] border border-border/30 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]`}
     >
       <div
         ref={viewportRef}

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Terminal, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PROJECTS, Project } from "@/app/data";
 import type { AIAction, ScreenState } from "@/lib/ai-tools";
@@ -16,15 +17,32 @@ import { ResumeModal } from "@/components/ui/ResumeModal";
 const CHAT_KEY = "terminal_chat_history";
 
 const MAIN_MENU = [
-  { id: "about",    label: "1. 更多关于我 (About Me)" },
-  { id: "projects", label: "2. 过往项目 (Projects)" },
-  { id: "contact",  label: "3. 联系方式 (Contact)" },
-  { id: "chat",     label: "4. 随便看看 / 和我聊天 (Explore)" },
+  { id: "about",    label: "1. 查看我的简历" },
+  { id: "projects", label: "2. 查看过往项目" },
 ];
 
-const INTRO_LINES = [
-  "Hi, I'm DYY, a Product Designer with 6 years of industry experience specializing in AI and complex interaction design.",
-  "I build LLM-driven products, drive requirements from conception to launch, and rely on data analysis to validate outcomes.",
+/** 首页自我介绍行：字符串为纯文本，`{ href, text }` 为跳转案例的链接 */
+type IntroPart = string | { href: `/projects/${string}`; text: string };
+
+const INTRO_LINES: IntroPart[][] = [
+  [
+    "嗨！我是毅洋，作为产品设计师。深耕工具类产品。从",
+    { href: "/projects/project-5", text: "画布编辑器的复杂交互" },
+    "到 ",
+    { href: "/projects/project-3", text: "Agent 产品的重构设计" },
+    "。",
+  ],
+  ["一直以来我在中型创业团队工作。除了设计师身份，我还承担跨职能角色。"],
+  [
+    "- ",
+    { href: "/projects/project-7", text: "AI 生成设计稿 - [产品]" },
+  ],
+  ["- ", { href: "/projects/project-1", text: "Wegic 产品里程碑定义与拆解 - [产品]" }],
+  ["- ", { href: "/projects/project-2", text: "生成网站前沟通设计 - [产品&设计]" }],
+  ["- ", { href: "/projects/project-4", text: "LLM 生成高质量网站 - [AI 能力]" }],
+  [
+    "不同经历让我有了更综合的能力与视角，最近正在找工作，期待与你共事",
+  ],
 ];
 
 // ── Helpers ──
@@ -39,10 +57,8 @@ function getSavedChat(): TerminalChatMessage[] {
 
 function buildScreenContext(projectListVisible: boolean): string {
   let ctx = `主菜单选项：
-1. 更多关于我
-2. 过往项目
-3. 联系方式
-4. 随便看看 / 和我聊天`;
+1. 查看我的简历
+2. 查看过往项目`;
 
   if (projectListVisible) {
     ctx += `\n\n项目列表（仅供命令模式使用）：
@@ -105,7 +121,7 @@ export default function TerminalHero() {
     setChat((p) => {
       const next: TerminalChatMessage[] = [...p];
       if (!opts?.userAlreadyInChat) {
-        next.push({ role: "user", content: MAIN_MENU[0]?.label ?? "1. 更多关于我 (About Me)" });
+        next.push({ role: "user", content: MAIN_MENU[0]?.label ?? "1. 查看我的简历" });
       }
       next.push({
         role: "dyy",
@@ -292,9 +308,7 @@ export default function TerminalHero() {
       openResumeWithTransition({ userAlreadyInChat: opts?.userAlreadyInChat });
       return;
     }
-    sendToAI(item.label);
-    if (item.id === "chat") setTimeout(() => inputRef.current?.focus(), 100);
-  }, [openResumeWithTransition, router, sendToAI]);
+  }, [openResumeWithTransition, router]);
 
   // ── Form submit: input router ──
 
@@ -384,10 +398,28 @@ export default function TerminalHero() {
         <div ref={scrollRef} className="p-6 md:p-12 flex-1 overflow-y-auto crt-scrollbar" data-lenis-prevent>
           {mounted ? (
             <div className="mb-10 space-y-4">
-              {INTRO_LINES.map((line, index) => (
+              {INTRO_LINES.map((parts, index) => (
                 <div key={index} className="flex">
                   <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                  <span className="phosphor-text leading-relaxed tracking-wide">{line}</span>
+                  <span className="phosphor-text leading-relaxed tracking-wide">
+                    {parts.map((part, i) =>
+                      typeof part === "string" ? (
+                        <span key={i}>{part}</span>
+                      ) : (
+                        <Link
+                          key={i}
+                          href={part.href}
+                          className="cursor-pointer underline underline-offset-4 decoration-[#00ff41]/55 decoration-1 hover:decoration-[#00ff41] hover:text-[#00ff41]"
+                          onClick={() => {
+                            terminalAudio?.playEnter();
+                            triggerGlitch();
+                          }}
+                        >
+                          {part.text}
+                        </Link>
+                      )
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
@@ -398,11 +430,10 @@ export default function TerminalHero() {
             <div className="mb-10">
               <div className="flex mb-6">
                 <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                <span className="phosphor-text tracking-wide">init_system</span>
+                <span className="phosphor-text tracking-wide">点击下方查看我的简历或全部项目</span>
               </div>
               {menuReady && (
                 <div className="pl-6 space-y-1">
-                  <p className="phosphor-dim opacity-70 text-xs mb-4 uppercase tracking-widest">[ SYSTEM: Select an option ]</p>
                   {MAIN_MENU.map((item, idx) => {
                     const focused = !projectListOpen && focusedIdx === idx;
                     return (

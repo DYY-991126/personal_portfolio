@@ -95,8 +95,9 @@ export default function ImageBlock({
           <img
             src={src}
             alt={alt || caption || "Project visual"}
-            className="w-full h-auto object-cover transition-transform duration-[2s] group-hover:scale-[1.02]"
+            className="w-full h-auto"
             loading="lazy"
+            decoding="async"
           />
         </div>
         {caption && (

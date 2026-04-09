@@ -9,9 +9,7 @@ const TASK_GROUPS: { label: string; videos: string[] }[] = [
   {
     label: "做设计",
     videos: [
-      `${BASE}/做设计1.mp4`,
       `${BASE}/做设计2.mp4`,
-      `${BASE}/做设计3.mp4`,
       `${BASE}/做设计4.mp4`,
       `${BASE}/做设计5.mp4`,
       `${BASE}/做设计6.mp4`,

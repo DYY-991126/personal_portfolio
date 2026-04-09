@@ -261,41 +261,11 @@ export default function ProjectDetail({
               <div className="hidden xl:block w-48 shrink-0">
                 <ProjectNavigation />
               </div>
-              <div className="flex-1 min-w-0 max-w-4xl">
+              <div className="flex-1 min-w-0 w-full max-w-4xl xl:max-w-none">
                 {mdxContent}
               </div>
             </div>
           )}
-
-          {/* Contact Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full border-t border-border/50 pt-20 mt-32"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-muted/30 p-10 rounded-3xl border border-border/30">
-              <div>
-                <h3 className="text-2xl font-semibold tracking-tight text-foreground mb-2">Want to work together?</h3>
-                <p className="text-muted-foreground">Feel free to reach out for collaborations or just a friendly hello.</p>
-              </div>
-              <div className="flex flex-col gap-4">
-                <a href="mailto:dyyisgod@gmail.com" className="group flex items-center gap-3 text-foreground hover:text-[#00ff41] transition-colors">
-                  <span className="text-sm font-mono text-muted-foreground group-hover:text-[#00ff41]/70 uppercase tracking-widest transition-colors">Email</span>
-                  <span className="font-medium">dyyisgod@gmail.com</span>
-                </a>
-                <div className="group flex items-center gap-3 text-foreground">
-                  <span className="text-sm font-mono text-muted-foreground uppercase tracking-widest">WeChat</span>
-                  <span className="font-medium">_DYYYYYD_</span>
-                </div>
-                <div className="group flex items-center gap-3 text-foreground">
-                  <span className="text-sm font-mono text-muted-foreground uppercase tracking-widest">Phone</span>
-                  <span className="font-medium">17623066004</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
 
           {/* Next Project Section */}
           <motion.div 

@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import Project5ControlPoint from "./Project5ControlPoint";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode, Project5Direction } from "./Project5CanvasNodeTypes";
 
@@ -19,7 +22,14 @@ type Point = {
   y: number;
 };
 
-export default function Project5HeatZoneCoveragePanel() {
+type Project5HeatZoneCoveragePanelProps = {
+  /** 仅展示一种场景；不传则左右并排展示外层热区与内部热区。 */
+  focus?: "outer" | "inner";
+};
+
+export default function Project5HeatZoneCoveragePanel({
+  focus,
+}: Project5HeatZoneCoveragePanelProps = {}) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -50,18 +60,38 @@ export default function Project5HeatZoneCoveragePanel() {
     [],
   );
 
+  const gridClass = focus
+    ? PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS
+    : `grid gap-4 md:grid-cols-2 ${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS}`;
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <HeatZoneColumn
-        node={node}
-        elapsed={elapsed}
-        mode="outer"
-      />
-      <HeatZoneColumn
-        node={node}
-        elapsed={elapsed}
-        mode="inner"
-      />
+    <div className={gridClass}>
+      {focus === "inner" ? (
+        <HeatZoneColumn
+          node={node}
+          elapsed={elapsed}
+          mode="inner"
+        />
+      ) : focus === "outer" ? (
+        <HeatZoneColumn
+          node={node}
+          elapsed={elapsed}
+          mode="outer"
+        />
+      ) : (
+        <>
+          <HeatZoneColumn
+            node={node}
+            elapsed={elapsed}
+            mode="outer"
+          />
+          <HeatZoneColumn
+            node={node}
+            elapsed={elapsed}
+            mode="inner"
+          />
+        </>
+      )}
     </div>
   );
 }

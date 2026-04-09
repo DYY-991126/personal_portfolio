@@ -30,8 +30,11 @@ import WorkProductCodeStream from "./WorkProductCodeStream";
 import TaskVideoGallery from "./TaskVideoGallery";
 import FrameworkSimplificationTable from "./FrameworkSimplificationTable";
 import GranularityAxis from "./GranularityAxis";
+import Project1FocusScenarioVenn from "./Project1FocusScenarioVenn";
+import Project1MilestoneDirectionsTable from "./Project1MilestoneDirectionsTable";
 import Mermaid from "./Mermaid";
 import Project3AgentArchitectureMermaid from "./Project3AgentArchitectureMermaid";
+import Project3AiTeamIpPanel from "./Project3AiTeamIpPanel";
 import Project4LiveSiteGallery from "./Project4LiveSiteGallery";
 import Project4WebsiteGenerationMermaid from "./Project4WebsiteGenerationMermaid";
 import Project4WebsiteSkillHierarchyMermaid from "./Project4WebsiteSkillHierarchyMermaid";
@@ -173,8 +176,11 @@ export function getMDXComponents(): MDXComponents {
     TaskVideoGallery,
     FrameworkSimplificationTable,
     GranularityAxis,
+    Project1FocusScenarioVenn,
+    Project1MilestoneDirectionsTable,
     Mermaid,
     Project3AgentArchitectureMermaid,
+    Project3AiTeamIpPanel,
     Project4LiveSiteGallery,
     Project4WebsiteGenerationMermaid,
     Project4WebsiteSkillHierarchyMermaid,

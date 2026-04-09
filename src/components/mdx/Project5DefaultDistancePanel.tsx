@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 import Project5ConnectionLayer from "./Project5ConnectionLayer";
 import type { Project5ConnectionLine } from "./Project5ConnectionLayer";
 import Project5ControlPoint from "./Project5ControlPoint";
-import { PROJECT5_CANVAS_STYLE } from "./Project5DemoFrame";
+import {
+  PROJECT5_CANVAS_STYLE,
+  PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS,
+} from "./Project5DemoFrame";
 import Project5ShapeTextNode from "./Project5ShapeTextNode";
 import type { Project5CanvasNode } from "./Project5CanvasNodeTypes";
 
@@ -148,7 +151,7 @@ export default function Project5DefaultDistancePanel() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] border border-border/20"
+      className={`${PROJECT5_PREVIEW_BLOCK_MARGIN_CLASS} relative overflow-hidden rounded-[24px] border border-border/20`}
       style={{ ...PROJECT5_CANVAS_STYLE, width: "100%", minHeight: BOARD_HEIGHT }}
     >
       <Project5ConnectionLayer width={BOARD_WIDTH} height={BOARD_HEIGHT} lines={lines} />
