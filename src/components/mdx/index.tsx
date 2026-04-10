@@ -38,6 +38,11 @@ import Project3AiTeamIpPanel from "./Project3AiTeamIpPanel";
 import Project4LiveSiteGallery from "./Project4LiveSiteGallery";
 import Project4WebsiteGenerationMermaid from "./Project4WebsiteGenerationMermaid";
 import Project4WebsiteSkillHierarchyMermaid from "./Project4WebsiteSkillHierarchyMermaid";
+import {
+  Project7CostWorkflowStage1,
+  Project7CostWorkflowStage2,
+  Project7CostWorkflowStage3,
+} from "./Project7CostWorkflowMermaid";
 import InterfaceFrameworkDemo from "./InterfaceFrameworkDemo";
 import Project5SystemMap from "./Project5SystemMap";
 import Project5QuickCreateCanvas from "./Project5QuickCreateCanvas";
@@ -184,6 +189,9 @@ export function getMDXComponents(): MDXComponents {
     Project4LiveSiteGallery,
     Project4WebsiteGenerationMermaid,
     Project4WebsiteSkillHierarchyMermaid,
+    Project7CostWorkflowStage1,
+    Project7CostWorkflowStage2,
+    Project7CostWorkflowStage3,
     InterfaceFrameworkDemo,
     Project5SystemMap,
     Project5QuickCreateCanvas,
