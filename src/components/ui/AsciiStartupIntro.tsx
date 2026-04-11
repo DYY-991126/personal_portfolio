@@ -13,10 +13,15 @@ interface AsciiStartupIntroProps {
   phase: "intro" | "handoff";
 }
 
-const LOOP_DURATION_MS = 8000;
-const GROWTH_END = 5.8;
-const ANIMATION_END = 8.0;
-const SETTLE_BLEND_START = 5.55;
+/** 总时长较原先缩短 3s（8s → 5s），内部阶段按同比例缩放。 */
+const LOOP_DURATION_MS = 5000;
+const ANIMATION_END = 5.0;
+const TIME_SCALE = ANIMATION_END / 8.0;
+const INTRO_BEAT = 0.45 * TIME_SCALE;
+const GROWTH_END = 5.8 * TIME_SCALE;
+const SETTLE_BLEND_START = 5.55 * TIME_SCALE;
+const FADE_START_ELAPSED = ANIMATION_END - (8.0 - 7.62);
+const FADE_OPACITY_RATE = 0.18 / (8.0 - 7.62);
 
 const asciiFragmentShader = `
 uniform sampler2D tAscii;
@@ -333,8 +338,8 @@ function MovingLight() {
     const time = Math.min(clock.getElapsedTime(), ANIMATION_END);
     let growth = 0;
 
-    if (time > 0.45 && time <= GROWTH_END) {
-      const t = (time - 0.45) / (GROWTH_END - 0.45);
+    if (time > INTRO_BEAT && time <= GROWTH_END) {
+      const t = (time - INTRO_BEAT) / (GROWTH_END - INTRO_BEAT);
       growth = 1 - Math.pow(1 - t, 3);
     } else if (time > GROWTH_END) {
       growth = 1;
@@ -362,8 +367,8 @@ function CameraRig() {
     let growth = 0;
     let settleBlend = 0;
 
-    if (loopTime > 0.45 && loopTime <= GROWTH_END) {
-      const t = (loopTime - 0.45) / (GROWTH_END - 0.45);
+    if (loopTime > INTRO_BEAT && loopTime <= GROWTH_END) {
+      const t = (loopTime - INTRO_BEAT) / (GROWTH_END - INTRO_BEAT);
       growth = 1 - Math.pow(1 - t, 3);
     } else if (loopTime > GROWTH_END) {
       growth = 1;
@@ -374,7 +379,7 @@ function CameraRig() {
       settleBlend = blendT;
     }
 
-    if (loopTime < 0.45) {
+    if (loopTime < INTRO_BEAT) {
       targetY = -10;
       cameraY = -10;
       radius = 12;
@@ -416,7 +421,10 @@ function CameraRig() {
 function FadeController() {
   useFrame(({ clock }) => {
     const elapsed = Math.min(clock.getElapsedTime(), ANIMATION_END);
-    const opacity = elapsed > 7.62 ? Math.min(0.18, (elapsed - 7.62) * 0.52) : 0;
+    const opacity =
+      elapsed > FADE_START_ELAPSED
+        ? Math.min(0.18, (elapsed - FADE_START_ELAPSED) * FADE_OPACITY_RATE)
+        : 0;
     const overlay = document.getElementById("ascii-startup-fade");
     if (overlay) overlay.style.opacity = opacity.toString();
   });

@@ -96,6 +96,7 @@ export default function TerminalHero() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const didPinInitialTerminalScroll = useRef(false);
 
   const triggerGlitch = useCallback(() => {
     setGlitch(true);
@@ -151,7 +152,19 @@ export default function TerminalHero() {
     } catch { /* */ }
   }, [chat]);
 
-  useEffect(() => { scrollToBottom(); }, [chat, menuReady, projectListOpen, scrollToBottom]);
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (!didPinInitialTerminalScroll.current) {
+      didPinInitialTerminalScroll.current = true;
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+      });
+      return;
+    }
+
+    scrollToBottom();
+  }, [chat, menuReady, projectListOpen, scrollToBottom, mounted]);
   useEffect(() => { if (menuReady && inputRef.current) inputRef.current.focus(); }, [menuReady]);
 
   // ── Keyboard navigation ──
