@@ -108,7 +108,7 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "kimmy",
         description:
-          "Roadmap is ready. I've set the priority on getting the product photos done first.",
+          "已为你的宠物烘焙工作室排好上线路线：先完成产品拍摄，再落页面与质检。",
         workProduct: {
           type: "checklist",
           items: [
@@ -130,13 +130,13 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "timmy",
         description:
-          "Timmy has finished the check-up and reviewed the logs. Everything looks stable and good to go. No issues found.",
+          "已核对运行日志与诊断项，当前未检出阻塞性问题，结账流程可继续验证。",
         workProduct: { type: "diagnostics", summary: "Diagnostics", count: 3 },
       },
       {
         avatar: "timmy",
         description:
-          "Timmy has finished the check-up and reviewed the logs. Everything looks stable and good to go. No issues found.",
+          "已核对运行日志与诊断项，当前未检出阻塞性问题，结账流程可继续验证。",
         workProduct: { type: "diagnostics", summary: "Diagnostics", count: 3 },
       },
     ],
@@ -149,7 +149,7 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "turi",
         description:
-          "I'm scanning through the site's config files to find where the 'shipping rate' is set.",
+          "正在在站点配置目录里查找运费规则 shipping rate 是在哪个文件里定义的。",
         workProduct: {
           type: "files",
           summary: "Finded 3 files",
@@ -166,7 +166,7 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "kimmy",
         description:
-          "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
+          "已按「手作、温暖」调性生成你的产品陈列主图，用于首页首屏展示。",
         workProduct: {
           type: "image",
           images: [
@@ -186,7 +186,7 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "kimmy",
         description:
-          "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
+          "已生成你的产品宣传视频，时长约 15 秒，适合朋友圈与短视频首发。",
         workProduct: {
           type: "video",
           videos: [
@@ -206,7 +206,7 @@ const MOCK_CARDS: ToolCallCard[] = [
       {
         avatar: "kimmy",
         description:
-          "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
+          "正在把首页 Hero 的文案与按钮样式更新进页面代码，并同步预览。",
         workProduct: {
           type: "design",
           code: `null,
@@ -229,7 +229,7 @@ if (gutterClass == "CodeMirror-linenumbers") {
       {
         avatar: "turi",
         description:
-          "I'm checking out the top perfume blogs and competitor sites to see how they're pricing their summer scents right now.",
+          "已整理多家同城烘焙店的套餐结构与价位，供你对比定价与活动形式。",
         workProduct: {
           type: "research",
           sources: [

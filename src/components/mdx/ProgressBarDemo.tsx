@@ -12,14 +12,14 @@ const VIDEO_SOURCES = [
 ];
 
 const LOG_MESSAGES = [
-  "I'm checking out the top perfume blogs and competitor sites to see how they're pricing their summer scents right now.",
-  "I'm mapping out the launch timeline for 'Summer Breeze' so we don't miss any critical steps.",
-  "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
-  "I'm tweaking the brightness on that banner image to make the logo pop a bit more.",
-  "I'm putting together a short 15-second teaser clip for your Instagram story.",
-  "Just checking the website logs to see why that checkout button was acting up.",
-  "I'm scanning through the site's config files to find where the 'shipping rate' is set.",
-  "I'm rounding up all the monthly sales reports from the 'Data' folder for you.",
+  "正在查阅同城烘焙工作室的首页与套餐页，帮你对齐竞品卖点与结构。",
+  "正在把你的「宠物烘焙工作室」春季上线拆成拍摄、修图、页面上线、质检四步清单。",
+  "正在按「手作、温暖」调性生成你的产品陈列主图，用于首页 Hero。",
+  "正在微调首页横幅的对比度与留白，让招牌文案和下单按钮更醒目。",
+  "正在生成你的产品宣传视频，成片约 15 秒，适合朋友圈与短视频首发。",
+  "正在查看最新部署日志，排查结账按钮偶发无响应的问题。",
+  "正在打开站点配置，定位运费规则 `shipping rate` 写在哪个文件里。",
+  "正在汇总 Data 目录里近三个月的订单报表，方便你做营收复盘。",
 ];
 
 const STAGES = [

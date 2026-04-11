@@ -24,7 +24,7 @@ const ALL_CARDS: Array<{
   {
     taskTitle: "做计划",
     avatar: "kimmy",
-    description: "Roadmap is ready. I've set the priority on getting the product photos done first.",
+    description: "已为你的宠物烘焙工作室排好上线路线：先完成产品拍摄，再落页面与质检。",
     status: "done",
     children: (
       <WorkProductTodoCard
@@ -41,21 +41,21 @@ const ALL_CARDS: Array<{
   {
     taskTitle: "测试",
     avatar: "timmy",
-    description: "Timmy has finished the check-up and reviewed the logs. Everything looks stable and good to go. No issues found.",
+    description: "已核对运行日志与诊断项，当前未检出阻塞性问题，结账流程可继续验证。",
     status: "done",
     children: <WorkProductDiagnosticsFiles items={[{ label: "Diagnostics", count: 3 }]} />,
   },
   {
     taskTitle: "找文件",
     avatar: "turi",
-    description: "I'm scanning through the site's config files to find where the 'shipping rate' is set.",
+    description: "正在在站点配置目录里查找运费规则 shipping rate 是在哪个文件里定义的。",
     status: "doing",
     children: <WorkProductDiagnosticsFiles items={[{ label: "Founded", count: 1 }]} />,
   },
   {
     taskTitle: "生成图片",
     avatar: "kimmy",
-    description: "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
+    description: "正在按「手作、温暖」调性生成你的产品陈列主图，用于首页首屏。",
     status: "doing",
     children: (
       <WorkProductImageGrid
@@ -71,7 +71,7 @@ const ALL_CARDS: Array<{
   {
     taskTitle: "生成视频",
     avatar: "kimmy",
-    description: "I'm putting together a short 15-second teaser clip for your Instagram story.",
+    description: "正在生成你的产品宣传视频。",
     status: "done",
     children: (
       <WorkProductVideoGrid
@@ -85,14 +85,14 @@ const ALL_CARDS: Array<{
   {
     taskTitle: "做设计",
     avatar: "kimmy",
-    description: "I'm designing the product shot for your new perfume right now—focusing on that elegant, floral vibe we discussed.",
+    description: "已把首页 Hero 的文案与按钮样式写入页面，并同步到线上预览。",
     status: "done",
     children: <WorkProductCodeStream />,
   },
   {
     taskTitle: "调研",
     avatar: "turi",
-    description: "I'm checking out the top perfume blogs and competitor sites to see how they're pricing their summer scents right now.",
+    description: "已整理多家同城烘焙店的套餐结构与价位，供你对比定价与活动形式。",
     status: "done",
     children: (
       <WorkProductResearchChips
