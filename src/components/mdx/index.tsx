@@ -35,6 +35,7 @@ import Project1MilestoneDirectionsTable from "./Project1MilestoneDirectionsTable
 import Mermaid from "./Mermaid";
 import Project3AgentArchitectureMermaid from "./Project3AgentArchitectureMermaid";
 import Project3AiTeamIpPanel from "./Project3AiTeamIpPanel";
+import Project3WegicSitePreview from "./Project3WegicSitePreview";
 import Project4LiveSiteGallery from "./Project4LiveSiteGallery";
 import Project4WebsiteGenerationMermaid from "./Project4WebsiteGenerationMermaid";
 import Project4WebsiteSkillHierarchyMermaid from "./Project4WebsiteSkillHierarchyMermaid";
@@ -43,6 +44,8 @@ import {
   Project7CostWorkflowStage2,
   Project7CostWorkflowStage3,
 } from "./Project7CostWorkflowMermaid";
+import Project7FigmaPluginWebCard from "./Project7FigmaPluginWebCard";
+import Project7UserReviewGrid from "./Project7UserReviewGrid";
 import InterfaceFrameworkDemo from "./InterfaceFrameworkDemo";
 import Project5SystemMap from "./Project5SystemMap";
 import Project5QuickCreateCanvas from "./Project5QuickCreateCanvas";
@@ -93,6 +96,7 @@ import Project2ContentStructurePreviewPanel from "./Project2ContentStructurePrev
 import Project2StyleReferencePreviewPanel from "./Project2StyleReferencePreviewPanel";
 import Project2AssetCollectionPreviewPanel from "./Project2AssetCollectionPreviewPanel";
 import Project2WebsiteReadyPreviewPanel from "./Project2WebsiteReadyPreviewPanel";
+import Project2FlowComparison from "./Project2FlowComparison";
 import {
   Project2DiscoveryAllInputPanels,
   Project2DiscoveryFirecrawlPanel,
@@ -154,6 +158,7 @@ export function getMDXComponents(): MDXComponents {
     Project2AssetCollectionPreviewPanel,
     Project2StyleReferencePreviewPanel,
     Project2WebsiteReadyPreviewPanel,
+    Project2FlowComparison,
     Project2DiscoveryOpeningPanel,
     Project2DiscoveryQuestionFilterPanel,
     Project2DiscoveryGoalPanel,
@@ -186,12 +191,15 @@ export function getMDXComponents(): MDXComponents {
     Mermaid,
     Project3AgentArchitectureMermaid,
     Project3AiTeamIpPanel,
+    Project3WegicSitePreview,
     Project4LiveSiteGallery,
     Project4WebsiteGenerationMermaid,
     Project4WebsiteSkillHierarchyMermaid,
     Project7CostWorkflowStage1,
     Project7CostWorkflowStage2,
     Project7CostWorkflowStage3,
+    Project7FigmaPluginWebCard,
+    Project7UserReviewGrid,
     InterfaceFrameworkDemo,
     Project5SystemMap,
     Project5QuickCreateCanvas,

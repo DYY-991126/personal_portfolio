@@ -17,8 +17,8 @@ import { ResumeModal } from "@/components/ui/ResumeModal";
 const CHAT_KEY = "terminal_chat_history";
 
 const MAIN_MENU = [
-  { id: "about",    label: "1. 查看我的简历" },
-  { id: "projects", label: "2. 查看过往项目" },
+  { id: "about",    label: "1. 我的简历" },
+  { id: "projects", label: "2. 过往项目" },
 ];
 
 /** 首页自我介绍行：字符串为纯文本，`{ href, text }` 为跳转案例的链接 */
@@ -26,22 +26,21 @@ type IntroPart = string | { href: `/projects/${string}`; text: string };
 
 const INTRO_LINES: IntroPart[][] = [
   [
-    "嗨！我是毅洋，作为产品设计师。深耕工具类产品。从",
-    { href: "/projects/project-5", text: "画布编辑器的复杂交互" },
+    "嗨！我是毅洋👋 产品设计师，深耕工具类产品。从",
+    { href: "/projects/project-5", text: " 👉 即时设计（国内标杆 UI 工具）" },
     "到 ",
-    { href: "/projects/project-3", text: "Agent 产品的重构设计" },
-    "。",
+    { href: "/projects/project-3", text: " 👉 Wegic（海外 Product Hunt #1）" },
   ],
-  ["一直以来我在中型创业团队工作。除了设计师身份，我还承担跨职能角色。"],
+  ["一直以来我在中型创业团队工作。除了设计师身份，也承担跨职能角色，负责过："],
   [
     "- ",
-    { href: "/projects/project-7", text: "AI 生成设计稿 - [产品]" },
+    { href: "/projects/project-7", text: "👉 全球首创 Design System 生成 UI: 从产品到商业化" },
   ],
-  ["- ", { href: "/projects/project-1", text: "Wegic 产品里程碑定义与拆解 - [产品]" }],
-  ["- ", { href: "/projects/project-2", text: "生成网站前沟通设计 - [产品&设计]" }],
-  ["- ", { href: "/projects/project-4", text: "LLM 生成高质量网站 - [AI 能力]" }],
+  ["- ", { href: "/projects/project-1", text: "👉 AI 建站产品的里程碑规划和拆解" }],
+  ["- ", { href: "/projects/project-2", text: "👉 产品首付率翻倍, 从服务洞察到需求上线" }],
+  ["- ", { href: "/projects/project-4", text: "👉 Agentic 驱动的网页视觉行业标杆" }],
   [
-    "不同经历让我有了更综合的能力与视角，最近正在找工作，期待与你共事",
+    "这些经历让我同时具备系统思考、交付能力和业务影响力，期待与你共事。",
   ],
 ];
 
@@ -57,8 +56,8 @@ function getSavedChat(): TerminalChatMessage[] {
 
 function buildScreenContext(projectListVisible: boolean): string {
   let ctx = `主菜单选项：
-1. 查看我的简历
-2. 查看过往项目`;
+👉 查看我的简历
+👉 查看过往项目`;
 
   if (projectListVisible) {
     ctx += `\n\n项目列表（仅供命令模式使用）：
@@ -390,7 +389,7 @@ export default function TerminalHero() {
         <div className="px-6 py-4 flex items-center shrink-0 border-b border-[#00ff41]/20 bg-[#00ff41]/5">
           <div className="flex items-center gap-3 phosphor-dim select-none">
             <Terminal className="w-5 h-5" />
-            <span className="tracking-widest uppercase font-bold text-xs">SYSTEM_OS_v2.0 :: DYY_TERMINAL</span>
+            <span className="tracking-widest uppercase font-bold text-xs">DYY_TERMINAL</span>
           </div>
         </div>
 
@@ -401,15 +400,17 @@ export default function TerminalHero() {
               {INTRO_LINES.map((parts, index) => (
                 <div key={index} className="flex">
                   <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                  <span className="phosphor-text leading-relaxed tracking-wide">
+                  <span className="leading-relaxed tracking-wide">
                     {parts.map((part, i) =>
                       typeof part === "string" ? (
-                        <span key={i}>{part}</span>
+                        <span key={i} className="phosphor-dim font-normal">
+                          {part}
+                        </span>
                       ) : (
                         <Link
                           key={i}
                           href={part.href}
-                          className="cursor-pointer underline underline-offset-4 decoration-[#00ff41]/55 decoration-1 hover:decoration-[#00ff41] hover:text-[#00ff41]"
+                          className="cursor-pointer phosphor-text font-semibold underline underline-offset-4 decoration-[#00ff41]/70 decoration-1 hover:decoration-[#00ff41] hover:brightness-110"
                           onClick={() => {
                             terminalAudio?.playEnter();
                             triggerGlitch();
@@ -430,7 +431,9 @@ export default function TerminalHero() {
             <div className="mb-10">
               <div className="flex mb-6">
                 <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                <span className="phosphor-text tracking-wide">点击下方查看我的简历或全部项目</span>
+                <span className="phosphor-dim font-normal tracking-wide">
+                  点击下方查看我的简历或全部项目
+                </span>
               </div>
               {menuReady && (
                 <div className="pl-6 space-y-1">
@@ -449,7 +452,11 @@ export default function TerminalHero() {
                         className={`flex items-center cursor-pointer transition-colors px-3 py-2 -ml-3 ${focused ? "bg-[#00ff41]/20" : "hover:bg-[#00ff41]/10"}`}
                       >
                         <span className={`mr-3 w-4 text-center ${focused ? "phosphor-text font-bold" : "text-transparent"}`}>█</span>
-                        <span className={`font-mono ${focused ? "phosphor-text" : "phosphor-dim"}`}>{item.label}</span>
+                        <span
+                          className={`font-mono phosphor-text ${focused ? "font-bold brightness-110" : "font-medium opacity-90"}`}
+                        >
+                          {item.label}
+                        </span>
                       </div>
                     );
                   })}
@@ -471,11 +478,11 @@ export default function TerminalHero() {
                       </div>
                     ) : (
                       <div className="flex w-full min-w-0">
-                        <span className="phosphor-text mr-4 shrink-0 mt-0.5">❯</span>
-                        <div className="min-w-0 flex-1 phosphor-text whitespace-pre-wrap tracking-wide">
+                        <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
+                        <div className="min-w-0 flex-1 whitespace-pre-wrap tracking-wide">
                           {msg.content === "Thinking..." ? (
-                            <span className="flex items-center gap-3 opacity-80">
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="flex items-center gap-3 phosphor-dim font-normal opacity-90">
+                              <Loader2 className="w-4 h-4 animate-spin opacity-80" />
                               [ PROCESSING QUERY ]...
                             </span>
                           ) : (
@@ -484,7 +491,7 @@ export default function TerminalHero() {
                               {msg.role === "dyy" && msg.resume ? (
                                 <button
                                   type="button"
-                                  className="mt-3 block cursor-pointer font-mono text-[11px] uppercase tracking-widest text-[#00ff41]/60 underline underline-offset-4 decoration-[#00ff41]/40 transition-colors hover:text-[#00ff41] hover:decoration-[#00ff41]"
+                                  className="mt-3 block cursor-pointer font-mono font-semibold text-[11px] uppercase tracking-widest phosphor-text underline underline-offset-4 decoration-[#00ff41]/60 transition-colors hover:decoration-[#00ff41] hover:brightness-110"
                                   onClick={() => {
                                     terminalAudio?.playEnter();
                                     triggerGlitch();
@@ -510,12 +517,12 @@ export default function TerminalHero() {
         {menuReady && (
           <div className="shrink-0 px-6 md:px-12 py-6 border-t border-[#00ff41]/20 bg-[#00ff41]/5 backdrop-blur-md relative">
             <CatLumi containerWidth={typeof window !== 'undefined' ? window.innerWidth : 800} />
-            <form onSubmit={handleSubmit} className="flex items-center relative z-10 text-[#00ff41]">
-              <div className="flex items-center shrink-0 mr-3 font-mono font-bold tracking-wide select-none">
-                <span className="opacity-70 text-sm">Send to</span>
+            <form onSubmit={handleSubmit} className="flex items-center relative z-10">
+              <div className="flex items-center shrink-0 mr-3 font-mono tracking-wide select-none">
+                <span className="phosphor-dim font-normal text-sm">Send to</span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/avatar.png" alt="DYY" className="w-7 h-7 rounded-full mx-2 border border-[#00ff41]/50 object-cover" draggable={false} />
-                <span>DYY :</span>
+                <span className="phosphor-text font-bold">DYY :</span>
               </div>
               <input
                 ref={inputRef}
@@ -526,7 +533,8 @@ export default function TerminalHero() {
                 onFocus={() => setFocusedIdx(-1)}
                 spellCheck={false}
                 autoComplete="off"
-                className="w-full bg-transparent border-none outline-none phosphor-text placeholder:text-[#008f11]/50 focus:ring-0 caret-[#00ff41] font-mono text-base tracking-wide"
+                placeholder="和 DYY 对话..."
+                className="w-full bg-transparent border-none outline-none phosphor-text font-medium placeholder:phosphor-dim placeholder:opacity-70 focus:ring-0 caret-[#00ff41] font-mono text-base tracking-wide"
               />
             </form>
           </div>
@@ -549,7 +557,9 @@ export default function TerminalHero() {
                 <img src={hoveredProject.coverImage} alt={hoveredProject.title} className="w-full h-full object-cover retro-image opacity-80" />
                 <div className="absolute top-6 left-6 flex flex-col gap-1">
                   <span className="phosphor-text bg-black/60 px-2 py-0.5 text-xs font-bold tracking-widest uppercase">[ IMG_DATA: {hoveredProject.id} ]</span>
-                  <span className="phosphor-text bg-black/60 px-2 py-0.5 text-xs tracking-widest uppercase">YEAR: {hoveredProject.year}</span>
+                  {hoveredProject.year ? (
+                    <span className="phosphor-text bg-black/60 px-2 py-0.5 text-xs tracking-widest uppercase">YEAR: {hoveredProject.year}</span>
+                  ) : null}
                 </div>
               </div>
             </div>

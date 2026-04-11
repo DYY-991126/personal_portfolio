@@ -73,7 +73,7 @@ export function ResumeDocument() {
     <article className="font-sans text-[10.5pt] leading-[1.75] text-[#101010] subpixel-antialiased selection:bg-neutral-300/60">
       <header className="mb-2 pb-8">
         <h1 className="text-[22pt] font-bold tracking-tight text-black">邓毅洋</h1>
-        <p className="mt-2 text-[11pt] font-medium text-[#141414]">求职意向：AI 产品设计师 / 设计负责人（6 年行业经验，26）</p>
+        <p className="mt-2 text-[11pt] font-medium text-[#141414]">求职意向：AI 产品设计师（3 到 5 年行业经验，26）</p>
         <div className="mt-4 grid grid-cols-3 gap-x-8 gap-y-2 text-[10.5pt] leading-[1.8] text-[#1f1f1f]">
           <ContactItem label="手机" value="176 2306 6004" />
           <ContactItem label="邮箱" value="dyyisgod@gmail.com" />
@@ -98,7 +98,7 @@ export function ResumeDocument() {
       <div className="space-y-10">
         <div className="flex items-baseline justify-between gap-6">
           <p className="text-[11pt] font-bold text-black">北京即设科技有限公司</p>
-          <p className="text-[10pt] tabular-nums text-[#2f2f2f]">4 年</p>
+          <p className="text-[10pt] tabular-nums text-[#2f2f2f]">3 年 10 个月</p>
         </div>
 
         <div className="ml-3 border-l border-neutral-300 pl-5">
@@ -158,7 +158,7 @@ export function ResumeDocument() {
       </div>
 
       <SectionTitle>实习经历</SectionTitle>
-      <div className="space-y-10">
+      <div className="space-y-8">
         <div className="flex items-baseline justify-between gap-6">
           <p className="text-[11pt] font-bold text-black">上海溥励电子商务有限公司</p>
           <p className="text-[10pt] tabular-nums text-[#2f2f2f]">半年</p>
@@ -172,10 +172,8 @@ export function ResumeDocument() {
             </div>
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2021.08 – 2022.02</p>
           </div>
-          <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>负责 B 端二手车交易平台体验设计，基于体验走查、用户反馈与业务沟通识别关键问题，结合用户行为与业务场景输出优化方案。</li>
-            <li>独立负责车辆物流模块设计，完成用户流程图、交互文档及 UI 方案输出，推动复杂业务场景下的产品体验优化。</li>
-            <li>围绕视觉表现、交互逻辑、产品结构与业务逻辑开展竞品分析，提炼差异化设计策略，支持产品持续迭代。</li>
+          <ul className="mt-3 list-disc space-y-2 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
+            <li>B2B 二手车交易 UE；独立负责车辆物流模块全流程（流程 / 交互 / UI），并以走查、反馈与竞品分析支撑体验迭代。</li>
           </ul>
         </div>
 
@@ -192,10 +190,8 @@ export function ResumeDocument() {
             </div>
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2020.08 – 2021.07</p>
           </div>
-          <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>负责产品一级页面及核心功能改版，通过用户访谈挖掘深层使用场景，制定改版方向并完成体验升级。</li>
-            <li>负责从 0 到 1 新功能模块设计，梳理业务规则并独立输出用户流程图、交互文档和 UI 方案，协同开发按期上线。</li>
-            <li>推动设计工具由 PS 迁移至 Figma，提升设计产出效率并降低设计与开发协作成本。</li>
+          <ul className="mt-3 list-disc space-y-2 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
+            <li>核心页面改版与 0–1 功能模块设计（流程、交互、UI 与上线协同）；推动团队自 PS 迁移至 Figma，提高产出与协作效率。</li>
           </ul>
         </div>
       </div>

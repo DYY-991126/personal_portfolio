@@ -89,8 +89,8 @@ export default function ProjectList({ projects }: ProjectListProps) {
                 
                 {/* Year & Client */}
                 <div className="w-full md:w-1/4 flex justify-between md:flex-col md:justify-start gap-1 font-mono text-sm text-muted-foreground">
-                  <span>{project.year}</span>
-                  <span className="md:hidden lg:inline-block">{project.client}</span>
+                  {project.year ? <span>{project.year}</span> : null}
+                  <span className="md:hidden lg:inline-block">{project.product}</span>
                 </div>
 
                 {/* Title */}
@@ -102,7 +102,11 @@ export default function ProjectList({ projects }: ProjectListProps) {
 
                 {/* Category & Arrow */}
                 <div className="w-full md:w-1/4 flex justify-between items-center text-muted-foreground">
-                  <span className="text-sm uppercase tracking-widest">{project.category}</span>
+                  {project.category ? (
+                    <span className="text-sm uppercase tracking-widest">{project.category}</span>
+                  ) : (
+                    <span />
+                  )}
                   <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-colors">
                     <ArrowRight className="w-4 h-4 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                   </div>

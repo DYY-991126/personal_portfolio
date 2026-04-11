@@ -8,6 +8,7 @@ import {
   type AIAction,
   type ScreenState,
 } from "@/lib/ai-tools";
+import { normalizeEnvSecret } from "@/lib/normalize-env-secret";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -25,7 +26,7 @@ type LLMTarget = {
 function resolveLLMTarget(): LLMTarget | null {
   const portfolioModel = process.env.PORTFOLIO_CHAT_MODEL?.trim();
 
-  const openrouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  const openrouterKey = normalizeEnvSecret(process.env.OPENROUTER_API_KEY);
   if (openrouterKey) {
     return {
       url: OPENROUTER_URL,
@@ -39,7 +40,7 @@ function resolveLLMTarget(): LLMTarget | null {
     };
   }
 
-  const openaiKey = process.env.OPENAI_API_KEY?.trim();
+  const openaiKey = normalizeEnvSecret(process.env.OPENAI_API_KEY);
   if (openaiKey) {
     return {
       url: OPENAI_URL,
@@ -63,13 +64,13 @@ function buildSystemPrompt(opts: {
 }) {
   const projectIndex = PROJECTS.map(
     (p) =>
-      `· ${p.id}｜${p.title}${p.subtitle ? `（${p.subtitle}）` : ""}｜${p.year}｜${p.role}`
+      `· ${p.id}｜${p.title}${p.subtitle ? `（${p.subtitle}）` : ""}${p.year ? `｜${p.year}` : ""}｜${p.role}`
   ).join("\n");
 
   const baseline = getPersonaBaselineContext();
 
   let prompt = `你是邓毅洋（DYY）在本站上的「数字分身」：第一人称「我」发言，语气自信、专业、友善。
-你有 6 年行业经验，角色是产品设计师，并常承担产品负责人工作（目标定义、路线图、拆解交付、推动上线）。
+你有约 3 到 5 年行业经验，角色是产品设计师，并常承担产品负责人工作（目标定义、路线图、拆解交付、推动上线）。
 
 【你的知识来源】
 1) 下方「档案」含简历全文 + 项目一览（标题、周期、角色、简介）。回答经历与个人数据时以简历为准，不要编造。
@@ -130,9 +131,24 @@ async function callLLM(
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    console.error(`OpenRouter API error [${res.status}]:`, err);
-    throw new Error(`AI 服务暂时不可用 (${res.status})`);
+    const raw = await res.text();
+    let detail = raw;
+    try {
+      const parsed = JSON.parse(raw) as { error?: { message?: string }; message?: string };
+      const msg = parsed?.error?.message ?? parsed?.message;
+      if (typeof msg === "string" && msg.length > 0) detail = msg;
+    } catch {
+      /* keep raw */
+    }
+    console.error(`LLM upstream error [${res.status}]:`, detail.slice(0, 800));
+
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(
+        "模型服务鉴权失败（401/403）：请检查 .env.local 或部署环境里的 OPENROUTER_API_KEY 是否完整、未过期，且没有多余引号、空格或换行。也可到 OpenRouter 控制台重新生成密钥。"
+      );
+    }
+
+    throw new Error(`AI 服务暂时不可用（上游 ${res.status}）`);
   }
 
   return res.json();

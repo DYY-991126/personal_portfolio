@@ -9,13 +9,13 @@ import { PROJECTS } from "@/app/data";
  */
 export const RESUME_PLAIN_FOR_LLM = `
 【邓毅洋 / DYY — 简历要点】
-求职意向：AI 产品设计师 / 设计负责人（6 年行业经验，26）
+求职意向：AI 产品设计师（3 到 5 年行业经验，26）
 联系方式：手机 17623066004 | 邮箱 dyyisgod@gmail.com | 微信 _DYYYYYD_
 
 个人摘要：
 持续负责 AI 产品与复杂系统设计工作。推动 AI 建站关键链路上线并实现首次付费率翻倍；作为产品负责人推动 AI 生成 UI 产品从 0 到 1 构建，并在冷启动阶段实现盈利。
 
-工作经历 — 北京即设科技有限公司（约 4 年）
+工作经历 — 北京即设科技有限公司（3 年 10 个月）
 · Wegic｜AI 产品设计师｜2024.12 – 2026.03｜面向全球用户的 AI 建站工具，用户量超过 10 万
   - 定义里程碑并拆解路径，推动团队于 2026.02.10 达成「50% 首次建站用户在 1 小时内完成发布」。
   - 主导生成前沟通体系从 0 到 1，将产品从工具逻辑推进为服务逻辑，首次付费率由 4% 提升至 8%。
@@ -27,8 +27,8 @@ export const RESUME_PLAIN_FOR_LLM = `
   - 负责 UI 工具与 canvas 类编辑器设计，覆盖左侧面板、工作台搜索、白板创建对象等；参与设计系统与多平台一致性。
 
 实习经历
-· 上海溥励 / 汽车街｜UE 设计师｜2021.08 – 2022.02｜B2B 汽车交易，物流模块与体验优化。
-· 重庆邮电大学移通学院网信中心 / 指尖移通｜设计组负责人｜2020.08 – 2021.07｜学生工具改版与 Figma 迁移。
+· 上海溥励 / 汽车街｜UE 设计师｜2021.08 – 2022.02｜B2B 二手车交易 UE，物流模块全流程与体验迭代。
+· 网信中心 / 指尖移通｜设计组负责人｜2020.08 – 2021.07｜核心改版、0–1 模块与 Figma 迁移。
 
 教育：重庆邮电大学移通学院 · 软件工程 · 本科｜2018.09 – 2022.06｜CET-4｜驾驶证 C1
 `.trim();
@@ -74,7 +74,7 @@ export function getPersonaBaselineContext(): string {
       p.year,
       p.role,
       p.category,
-      p.client,
+      p.product,
       p.description ? `简介：${p.description}` : "",
     ].filter(Boolean);
     return `· ${parts.join("｜")}`;
@@ -104,10 +104,14 @@ export function loadProjectCasePlainText(projectId: string): string {
 
   const file = fs.readFileSync(filePath, "utf8");
   const { data, content } = matter(file);
+  const period =
+    typeof data.year === "string" && data.year.trim()
+      ? data.year
+      : p.year?.trim();
   const fmBits = [
     `标题: ${typeof data.title === "string" ? data.title : p.title}`,
     typeof data.subtitle === "string" ? `副标题: ${data.subtitle}` : "",
-    `周期: ${typeof data.year === "string" ? data.year : p.year}`,
+    period ? `周期: ${period}` : "",
     `角色: ${typeof data.role === "string" ? data.role : p.role}`,
   ]
     .filter(Boolean)

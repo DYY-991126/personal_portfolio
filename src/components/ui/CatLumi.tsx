@@ -67,19 +67,6 @@ export function CatLumi({ containerWidth }: CatLumiProps) {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // 渲染全局指针样式（仅在追逐时变成逗猫棒）
-  useEffect(() => {
-    if (catState === "chase") {
-      document.body.style.cursor = "url('/lumi/catWand_64.png') 8 8, auto";
-    } else {
-      document.body.style.cursor = "auto";
-    }
-
-    return () => {
-      document.body.style.cursor = "auto";
-    };
-  }, [catState]);
-
   // 随机决定下一个状态的逻辑
   const decideNextAction = () => {
     if (catState === "interact" || catState === "chase") return; // 交互或追逐中不自动打断

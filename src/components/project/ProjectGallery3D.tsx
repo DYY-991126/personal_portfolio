@@ -11,6 +11,7 @@ import {
   useMotionValueEvent 
 } from "framer-motion";
 import { Project } from "@/app/data";
+import { projectCardBadgeLabel, projectHeroLabel } from "@/lib/project-display";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
@@ -53,7 +54,6 @@ interface GalleryCardProps {
   smoothMouseX: MotionValue<number>;
   smoothMouseY: MotionValue<number>;
   currentColor: string;
-  currentProjectId: string;
   activeIndex: number;
   onCardClick: (e: React.MouseEvent, index: number) => void;
   onNavigate: () => void;
@@ -73,7 +73,6 @@ const GalleryCard = memo(function GalleryCard({
   smoothMouseX,
   smoothMouseY,
   currentColor,
-  currentProjectId,
   activeIndex,
   onCardClick,
   onNavigate,
@@ -175,8 +174,24 @@ const GalleryCard = memo(function GalleryCard({
         >
           <motion.div className="absolute -inset-8" style={{ x: imageX, y: imageY }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-[1.03]" />
+            <img src={p.coverImage} alt={projectHeroLabel(p)} className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-[1.03]" />
           </motion.div>
+
+          {/* Keep the floor reflection feel, but clip it inside the card frame. */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] opacity-35"
+            style={{
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 100%)",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.coverImage}
+              alt=""
+              className="absolute inset-x-0 bottom-0 h-full w-full scale-y-[-1] object-cover blur-[14px]"
+            />
+          </div>
           
           <AnimatePresence>
             {!isActive && (
@@ -218,14 +233,15 @@ const GalleryCard = memo(function GalleryCard({
               >
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="px-2 py-1 border border-white/20 rounded-md text-[10px] font-mono text-white/70 uppercase tracking-widest backdrop-blur-md">{p.year}</span>
-                    <span className="px-2 py-1 border border-white/20 rounded-md text-[10px] font-mono text-white/70 uppercase tracking-widest backdrop-blur-md">{p.category}</span>
-                    {p.id === currentProjectId && (
-                      <span className="flex items-center gap-2 px-2 py-1 rounded-md text-[10px] font-mono text-[#00ff41] uppercase tracking-widest bg-[#00ff41]/10 border border-[#00ff41]/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse" />
-                        Current
-                      </span>
-                    )}
+                    {p.product ? (
+                      <span className="px-2 py-1 border border-white/20 rounded-md text-[10px] font-mono text-white/70 uppercase tracking-widest backdrop-blur-md">{p.product}</span>
+                    ) : null}
+                    {p.role ? (
+                      <span className="px-2 py-1 border border-white/20 rounded-md text-[10px] font-mono text-white/70 uppercase tracking-widest backdrop-blur-md">{p.role}</span>
+                    ) : null}
+                    {p.year ? (
+                      <span className="px-2 py-1 border border-white/20 rounded-md text-[10px] font-mono text-white/70 uppercase tracking-widest backdrop-blur-md">{p.year}</span>
+                    ) : null}
                   </div>
                   <h3 className="text-3xl md:text-5xl font-semibold text-white tracking-tight drop-shadow-xl">{p.title}</h3>
                 </div>
@@ -234,19 +250,6 @@ const GalleryCard = memo(function GalleryCard({
           </AnimatePresence>
         </motion.div>
 
-        {/* Floor Reflection */}
-        <div 
-          className="absolute top-full left-0 w-full h-[60%] mt-2 origin-top opacity-60"
-          style={{
-            transform: "scaleY(-1)",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 80%)",
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 80%)",
-            filter: "blur(16px)"
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={p.coverImage} alt="" className="w-full h-full object-cover rounded-3xl" />
-        </div>
       </Link>
     </motion.div>
   );
@@ -517,7 +520,7 @@ export default function ProjectGallery3D({ projects, currentProjectId, onClose, 
       >
         <div className="flex flex-col gap-1 pointer-events-auto">
           <span className="text-[10px] font-mono text-white/40 tracking-[0.3em] uppercase">
-            Gallery Space // {String(activeIndex + 1).padStart(2, '0')} — {String(projects.length).padStart(2, '0')}
+            PROJECT {String(activeIndex + 1).padStart(2, "0")} - {String(projects.length).padStart(2, "0")}
           </span>
           <div className="flex gap-1">
             {projects.map((_, i) => (
@@ -585,7 +588,6 @@ export default function ProjectGallery3D({ projects, currentProjectId, onClose, 
             smoothMouseX={smoothMouseX}
             smoothMouseY={smoothMouseY}
             currentColor={currentColor}
-            currentProjectId={currentProjectId}
             activeIndex={activeIndex}
             onCardClick={handleCardClick}
             onNavigate={() => onNavigateToProject?.()}

@@ -356,18 +356,18 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   const startupVisible = startupStage !== "home" && startupStage !== null;
   const activePointerX = useTransform(() => smoothPointerX.get() * smoothIntensity.get());
   const activePointerY = useTransform(() => smoothPointerY.get() * smoothIntensity.get());
-  const cabinetRotateX = useTransform(() => activePointerY.get() * -6.6);
-  const cabinetRotateY = useTransform(() => activePointerX.get() * 9.1);
-  const shadowShiftX = useTransform(() => activePointerX.get() * 18);
-  const shadowShiftY = useTransform(() => 22 + Math.abs(activePointerY.get()) * 7);
-  const shadowScaleX = useTransform(() => 0.9 - Math.abs(activePointerX.get()) * 0.03);
-  const shadowScaleY = useTransform(() => 0.6 - Math.abs(activePointerY.get()) * 0.05);
+  const cabinetRotateX = useTransform(() => activePointerY.get() * -1.35);
+  const cabinetRotateY = useTransform(() => activePointerX.get() * 1.85);
+  const shadowShiftX = useTransform(() => activePointerX.get() * 4);
+  const shadowShiftY = useTransform(() => 22 + Math.abs(activePointerY.get()) * 1.5);
+  const shadowScaleX = useTransform(() => 0.9 - Math.abs(activePointerX.get()) * 0.007);
+  const shadowScaleY = useTransform(() => 0.6 - Math.abs(activePointerY.get()) * 0.011);
   const shadowOpacity = useTransform(() => 0.34 + smoothIntensity.get() * 0.16);
-  const haloShiftX = useTransform(() => activePointerX.get() * 28);
-  const haloShiftY = useTransform(() => activePointerY.get() * 18);
+  const haloShiftX = useTransform(() => activePointerX.get() * 6);
+  const haloShiftY = useTransform(() => activePointerY.get() * 4);
   const haloOpacity = useTransform(() => 0.2 + smoothIntensity.get() * 0.12);
-  const screenGlareX = useTransform(() => activePointerX.get() * -20);
-  const screenGlareY = useTransform(() => activePointerY.get() * -14);
+  const screenGlareX = useTransform(() => activePointerX.get() * -4);
+  const screenGlareY = useTransform(() => activePointerY.get() * -3);
 
   const screenFilterStyle = useMemo<CSSProperties>(() => {
     const normalizedBrightness = brightness / 100;
@@ -507,7 +507,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
         ref={stageRef}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-        className="absolute left-[0.8vw] right-[0.8vw] top-[1.2vh] bottom-[1.4vh] [perspective:1950px] [perspective-origin:50%_42%] md:left-[1.4vw] md:right-[1.4vw] md:top-[1.8vh] md:bottom-[2vh]"
+        className="absolute left-[0.8vw] right-[0.8vw] top-[1.2vh] bottom-[1.4vh] [perspective:3200px] [perspective-origin:50%_42%] md:left-[1.4vw] md:right-[1.4vw] md:top-[1.8vh] md:bottom-[2vh]"
       >
         <motion.div
           aria-hidden

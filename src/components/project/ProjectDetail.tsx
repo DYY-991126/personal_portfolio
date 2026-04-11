@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from "framer-motion";
 import { Project } from "@/app/data";
+import { projectHeroLabel } from "@/lib/project-display";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -179,7 +180,7 @@ export default function ProjectDetail({
         <article>
           
           {/* Header Section */}
-          <header className="mb-20">
+          <header className={project.hideDetailCover ? "mb-28 md:mb-32" : "mb-20"}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -188,7 +189,7 @@ export default function ProjectDetail({
             >
               <h1
                 id="project-title"
-                data-label={project.subtitle ? `${project.title} ${project.subtitle}` : project.title}
+                data-label={projectHeroLabel(project)}
                 className="text-5xl md:text-8xl font-semibold tracking-tighter text-foreground leading-[1.1] max-w-5xl"
               >
                 {project.title}
@@ -205,46 +206,45 @@ export default function ProjectDetail({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="grid grid-cols-2 gap-8 py-10 border-y border-border/50 text-sm w-full"
-              style={{ gridTemplateColumns: `repeat(${[project.client, project.role, project.category, project.year].filter(Boolean).length}, minmax(0, 1fr))` }}
+              className="grid grid-cols-1 gap-8 py-10 border-y border-border/50 text-sm w-full md:grid-cols-3"
             >
-              {project.client && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Client</span>
-                  <span className="font-medium text-foreground">{project.client}</span>
-                </div>
-              )}
               <div className="flex flex-col gap-2">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Role</span>
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Product
+                </span>
+                <span className="font-medium text-foreground">{project.product ?? "-"}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Role
+                </span>
                 <span className="font-medium text-foreground">{project.role}</span>
               </div>
-              {project.category && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Category</span>
-                  <span className="font-medium text-foreground">{project.category}</span>
-                </div>
-              )}
               <div className="flex flex-col gap-2">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Year</span>
-                <span className="font-medium text-foreground">{project.year}</span>
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Year
+                </span>
+                <span className="font-medium text-foreground">{project.year ?? "-"}</span>
               </div>
             </motion.div>
           </header>
 
           {/* Cover Image */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full aspect-[16/9] md:aspect-[21/9] mb-28 relative rounded-2xl overflow-hidden bg-muted border border-border/30 shadow-sm"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={project.coverImage} 
-              alt={project.title} 
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
+          {!project.hideDetailCover && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full aspect-[16/9] md:aspect-[21/9] mb-28 relative rounded-2xl overflow-hidden bg-muted border border-border/30 shadow-sm"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={project.coverImage} 
+                alt={project.title} 
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          )}
 
           {/* Description */}
           {project.description && (

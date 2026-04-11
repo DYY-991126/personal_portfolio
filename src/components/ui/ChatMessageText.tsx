@@ -43,7 +43,7 @@ function ContactLink({ contact, text, theme }: { contact: { label: string, value
   return (
     <span 
       onClick={handleCopy}
-      className="cursor-pointer underline decoration-[#00ff41]/50 underline-offset-2 hover:bg-[#00ff41]/20 hover:text-[#00ff41] transition-colors relative inline-block group"
+      className="cursor-pointer phosphor-text font-semibold underline decoration-[#00ff41]/65 underline-offset-2 hover:bg-[#00ff41]/20 hover:brightness-110 transition-colors relative inline-block group"
       title={`Click to copy ${contact.label}`}
     >
       {text}
@@ -100,7 +100,11 @@ export function ChatMessageText({ content, theme = "retro", animate = false }: P
         if (contact) {
           return <ContactLink key={i} contact={contact} text={part} theme={theme} />;
         }
-        return <span key={i}>{part}</span>;
+        return (
+          <span key={i} className={theme === "retro" ? "phosphor-dim font-normal" : undefined}>
+            {part}
+          </span>
+        );
       })}
       {animate && visibleLength < content.length && (
         <span className={theme === "retro" ? "caret-block ml-1" : "inline-block w-1.5 h-3 ml-0.5 align-middle bg-foreground animate-pulse"} />

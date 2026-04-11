@@ -7,6 +7,7 @@ import {
 } from "@/lib/project2/generation-skills";
 import { loadSkill } from "@/lib/project2/skill-loader";
 import { getSkillContract } from "@/lib/project2/skills";
+import { normalizeEnvSecret } from "@/lib/normalize-env-secret";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = process.env.PROJECT2_TEXT_MODEL || "anthropic/claude-sonnet-4";
@@ -69,7 +70,7 @@ async function callOpenRouterJSON({
   system: string;
   user: string;
 }) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = normalizeEnvSecret(process.env.OPENROUTER_API_KEY);
   if (!apiKey) {
     throw new Error("Missing OPENROUTER_API_KEY");
   }
@@ -94,6 +95,13 @@ async function callOpenRouterJSON({
 
   if (!res.ok) {
     const errorText = await res.text();
+    if (res.status === 401 || res.status === 403) {
+      throw new Project2APIError(
+        "OpenRouter 鉴权失败（401/403）：请检查 OPENROUTER_API_KEY。",
+        res.status,
+        errorText
+      );
+    }
     throw new Project2APIError(`OpenRouter error (${res.status})`, res.status, errorText);
   }
 

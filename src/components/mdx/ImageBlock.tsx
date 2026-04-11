@@ -9,6 +9,8 @@ interface ImageBlockProps {
   alt?: string;
   caption?: string;
   layout?: "full" | "half" | "side";
+  /** 更小上下边距，适合栅格内并排展示 */
+  tight?: boolean;
   gallerySrcs?: string;
   galleryCaptions?: string;
 }
@@ -23,6 +25,7 @@ export default function ImageBlock({
   alt = "",
   caption,
   layout = "full",
+  tight = false,
   gallerySrcs,
   galleryCaptions,
 }: ImageBlockProps) {
@@ -87,7 +90,7 @@ export default function ImageBlock({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`${widthClass} relative group my-16 ${hasGallery ? "cursor-pointer" : ""}`}
+        className={`${widthClass} relative group ${tight ? "my-4 md:my-6" : "my-16"} ${hasGallery ? "cursor-pointer" : ""}`}
         onClick={hasGallery ? () => { setActiveIdx(0); setLightboxOpen(true); } : undefined}
       >
         <div className="overflow-hidden bg-muted border border-border/30">
@@ -101,7 +104,9 @@ export default function ImageBlock({
           />
         </div>
         {caption && (
-          <figcaption className="text-sm text-muted-foreground text-center mt-6 font-medium">
+          <figcaption
+            className={`text-sm text-muted-foreground text-center font-medium ${tight ? "mt-3" : "mt-6"}`}
+          >
             {caption}
           </figcaption>
         )}

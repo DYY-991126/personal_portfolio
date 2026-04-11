@@ -7,9 +7,10 @@ const CONTENT_DIR = path.join(process.cwd(), "src/content/projects");
 export interface ProjectFrontmatter {
   id: string;
   title: string;
-  category: string;
-  year: string;
-  client: string;
+  subtitle?: string;
+  category?: string;
+  year?: string;
+  product?: string;
   role: string;
   coverImage: string;
   description?: string;

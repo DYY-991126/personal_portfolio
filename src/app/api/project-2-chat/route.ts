@@ -13,6 +13,7 @@ import {
 import { loadSkill } from "@/lib/project2/skill-loader";
 import { getSkillContract, inferScenarioSkill } from "@/lib/project2/skills";
 import type { Project2UIToolCall as UIToolCall } from "@/lib/project2/ui-tools";
+import { normalizeEnvSecret } from "@/lib/normalize-env-secret";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = process.env.PROJECT2_TEXT_MODEL || "anthropic/claude-sonnet-4";
@@ -469,7 +470,14 @@ async function callLLM({
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error(`Project 2 AI error [${res.status}]:`, errorText);
+    console.error(`Project 2 AI error [${res.status}]:`, errorText.slice(0, 800));
+    if (res.status === 401 || res.status === 403) {
+      throw new Project2APIError(
+        "OpenRouter 鉴权失败（401/403）：请检查 OPENROUTER_API_KEY 是否完整、无多余引号或空格，并在控制台确认密钥有效。",
+        res.status,
+        errorText
+      );
+    }
     throw new Project2APIError(
       `OpenRouter error (${res.status})`,
       res.status,
@@ -561,7 +569,7 @@ function buildToolResultMessages(
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = normalizeEnvSecret(process.env.OPENROUTER_API_KEY);
   if (!apiKey) {
     return NextResponse.json({ error: "OPENROUTER_API_KEY not configured" }, { status: 500 });
   }
