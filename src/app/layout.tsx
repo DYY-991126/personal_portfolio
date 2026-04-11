@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat, Montserrat } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import NoiseOverlay from "@/components/ui/NoiseOverlay";
@@ -50,6 +51,7 @@ export default function RootLayout({
             </main>
           </div>
         </SmoothScroll>
+        <Analytics />
       </body>
     </html>
   );
