@@ -16,7 +16,7 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     id: "project-1",
-    title: "AI 建站产品的里程碑规划和拆解",
+    title: "AI 建站产品里程碑规划和拆解",
     product: "Wegic",
     year: "2025",
     role: "目标定义&路径拆解",

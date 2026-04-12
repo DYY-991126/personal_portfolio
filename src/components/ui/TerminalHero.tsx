@@ -36,7 +36,7 @@ const INTRO_LINES: IntroPart[][] = [
     "- ",
     { href: "/projects/project-7", text: "👉 全球首创 Design System 生成 UI: 从产品到商业化" },
   ],
-  ["- ", { href: "/projects/project-1", text: "👉 AI 建站产品的里程碑规划和拆解" }],
+  ["- ", { href: "/projects/project-1", text: "👉 AI 建站产品里程碑规划和拆解" }],
   ["- ", { href: "/projects/project-2", text: "👉 产品首付率翻倍, 从服务洞察到需求上线" }],
   ["- ", { href: "/projects/project-4", text: "👉 Agentic 驱动的网页视觉行业标杆" }],
   [
