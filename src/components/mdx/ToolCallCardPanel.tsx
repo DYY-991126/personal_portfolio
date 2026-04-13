@@ -27,10 +27,16 @@ export interface ToolCallCardPanelProps {
   children?: ReactNode;
   /** Back 按钮点击回调 */
   onBack?: () => void;
+  /** 为 true 时不展示 Back（用于并排预览等只读场景） */
+  hideBack?: boolean;
 }
 
 /** 任务面板：Header (80px) + 卡片容器，卡片间距 16，左右边距 20 */
-export default function ToolCallCardPanel({ children, onBack }: ToolCallCardPanelProps) {
+export default function ToolCallCardPanel({
+  children,
+  onBack,
+  hideBack = false,
+}: ToolCallCardPanelProps) {
   return (
     <div
       className="flex h-full w-full flex-col"
@@ -40,7 +46,7 @@ export default function ToolCallCardPanel({ children, onBack }: ToolCallCardPane
     >
       {/* Header：80px，logo + 文案 | Back 按钮 */}
       <header
-        className="flex shrink-0 w-full items-center justify-between px-5"
+        className={`flex shrink-0 w-full items-center px-5 ${hideBack ? "justify-start" : "justify-between"}`}
         style={{ height: 80 }}
       >
         <div className="flex flex-col gap-0.5">
@@ -56,7 +62,7 @@ export default function ToolCallCardPanel({ children, onBack }: ToolCallCardPane
           </div>
           <span className="text-sm text-black/50">Say what everyone is up to.</span>
         </div>
-        <BackButton onClick={onBack} />
+        {!hideBack && <BackButton onClick={onBack} />}
       </header>
 
       {/* 容器：单列，卡片从上往下堆叠，间距紧凑 */}

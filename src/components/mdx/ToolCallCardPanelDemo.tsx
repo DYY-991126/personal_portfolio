@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ProgressBarDemo from "./ProgressBarDemo";
 import ToolCallCardPanel from "./ToolCallCardPanel";
 import ToolCallCardBase from "./ToolCallCardBase";
@@ -11,10 +11,10 @@ import WorkProductVideoGrid from "./WorkProductVideoGrid";
 import WorkProductResearchChips from "./WorkProductResearchChips";
 import WorkProductCodeStream from "./WorkProductCodeStream";
 
-const CARD_DELAY_MS = 2500;
-const DONE_DELAY_MS = 1200;
+export const CARD_DELAY_MS = 2500;
+export const DONE_DELAY_MS = 1200;
 
-const ALL_CARDS: Array<{
+export const ALL_CARDS: Array<{
   taskTitle: string;
   avatar: string;
   description: string;
@@ -126,13 +126,28 @@ export function ToolCallCardPanelCards() {
   );
 }
 
+export interface ToolCallCardPanelDemoProps {
+  /** false：先展示进度卡片，点击底部展开 Wegic Studio 面板（与 Agent Looping 小节一致） */
+  initialShowPanel?: boolean;
+}
+
 /** 面板演示：模拟 AI 运行过程，7 种任务类型渐进式出现；支持 Back 返回进度条卡片 */
-export default function ToolCallCardPanelDemo() {
-  const [showPanel, setShowPanel] = useState(true);
+export default function ToolCallCardPanelDemo({
+  initialShowPanel = true,
+}: ToolCallCardPanelDemoProps) {
+  const [showPanel, setShowPanel] = useState(initialShowPanel);
   const [visibleCount, setVisibleCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
 
+  const openPanel = useCallback(() => {
+    setVisibleCount(0);
+    setCompletedCount(0);
+    setShowPanel(true);
+  }, []);
+
   useEffect(() => {
+    if (!showPanel) return;
+
     const addCard = () => {
       setVisibleCount((v) => {
         if (v >= ALL_CARDS.length) return v;
@@ -140,17 +155,18 @@ export default function ToolCallCardPanelDemo() {
         return v + 1;
       });
     };
+
     const initial = setTimeout(addCard, 500);
     const interval = setInterval(addCard, CARD_DELAY_MS);
     return () => {
       clearTimeout(initial);
       clearInterval(interval);
     };
-  }, []);
+  }, [showPanel]);
 
   return (
     <div
-      className="my-10 flex justify-center items-center bg-[#f3f4f6] py-10 min-h-[780px]"
+      className="my-10 flex h-[780px] justify-center items-center bg-[#f3f4f6] py-10"
       onWheel={(e) => e.stopPropagation()}
     >
       {showPanel ? (
@@ -173,7 +189,7 @@ export default function ToolCallCardPanelDemo() {
         </div>
       ) : (
         <div className="w-[340px] shrink-0">
-          <ProgressBarDemo embedded onExpandClick={() => setShowPanel(true)} />
+          <ProgressBarDemo embedded onExpandClick={openPanel} />
         </div>
       )}
     </div>

@@ -22,6 +22,7 @@ import WorkProductDiagnosticsFiles from "./WorkProductDiagnosticsFiles";
 import ToolCallCardDemo1 from "./ToolCallCardDemo1";
 import ToolCallCardPanel from "./ToolCallCardPanel";
 import ToolCallCardPanelDemo from "./ToolCallCardPanelDemo";
+import AgentLoopingProgressPanelSplit from "./AgentLoopingProgressPanelSplit";
 import WorkProductTodoCard from "./WorkProductTodoCard";
 import WorkProductImageGrid from "./WorkProductImageGrid";
 import WorkProductVideoGrid from "./WorkProductVideoGrid";
@@ -178,6 +179,7 @@ export function getMDXComponents(): MDXComponents {
     ToolCallCardDemo1,
     ToolCallCardPanel,
     ToolCallCardPanelDemo,
+    AgentLoopingProgressPanelSplit,
     WorkProductTodoCard,
     WorkProductImageGrid,
     WorkProductVideoGrid,
