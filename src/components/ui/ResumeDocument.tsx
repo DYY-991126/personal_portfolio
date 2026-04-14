@@ -113,8 +113,8 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2024.12 – 2026.03</p>
           </div>
           <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>主导 Wegic 2.0 里程碑目标定义与跨团队拆解，围绕“生成到发布”关键链路推进产品迭代，推动用户发布率从 <strong className="font-bold text-black">10% 提升至 50%</strong>。</li>
-            <li>从 0 到 1 设计网站生成前沟通体系，推动首次付费率从 <strong className="font-bold text-black">4% 提升至 8%</strong>，并支撑用户更高效地完成网站发布。</li>
+            <li>主导 Wegic 2.0 里程碑目标定义与跨团队拆解，围绕“生成到发布”关键链路推进产品迭代，推动用户发布率从 <strong className="font-bold text-black">13.3% 提升至 50.3%</strong>。</li>
+            <li>从 0 到 1 设计网站生成前沟通体系，推动首次付费率从 <strong className="font-bold text-black">3.83% 提升至 8.08%</strong>，并支撑用户更高效地完成网站发布。</li>
             <li>主导 Agent 架构下的建站体验重设计，使用户进入编辑页后进入对话编辑的时间较 1.0 显著缩短，推动 Wegic 2.0 订阅转化较 1.0 提升 <strong className="font-bold text-black">1 倍</strong>。</li>
             <li>推动 Agentic 高质量整站生成能力上线，建立可复用的网页生成方法，生成网页满意度达到 <strong className="font-bold text-black">80%</strong>，并使网站视觉质量在同类产品中形成明显优势。</li>
           </ul>
@@ -132,7 +132,7 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2024.06 – 2024.11</p>
           </div>
           <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>主导全球第一款基于 Design System 生成 UI 的产品从 0 到 1 上线与商业化落地，首月实现 <strong className="font-bold text-black">$3,000</strong> 收入，付费率达到 <strong className="font-bold text-black">3.48%</strong>，登上 <strong className="font-bold text-black">Product Hunt #3</strong>，并获得社媒传播与用户好评。</li>
+            <li>主导全球第一款基于 Design System 生成 UI 的产品从 0 到 1 上线与商业化落地，首月实现 <strong className="font-bold text-black">$3162</strong> 收入，付费率达到 <strong className="font-bold text-black">3.48%</strong>，登上 <strong className="font-bold text-black">Product Hunt #3</strong>，并获得社媒传播与用户好评。</li>
             <li>主导产品 workflow 架构设计与优化、核心交互链路和界面设计，并输出关键功能模块 PRD；推动生成成本降低 <strong className="font-bold text-black">90%</strong>。</li>
           </ul>
         </div>
