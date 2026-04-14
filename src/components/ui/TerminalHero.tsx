@@ -9,7 +9,6 @@ import { PROJECTS, Project } from "@/app/data";
 import type { AIAction, ScreenState } from "@/lib/ai-tools";
 import { terminalAudio } from "@/lib/audio";
 import { ChatMessageText } from "@/components/ui/ChatMessageText";
-import { CatLumi } from "@/components/ui/CatLumi";
 import { ResumeModal } from "@/components/ui/ResumeModal";
 
 // ── Constants ──
@@ -523,8 +522,7 @@ export default function TerminalHero() {
         {/* Input */}
         {menuReady && (
           <div className="shrink-0 px-6 md:px-12 py-6 border-t border-[#00ff41]/20 bg-[#00ff41]/5 backdrop-blur-md relative">
-            <CatLumi containerWidth={typeof window !== 'undefined' ? window.innerWidth : 800} />
-            <form onSubmit={handleSubmit} className="flex items-center relative z-10">
+            <form onSubmit={handleSubmit} className="flex items-center relative">
               <div className="flex items-center shrink-0 mr-3 font-mono tracking-wide select-none">
                 <span className="phosphor-dim font-normal text-sm">Send to</span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

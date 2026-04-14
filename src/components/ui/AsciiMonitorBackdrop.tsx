@@ -356,6 +356,8 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
   const startupVisible = startupStage !== "home" && startupStage !== null;
   const activePointerX = useTransform(() => smoothPointerX.get() * smoothIntensity.get());
   const activePointerY = useTransform(() => smoothPointerY.get() * smoothIntensity.get());
+  const cabinetRotateX = useTransform(() => activePointerY.get() * -1.35);
+  const cabinetRotateY = useTransform(() => activePointerX.get() * 1.85);
   const shadowShiftX = useTransform(() => activePointerX.get() * 4);
   const shadowShiftY = useTransform(() => 22 + Math.abs(activePointerY.get()) * 1.5);
   const shadowScaleX = useTransform(() => 0.9 - Math.abs(activePointerX.get()) * 0.007);
@@ -505,7 +507,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
         ref={stageRef}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-        className="absolute left-[0.8vw] right-[0.8vw] top-[1.2vh] bottom-[1.4vh] md:left-[1.4vw] md:right-[1.4vw] md:top-[1.8vh] md:bottom-[2vh]"
+        className="absolute left-[0.8vw] right-[0.8vw] top-[1.2vh] bottom-[1.4vh] [perspective:3200px] [perspective-origin:50%_42%] md:left-[1.4vw] md:right-[1.4vw] md:top-[1.8vh] md:bottom-[2vh]"
       >
         <motion.div
           aria-hidden
@@ -518,18 +520,28 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             opacity: shadowOpacity,
           }}
         />
-        <div className="ascii-monitor-cabinet absolute inset-0 rounded-[2.4rem] md:rounded-[3.2rem]">
+        <motion.div
+          className="ascii-monitor-cabinet absolute inset-0 transform-gpu rounded-[2.4rem] will-change-transform md:rounded-[3.2rem]"
+          style={{
+            rotateX: cabinetRotateX,
+            rotateY: cabinetRotateY,
+            transformStyle: "preserve-3d",
+            transformOrigin: "50% 42%",
+          }}
+        >
           <div className="ascii-monitor-shadow absolute inset-[0.55rem] rounded-[2rem] md:inset-[0.7rem] md:rounded-[2.8rem]" />
           <div className="ascii-monitor-rim absolute inset-[1rem] rounded-[1.7rem] md:inset-[1.35rem] md:rounded-[2.2rem]" />
 
           {/* Monitor Screen Frame / Bezel */}
           <div
             className="absolute left-[3.1%] right-[3.1%] top-[3.8%] bottom-[13.8%] z-0 overflow-hidden rounded-[1.5rem] border-2 border-[#151715] bg-[#2a2d2a] shadow-[inset_0_10px_24px_rgba(255,255,255,0.05),inset_0_-16px_30px_rgba(0,0,0,0.62),inset_0_0_0_3px_rgba(7,8,7,0.28),0_8px_18px_rgba(0,0,0,0.26)] md:rounded-[1.9rem]"
+            style={{ transform: "translateZ(54px)" }}
           >
             <div
               aria-hidden
               className="pointer-events-none absolute inset-[0.08rem] rounded-[1.45rem] md:rounded-[1.82rem]"
               style={{
+                transform: "translateZ(10px)",
                 background: "linear-gradient(180deg, rgba(58, 62, 58, 0.26), rgba(30, 33, 30, 0.06))",
                 boxShadow:
                   "inset 0 0 0 1px rgba(74, 79, 74, 0.82), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -12px 18px rgba(0,0,0,0.28)",
@@ -539,6 +551,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
               aria-hidden
               className="pointer-events-none absolute left-[0.22rem] right-[0.22rem] top-[0.08rem] z-[2] h-[0.22rem] rounded-t-[1.18rem] md:left-[0.28rem] md:right-[0.28rem] md:h-[0.26rem] md:rounded-t-[1.48rem]"
               style={{
+                transform: "translateZ(18px)",
                 background:
                   "linear-gradient(180deg, rgba(78, 84, 78, 0.92) 0%, rgba(54, 58, 54, 0.92) 54%, rgba(31, 34, 31, 0.48) 100%)",
                 boxShadow:
@@ -548,6 +561,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             <div className="absolute inset-x-[0.34rem] top-[0.14rem] bottom-[0.06rem] rounded-[1.4rem] bg-[#060a08] shadow-[inset_0_1px_0_rgba(255,255,255,0.03),inset_0_18px_30px_rgba(0,0,0,0.34),inset_0_-24px_34px_rgba(0,0,0,0.56),0_0_0_1px_rgba(0,0,0,0.42)] md:inset-x-[0.46rem] md:top-[0.16rem] md:bottom-[0.08rem] md:rounded-[1.8rem]">
               <div
                 className="ascii-screen-inner absolute inset-x-[0.18rem] top-[0.24rem] bottom-[0.02rem] overflow-hidden rounded-[1.26rem] border-[4px] border-[#0a0a0a] bg-[#03110b] shadow-[inset_0_2px_0_rgba(255,255,255,0.04),inset_0_22px_36px_rgba(0,0,0,0.28),inset_0_-28px_44px_rgba(0,0,0,0.44)] md:inset-x-[0.24rem] md:top-[0.3rem] md:bottom-[0.04rem] md:rounded-[1.66rem]"
+                style={{ transform: "translateZ(-10px)" }}
               >
                 <div className="ascii-screen-curvature absolute inset-0" />
                 <div className="ascii-screen-lightfall absolute inset-0" />
@@ -653,6 +667,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
               aria-hidden
               className="pointer-events-none absolute left-[0.22rem] right-[0.22rem] bottom-[0.08rem] z-[2] h-[0.22rem] rounded-b-[1.18rem] md:left-[0.28rem] md:right-[0.28rem] md:h-[0.26rem] md:rounded-b-[1.48rem]"
               style={{
+                transform: "translateZ(18px)",
                 background:
                   "linear-gradient(180deg, rgba(31, 34, 31, 0.48) 0%, rgba(54, 58, 54, 0.92) 46%, rgba(78, 84, 78, 0.92) 100%)",
                 boxShadow:
@@ -672,7 +687,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             className="pointer-events-none absolute right-[2.2%] top-[1.5%] z-[22] h-auto w-[clamp(4.75rem,19vmin,8.5rem)] object-contain select-none md:right-[2.4%] md:top-[1.6%] md:w-[clamp(5.25rem,20vmin,9.25rem)]"
             style={
               {
-                transform: "rotate(11deg)",
+                transform: "translateZ(96px) rotate(11deg)",
                 filter:
                   "drop-shadow(0 1px 0 rgba(255,255,255,0.22)) drop-shadow(0 3px 5px rgba(0,0,0,0.28))",
                 opacity: 0.97,
@@ -685,6 +700,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
             aria-hidden
             className="pointer-events-none absolute inset-x-0 z-[5] overflow-visible"
             style={{
+              transform: "translateZ(86px)",
               top: "min(79%, calc(71% + 0.75vh))",
               bottom: "max(4.85rem, min(13%, 6.5rem))",
             }}
@@ -718,7 +734,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
           {/* Retro MP3: magnetically docked under the cabinet lip */}
           <div
             className="absolute left-[48%] bottom-[11.8%] z-20 flex justify-center"
-            style={{ transform: "translate(calc(-50% + 248px), 49px)" }}
+            style={{ transform: "translate(calc(-50% + 248px), 49px) translateZ(94px)" }}
           >
             <div className="relative">
               <span className="pointer-events-none absolute left-1/2 top-[-8px] h-[12px] w-[84%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.26)_0%,rgba(0,0,0,0.12)_44%,rgba(0,0,0,0)_80%)] blur-[2px]" />
@@ -740,6 +756,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
           {/* Bottom Control Panel */}
           <div
             className="absolute left-[6%] right-[6%] bottom-[4%] z-[6]"
+            style={{ transform: "translateZ(34px)" }}
           >
             <div className="relative flex items-center justify-between">
               <div
@@ -794,7 +811,7 @@ export default function AsciiMonitorBackdrop({ children }: AsciiMonitorBackdropP
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
