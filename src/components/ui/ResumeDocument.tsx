@@ -90,7 +90,7 @@ export function ResumeDocument() {
       </header>
 
       <p className="mb-8 text-[10.5pt] leading-[1.8] text-[#111111]">
-        持续负责 AI 产品与复杂系统设计工作。推动 AI 建站关键链路上线并实现首次付费率翻倍；作为产品负责人推动 AI 生成 UI 产品从 0 到 1 构建，并在冷启动阶段实现盈利。
+        聚焦 AI 产品与工具类设计，擅长在高不确定性阶段完成目标定义、关键链路设计与跨职能推进，兼顾体验质量、系统落地与商业结果。
       </p>
 
       <SectionTitle>工作经历</SectionTitle>
@@ -113,9 +113,10 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2024.12 – 2026.03</p>
           </div>
           <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>定义里程碑目标并拆解实现路径，推动团队于 2026.02.10 达成“<strong className="font-bold text-black">50% 首次建站用户在 1 小时内完成发布</strong>”的里程碑。</li>
-            <li>主导生成前沟通体系从 0 到 1 落地，将产品从工具逻辑推进为服务逻辑，实现<strong className="font-bold text-black">首次付费率由 4% 提升至 8%</strong>。</li>
-            <li>负责 Agent 架构下的 0 - 1 产品设计，并推动 Gemini 3 成为正式生成方案，使网页生成质量与同类产品形成显性差距，同时推动产品订阅率由 <strong className="font-bold text-black">0.2% 提升至 0.4%</strong>。</li>
+            <li>主导 Wegic 2.0 里程碑目标定义与跨团队拆解，围绕“生成到发布”关键链路推进产品迭代，推动用户发布率从 <strong className="font-bold text-black">10% 提升至 50%</strong>。</li>
+            <li>从 0 到 1 设计网站生成前沟通体系，推动首次付费率从 <strong className="font-bold text-black">4% 提升至 8%</strong>，并支撑用户更高效地完成网站发布。</li>
+            <li>主导 Agent 架构下的建站体验重设计，使用户进入编辑页后进入对话编辑的时间较 1.0 显著缩短，推动 Wegic 2.0 订阅转化较 1.0 提升 <strong className="font-bold text-black">1 倍</strong>。</li>
+            <li>推动 Agentic 高质量整站生成能力上线，建立可复用的网页生成方法，生成网页满意度达到 <strong className="font-bold text-black">80%</strong>，并使网站视觉质量在同类产品中形成明显优势。</li>
           </ul>
         </div>
 
@@ -131,10 +132,8 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2024.06 – 2024.11</p>
           </div>
           <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>推动产品从 0 到 1 构建，以及上线商业化方案；在冷启动阶段，实现 <strong className="font-bold text-black">3.48% 的付费率</strong>，ROI &gt; 1，产品持续盈利。</li>
-            <li>AI 层：负责 AI workflow 架构设计，以及架构下相关模块的实现定义。</li>
-            <li>产品层：负责核心功能、界面结构与交互流程设计；建立数据、生成产物与成本监控；制定商业化策略，包括成本测算与预估、定价与权益设计。</li>
-            <li>冷启动及上线后：推进 GTM、用户答疑、反馈收集与迭代计划。</li>
+            <li>主导全球第一款基于 Design System 生成 UI 的产品从 0 到 1 上线与商业化落地，首月实现 <strong className="font-bold text-black">$3,000</strong> 收入，付费率达到 <strong className="font-bold text-black">3.48%</strong>，登上 <strong className="font-bold text-black">Product Hunt #3</strong>，并获得社媒传播与用户好评。</li>
+            <li>主导产品 workflow 架构设计与优化、核心交互链路和界面设计，并输出关键功能模块 PRD；推动生成成本降低 <strong className="font-bold text-black">90%</strong>。</li>
           </ul>
         </div>
 
@@ -150,8 +149,8 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2022.05 – 2024.06</p>
           </div>
           <ul className="mt-4 list-disc space-y-3 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>长期负责 UI 设计工具与 canvas 类编辑器的产品设计工作，通过用户研究与反馈分析定位关键问题，覆盖编辑器左侧面板、工作台搜索、白板创建对象等核心模块，形成操作类交互与复杂系统设计能力。</li>
-            <li>参与设计系统构建与多平台一致性建设，支持产品能力扩展与研发协作效率提升。</li>
+            <li>负责 UI 设计工具的核心模块体验设计/用户调研/产品调研报告工作。覆盖元素创建交互体系构建、图层面板、工作台搜索、颜色选择器等核心模块</li>
+            <li>参与底层重构阶段的设计系统建设，整理并沉淀 token、图标、基础组件与复合界面模块。</li>
           </ul>
         </div>
 
@@ -173,7 +172,7 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2021.08 – 2022.02</p>
           </div>
           <ul className="mt-3 list-disc space-y-2 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>B2B 二手车交易 UE；独立负责车辆物流模块全流程（流程 / 交互 / UI），并以走查、反馈与竞品分析支撑体验迭代。</li>
+            <li>独立负责 B2B 二手车交易平台车辆物流模块的流程梳理、交互方案与 UI 设计，并结合走查、用户反馈与竞品分析持续推进体验迭代。</li>
           </ul>
         </div>
 
@@ -191,7 +190,7 @@ export function ResumeDocument() {
             <p className="text-[10pt] tabular-nums text-[#2f2f2f]">2020.08 – 2021.07</p>
           </div>
           <ul className="mt-3 list-disc space-y-2 pl-[1.15em] text-[10pt] leading-[1.72] text-[#111111] marker:text-[#2f2f2f]">
-            <li>核心页面改版与 0–1 功能模块设计（流程、交互、UI 与上线协同）；推动团队自 PS 迁移至 Figma，提高产出与协作效率。</li>
+            <li>负责校园生活一体化工具的核心页面改版与 0–1 功能模块设计，覆盖流程、交互、UI 与上线协同；推动团队由 PS 迁移至 Figma，提升设计产出与协作效率。</li>
           </ul>
         </div>
       </div>
