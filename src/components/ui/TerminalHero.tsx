@@ -40,7 +40,7 @@ const INTRO_LINES: IntroPart[][] = [
   ["- ", { href: "/projects/project-2", text: "👉 产品首付率翻倍, 从服务洞察到需求上线" }],
   ["- ", { href: "/projects/project-4", text: "👉 Agentic 驱动的网页视觉行业标杆" }],
   [
-    "这些经历让我同时具备系统思考、交付能力和业务影响力，期待与你共事。",
+    "这些经历让我同时具备系统思考、交付能力和业务影响力，期待与你共事。点击下方查看我的简历或全部项目",
   ],
 ];
 
@@ -423,7 +423,7 @@ export default function TerminalHero() {
                         <Link
                           key={i}
                           href={part.href}
-                          className="cursor-pointer phosphor-text font-semibold underline underline-offset-4 decoration-[#00ff41]/70 decoration-1 hover:decoration-[#00ff41] hover:brightness-110"
+                          className="inline-flex items-center min-h-[44px] py-2.5 px-2 -mx-2 -my-1 cursor-pointer phosphor-text font-semibold underline underline-offset-4 decoration-[#00ff41]/70 decoration-1 hover:decoration-[#00ff41] hover:brightness-110"
                           onClick={() => {
                             terminalAudio?.playEnter();
                             triggerGlitch();
@@ -441,13 +441,7 @@ export default function TerminalHero() {
 
           {/* Main Menu */}
           {mounted && (
-            <div className="mb-10">
-              <div className="flex mb-6">
-                <span className="phosphor-dim mr-4 shrink-0 mt-0.5">❯</span>
-                <span className="phosphor-dim font-normal tracking-wide">
-                  点击下方查看我的简历或全部项目
-                </span>
-              </div>
+            <div className="mb-10 mt-6">
               {menuReady && (
                 <div className="pl-6 space-y-1">
                   {MAIN_MENU.map((item, idx) => {
@@ -462,7 +456,7 @@ export default function TerminalHero() {
                           if (projectListOpen) { setProjectListOpen(false); setFocusedIdx(idx); }
                           handleMenuSelect(idx);
                         }}
-                        className={`flex items-center cursor-pointer transition-colors px-3 py-2 -ml-3 ${focused ? "bg-[#00ff41]/20" : "hover:bg-[#00ff41]/10"}`}
+                        className={`flex w-full max-w-full min-h-[44px] items-center cursor-pointer transition-colors px-3 py-3 -ml-3 ${focused ? "bg-[#00ff41]/20" : "hover:bg-[#00ff41]/10"}`}
                       >
                         <span className={`mr-3 w-4 text-center ${focused ? "phosphor-text font-bold" : "text-transparent"}`}>█</span>
                         <span
@@ -504,7 +498,7 @@ export default function TerminalHero() {
                               {msg.role === "dyy" && msg.resume ? (
                                 <button
                                   type="button"
-                                  className="mt-3 block cursor-pointer font-mono font-semibold text-[11px] uppercase tracking-widest phosphor-text underline underline-offset-4 decoration-[#00ff41]/60 transition-colors hover:decoration-[#00ff41] hover:brightness-110"
+                                  className="mt-3 inline-flex min-h-[44px] items-center py-2 px-1 -mx-1 cursor-pointer font-mono font-semibold text-[11px] uppercase tracking-widest phosphor-text underline underline-offset-4 decoration-[#00ff41]/60 transition-colors hover:decoration-[#00ff41] hover:brightness-110"
                                   onClick={() => {
                                     terminalAudio?.playEnter();
                                     triggerGlitch();
