@@ -115,11 +115,19 @@ function UploadMediaTile({
       }`}
     >
       <Image
-        src={tone === "video" ? "/project_cover/Macintosh.jpg" : "/project_cover/图像2.jpg"}
+        src="/projects/project-2/cover.jpg"
         alt=""
         fill
         className="object-cover"
+        sizes={tone === "video" ? "132px" : "74px"}
       />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(0,0,0,0.06))]" />
+      <div className="absolute left-[10px] top-[10px] flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-[5px] border border-white/55 bg-white/78 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-[#85a26f]">
+          <path d="M2.25 10.75L5.2 7.55C5.46 7.27 5.9 7.26 6.17 7.53L7.36 8.73L9.78 5.9C10.06 5.57 10.58 5.57 10.86 5.9L11.75 6.95V11.75H2.25V10.75Z" fill="currentColor" fillOpacity="0.9" />
+          <circle cx="4.2" cy="4.15" r="1.15" fill="#d8ecb9" />
+        </svg>
+      </div>
       {tone === "video" ? (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/92 text-black/72 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
